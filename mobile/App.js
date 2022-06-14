@@ -3,8 +3,8 @@ import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { LoginView } from './views/login';
-import { HomeView } from './views/home';
+import { AuthView, authView } from './views/authView';
+import { HomeView } from './views/homeView';
 
 const Stack = createStackNavigator();
 
@@ -15,8 +15,8 @@ const App = () => {
         screenOptions={{headerShown: false}} // removes the header visible at the top of each Page
       >
         <Stack.Screen
-          name='Login View'
-          component={LoginView}
+          name='Auth View'
+          component={AuthView}
         />
         <Stack.Screen
           name='Home View'

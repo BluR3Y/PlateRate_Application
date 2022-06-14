@@ -7,11 +7,10 @@ import User from '../models/user.js';
 
 
 const signup = (req, res, next) => {
-    console.log('triggered');
-    User.findOne({ where : {
-        email: req.body.email,
-    }})
+    console.log(`passed: ${req.body.email}  ${req.body.password}`);
+    User.findOne({email: req.body.email})
     .then(dbUser => {
+        console.log(`dbFind: ${dbUser}`);
         if(dbUser) {
             return res.status(409).json({message: 'email already exists'});
         }else if(req.body.email && req.body.password) {
