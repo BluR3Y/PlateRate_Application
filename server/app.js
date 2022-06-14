@@ -1,5 +1,7 @@
 import express from 'express';
 
+import router from './routes/routes.js';
+
 const app = express();
 
 app.use(express.urlencoded({ extended:true }));
@@ -11,5 +13,7 @@ app.use((_, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
 });
+
+app.use(router);
 
 app.listen(5000);

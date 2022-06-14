@@ -6,7 +6,7 @@ export function LoginView({ navigation }) {
     // navigation.navigate('Home View');
     return (
         <View>
-            <Text>Hello There Maties!!</Text>
+            <Text>Hello There Bro!</Text>
         </View>
     )
 }
