@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ScrollView, Button, Image } from 'react-native';
 import styles from '../styles/homeStyles';
 
 export function HomeView({ navigation }) {
     return (
-        <View>
-            <Text>There!</Text>
-        </View>
+        <ScrollView>
+            <View style={styles.header}>
+
+            </View>
+        </ScrollView>
     )
 }

@@ -14,10 +14,10 @@ const App = () => {
       <Stack.Navigator
         screenOptions={{headerShown: false}} // removes the header visible at the top of each Page
       >
-        <Stack.Screen
+        {/* <Stack.Screen
           name='Auth View'
           component={AuthView}
-        />
+        /> */}
         <Stack.Screen
           name='Home View'
           component={HomeView}
