@@ -1,8 +1,5 @@
-import mongoose from 'mongoose';
-const { Schema } = mongoose;
-
-import mongoConn from '../utils/mongodb.js';
-
+const mongoose = require('mongoose');
+const mongoConn = require('../utils/mongodb.js');
 
 const addressSchema = new mongoose.Schema({
     street: String,
@@ -26,6 +23,5 @@ const userSchema = new mongoose.Schema({
     },
     address: addressSchema,
 });
-const User = mongoose.model('User', userSchema);
 
-export default User;
+module.exports = mongoose.model('User', userSchema);

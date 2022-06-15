@@ -1,12 +1,8 @@
-import bcrypt from 'bcrypt';
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const User = require('../models/user.js');
 
-import jwt from 'jsonwebtoken';
-
-import User from '../models/user.js';
-
-
-
-const signup = (req, res, next) => {
+module.exports.signup = (req, res, next) => {
     console.log(`passed: ${req.body.email}  ${req.body.password}`);
     User.findOne({email: req.body.email})
     .then(dbUser => {
@@ -43,4 +39,3 @@ const signup = (req, res, next) => {
     });
 };
 
-export { signup };

@@ -1,11 +1,9 @@
-import express from 'express';
-
-import { signup } from '../controllers/auth.js';
+const express = require('express');
+const Auth = require('../controllers/auth.js');
 
 const router = express.Router();
 
-
-router.post('/signup', signup);
+router.post('/signup', Auth.signup);
 
 router.get('/public', (req, res, next) => {
     res.status(200).json({message: 'here is your public resources'});
@@ -16,4 +14,4 @@ router.use('/', (req, res, next) => {
     console.log('sheesh');
 })
 
-export default router;
+module.exports = router;
