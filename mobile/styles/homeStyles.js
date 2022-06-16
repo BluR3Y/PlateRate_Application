@@ -52,7 +52,13 @@ const styles = StyleSheet.create({
         marginLeft: 5,
         fontSize: 15,
         color: '#494949',
-    }
+    },
+    providerFilters: {
+        width: '100%',
+        height:55,
+        flexDirection: 'row',
+        backgroundColor: 'red',
+    },
 });
 
 export default styles;

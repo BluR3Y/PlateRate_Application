@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StatusBar, Button } from 'react-native';
 import styles from '../styles/homeStyles';
+
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import CheckMark from '../content/images/check_mark.svg';
 
@@ -39,6 +41,9 @@ export function HomeView({ navigation }) {
                 <RatingFilter filterName='Pickup'/>
                 <RatingFilter filterName='Delivery'/>
                 <RatingFilter filterName='Order In/Ahead'/>
+            </View>
+            <View style={styles.providerFilters}>
+
             </View>
         </ScrollView>
     )

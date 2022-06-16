@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import { AuthView, authView } from './views/authView';
 import { HomeView } from './views/homeView';
+import { TestView } from './views/tester';
 
 const Stack = createStackNavigator();
 
@@ -18,9 +19,13 @@ const App = () => {
           name='Auth View'
           component={AuthView}
         /> */}
-        <Stack.Screen
+        {/* <Stack.Screen
           name='Home View'
           component={HomeView}
+        /> */}
+        <Stack.Screen
+          name='Test View'
+          component={TestView}
         />
       </Stack.Navigator>
     </NavigationContainer>
