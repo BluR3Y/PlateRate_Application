@@ -66,15 +66,20 @@ const styles = StyleSheet.create({
         height: 45,
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 2,
+        borderWidth: 1,
         borderColor: 'black',
         borderRadius: 2,
+        overflow: 'hidden',
+    },
+    providerPicker: {
+        width: '100%',
+        backgroundColor: 'yellow'
     },
 
     providerDateCont: {
         width: '40%',
         height: 45,
-        borderWidth: 2,
+        borderWidth: 1,
         borderColor: 'black',
         borderRadius: 2,
     },
