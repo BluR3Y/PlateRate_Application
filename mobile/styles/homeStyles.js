@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     },
     ratingFilters : {
         width: '100%',
-        height: 50,
+        height: 45,
         flexDirection: 'row',
         alignItems: 'center',
     }, ratingFilterItem: {
@@ -63,25 +63,26 @@ const styles = StyleSheet.create({
     },
     providerCont: {
         width: '50%',
-        height: 45,
+        height: 40,
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
         borderColor: 'black',
-        borderRadius: 2,
+        borderRadius: 5,
         overflow: 'hidden',
     },
     providerPicker: {
         width: '100%',
-        backgroundColor: 'yellow'
+        backgroundColor: 'yellow',
+        
     },
 
     providerDateCont: {
         width: '40%',
-        height: 45,
+        height: 40,
         borderWidth: 1,
         borderColor: 'black',
-        borderRadius: 2,
+        borderRadius: 5,
     },
 });
 

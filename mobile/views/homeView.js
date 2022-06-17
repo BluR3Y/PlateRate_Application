@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Image, StatusBar, Button } fr
 import styles from '../styles/homeStyles';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
+import RNPickerSelect, { defaultStyles } from 'react-native-picker-select';
 
 import CheckMark from '../content/images/check_mark.svg';
 
@@ -27,14 +27,27 @@ const RatingFilter = (props) => {
 
 const ProviderSelector = () => {
 
+    const sports = [
+        {
+          label: 'Football',
+          value: 'football',
+        },
+        {
+          label: 'Baseball',
+          value: 'baseball',
+        },
+        {
+          label: 'Hockey',
+          value: 'hockey',
+        },
+      ];
+
     return (
         <View style={styles.providerCont}>
-            <Picker
-                style={styles.providerPicker}
-            >
-                <Picker.Item label='Java' value='java' />
-                <Picker.Item label='JavaScript' value='javaScript' />
-            </Picker>
+            <RNPickerSelect
+                items={sports}
+                
+            />
         </View>
     );
 }
