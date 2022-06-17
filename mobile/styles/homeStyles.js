@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
     header: {
         width: '100%',
         height: 65,
@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
         height: 45,
         flexDirection: 'row',
         alignItems: 'center',
+        backgroundColor: '#FFFFFF'
     }, ratingFilterItem: {
         width: 'auto',
         height: 30,
@@ -57,33 +58,89 @@ const styles = StyleSheet.create({
         width: '100%',
         height:55,
         flexDirection: 'row',
-        backgroundColor: 'red',
+        backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'space-evenly',
+        marginTop: 2,
+    },
+    caretCont: {
+        width: 10,
+        height: 15,
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        position: 'absolute',
+        right: 8,
+        top: '30%',
+        elevation: -1,
     },
     providerCont: {
         width: '50%',
         height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
         borderWidth: 1,
-        borderColor: 'black',
-        borderRadius: 5,
+        borderColor: '#BDC6C1',
+        borderRadius: 4,
         overflow: 'hidden',
+        position: 'relative'
     },
-    providerPicker: {
-        width: '100%',
-        backgroundColor: 'yellow',
-        
-    },
-
     providerDateCont: {
         width: '40%',
         height: 40,
         borderWidth: 1,
-        borderColor: 'black',
-        borderRadius: 5,
+        borderColor: '#BDC6C1',
+        borderRadius: 4,
+        position: 'relative',
+        justifyContent: 'center',
     },
+    DateInputCont: {
+        width: 135,
+        height: '90%',
+        backgroundColor: '#CDD4D0',
+        position: 'absolute',
+        right: 0,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    DateItemCont: {
+        width: '49.6%',
+        height: '100%',
+        justifyContent: 'center',
+        backgroundColor: '#FFFFFF'
+    },
+    DateDisplay: {
+        width: '78%',
+        height: '100%',
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+    }
 });
 
-export default styles;
+export const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+        fontSize: 16,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        borderWidth: 1,
+        borderColor: 'gray',
+        borderRadius: 4,
+        color: 'black',
+        paddingRight: 30, // to ensure the text is never behind the icon
+      },
+      inputAndroid: {
+        // fontSize: 15,
+        // paddingHorizontal: 10,
+        // paddingVertical: 8,
+        // borderWidth: 0.5,
+        // borderColor: 'purple',
+        // borderRadius: 8,
+        // color: 'black',
+        // paddingRight: 30, // to ensure the text is never behind the icon
+        width: '100%',
+        height: '100%',
+        padding: 0,
+        paddingLeft: 5,
+        fontSize: 16,
+      },
+})
+
+// export default { styles, pickerSelectStyles};
