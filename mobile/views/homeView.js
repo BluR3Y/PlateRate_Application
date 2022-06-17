@@ -46,7 +46,7 @@ const ProviderSelector = () => {
         <View style={styles.providerCont}>
             <RNPickerSelect
                 items={sports}
-                
+                onValueChange={(value) => console.log(value)}
             />
         </View>
     );
