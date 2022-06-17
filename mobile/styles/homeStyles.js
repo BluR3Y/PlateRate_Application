@@ -58,6 +58,25 @@ const styles = StyleSheet.create({
         height:55,
         flexDirection: 'row',
         backgroundColor: 'red',
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+    },
+    providerCont: {
+        width: '50%',
+        height: 45,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: 'black',
+        borderRadius: 2,
+    },
+
+    providerDateCont: {
+        width: '40%',
+        height: 45,
+        borderWidth: 2,
+        borderColor: 'black',
+        borderRadius: 2,
     },
 });
 

@@ -24,6 +24,24 @@ const RatingFilter = (props) => {
     )
 }
 
+const ProviderSelector = () => {
+
+    return (
+        <View style={styles.providerCont}>
+
+        </View>
+    );
+}
+
+const ProviderDateSelector = () => {
+    
+    return (
+        <View style={styles.providerDateCont}>
+
+        </View>
+    );
+}
+
 export function HomeView({ navigation }) {
     return (
         <ScrollView>
@@ -43,7 +61,8 @@ export function HomeView({ navigation }) {
                 <RatingFilter filterName='Order In/Ahead'/>
             </View>
             <View style={styles.providerFilters}>
-
+                <ProviderSelector/>
+                <ProviderDateSelector/>
             </View>
         </ScrollView>
     )

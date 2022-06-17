@@ -19,14 +19,14 @@ const App = () => {
           name='Auth View'
           component={AuthView}
         /> */}
-        {/* <Stack.Screen
+        <Stack.Screen
           name='Home View'
           component={HomeView}
-        /> */}
-        <Stack.Screen
+        />
+        {/* <Stack.Screen
           name='Test View'
           component={TestView}
-        />
+        /> */}
       </Stack.Navigator>
     </NavigationContainer>
   )
