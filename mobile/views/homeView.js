@@ -152,16 +152,6 @@ const ProviderDateSelector = () => {
 export function HomeView({ navigation }) {
     return (
         <ScrollView>
-            <View style={styles.header}>
-                <Image
-                    style={styles.headerLogo}
-                    source={require('../content/images/platerate_logo.png')}
-                />
-                <Image
-                    style={styles.headerAward}
-                    source={require('../content/images/award.png')}
-                />
-            </View>
             <View style={styles.ratingFilters}>
                 <RatingFilter filterName='Pickup'/>
                 <RatingFilter filterName='Delivery'/>
@@ -170,6 +160,9 @@ export function HomeView({ navigation }) {
             <View style={styles.providerFilters}>
                 <ProviderSelector/>
                 <ProviderDateSelector/>
+            </View>
+            <View style={{width:'100%', height: 1000}}>
+
             </View>
         </ScrollView>
     )

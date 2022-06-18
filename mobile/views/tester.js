@@ -25,6 +25,10 @@ export function TestView({navigation}) {
         setMode(currentMode);
     }
 
+    const goHome = () => {
+        navigation.navigate('Home');
+    }
+
     return (
         <View style={styles.container}>
             <Text style={{fontWeight: 'bold', fontSize: 20}}>{text}</Text>
@@ -45,8 +49,11 @@ export function TestView({navigation}) {
                     onChange={onChange}
                 />
             )}
-
             <StatusBar style='auto' />
+        
+            <View style={{margin: 20}}>
+                <Button title='Go To Home' onPress={() => goHome()}/>
+            </View>
         </View>
     );
 }
