@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StatusBar, Button, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { styles, pickerSelectStyles } from '../styles/homeStyles';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -8,6 +8,25 @@ import RNPickerSelect, { defaultStyles } from 'react-native-picker-select';
 import CheckMark from '../content/images/check_mark.svg';
 import Calendar from '../content/images/calendar.svg';
 import Caret from '../content/images/triangle.svg';
+
+const OrderNotification = (props) => {
+
+    const [show, setShow] = useState(props.newOrders? true : false);
+
+    const onPress = () => {
+        setShow(!show);
+    }
+
+    return (
+        <TouchableOpacity 
+            onPress={onPress}
+            style={[styles.orderNotification, {display: (show? 'flex' : 'none')}]}>
+            <View style={{borderBottomWidth: 2}}>
+                <Text style={styles.notificationText}>{`${props.newOrders} New Orders`}</Text>
+            </View>
+        </TouchableOpacity>
+    );
+}
 
 const RatingFilter = (props) => {
 
@@ -77,8 +96,6 @@ const DateSelectorItem = (props) => {
     const [date, setDate] = useState(new Date());
     const [text, setText] = useState(`${props.title}`);
     const [show, setShow] = useState(false);
-    // const [dateFirstPart, setFirstPart] = useState(date.getDate()+'/'+(date.getMonth()+1));
-    // const [dateSecondPart, setSecondPart] = useState(date.getFullYear());
 
     const onChange = (event, selectedDate) => {
         const currentDate = selectedDate || date;
@@ -92,15 +109,10 @@ const DateSelectorItem = (props) => {
 
     return (
         <TouchableOpacity style={styles.DateItemCont} onPress={() => setShow(!show)}>
-            {/* <Text style={{
-                fontSize: (text === `${props.title}`? 15 : 13),
-                marginLeft: (text === `${props.title}`? 10 : 0), 
-                }}
-            >{text}</Text> */}
-
             <Text style={{
                 fontSize: 15,
                 marginLeft: 10,
+                color: '#979797',
                 display: (text == props.title? 'flex' : 'none')
             }}>{props.title}</Text>
 
@@ -108,7 +120,8 @@ const DateSelectorItem = (props) => {
                 <Text style={{
                     fontSize: 14,
                     marginLeft: 13,
-                    marginLeft: 5
+                    marginLeft: 5,
+                    color: 'black',
                 }}>
                     {date.getDate()+'/'+(date.getMonth()+1)}
                 </Text>
@@ -116,7 +129,8 @@ const DateSelectorItem = (props) => {
                     fontSize: 14,
                     marginLeft: 13,
                     fontWeight: 'bold',
-                    marginLeft: 5
+                    marginLeft: 5,
+                    color: '#979797',
                 }}>
                     {date.getFullYear()}
                 </Text>
@@ -152,6 +166,7 @@ const ProviderDateSelector = () => {
 export function HomeView({ navigation }) {
     return (
         <ScrollView>
+            <OrderNotification newOrders={9} />
             <View style={styles.ratingFilters}>
                 <RatingFilter filterName='Pickup'/>
                 <RatingFilter filterName='Delivery'/>

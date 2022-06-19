@@ -2,6 +2,17 @@ import React from "react";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
+    orderNotification: {
+        width: '100%',
+        height: 85,
+        backgroundColor: '#FCE20A', 
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    notificationText: {
+        fontSize: 25,
+        color: 'black',
+    },
     ratingFilters : {
         width: '100%',
         height: 45,
@@ -74,7 +85,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     DateInputCont: {
-        width: 135,
+        width: '85%',
         height: '90%',
         backgroundColor: '#CDD4D0',
         position: 'absolute',
@@ -108,14 +119,6 @@ export const pickerSelectStyles = StyleSheet.create({
         paddingRight: 30, // to ensure the text is never behind the icon
       },
       inputAndroid: {
-        // fontSize: 15,
-        // paddingHorizontal: 10,
-        // paddingVertical: 8,
-        // borderWidth: 0.5,
-        // borderColor: 'purple',
-        // borderRadius: 8,
-        // color: 'black',
-        // paddingRight: 30, // to ensure the text is never behind the icon
         width: '100%',
         height: '100%',
         padding: 0,
