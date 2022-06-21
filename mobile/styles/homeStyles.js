@@ -3,18 +3,16 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
     orderNotification: {
-        width: '100%',
-        height: 85,
+        height: 78,
         backgroundColor: '#FCE20A', 
         justifyContent: 'center',
         alignItems: 'center',
     },
     notificationText: {
-        fontSize: 25,
+        fontSize: 22,
         color: 'black',
     },
     ratingFilters : {
-        width: '100%',
         height: 45,
         flexDirection: 'row',
         alignItems: 'center',
@@ -62,9 +60,9 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-evenly',
         alignItems: 'center',
         position: 'absolute',
-        right: 8,
-        top: '30%',
         elevation: -1,
+        top: '50%',
+        transform: [{translateY: -7}]
     },
     providerCont: {
         width: '50%',
@@ -104,6 +102,109 @@ export const styles = StyleSheet.create({
         height: '100%',
         flexDirection: 'column',
         justifyContent: 'space-evenly',
+    },
+    orderList: {
+        flex: 1,
+        alignItems:'center',
+        paddingBottom: 20,
+    },
+    orderCont: {
+        width: '95%',
+        marginTop:20,
+        borderRadius: 5,
+        overflow:'hidden',
+        backgroundColor: '#FFFFFF',
+        borderWidth: 2.5,
+        borderColor: '#E4E6E5'
+    },
+    orderHeader: {
+        backgroundColor: '#F9F9F9',
+    },
+    orderHeaderInfo: {
+        height:40,
+        flexDirection: 'row',
+        alignItems:'center',
+    },
+    orderExpandBtn: {
+        width:40,
+        height:40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 3
+    },
+    orderBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 8,
+    },
+    orderAmountCont: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+    },
+    paidCont: {
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingHorizontal: 8,
+        paddingVertical: 0.5,
+        borderColor: 'green',
+        marginRight: 8,
+        backgroundColor: '#E6F3EC',
+    },
+    orderReservationCont: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    reservationBtns: {
+        width: '46.75%',
+        height: 43,
+        borderWidth: 1,
+        borderColor: 'red',
+        marginTop: 5,
+        marginBottom: 12,
+        borderRadius:6,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    declineReservationBtn: {
+        borderColor: 'red',
+        marginLeft: 10
+    },
+    confirmReservationBtn: {
+        borderColor: 'green',
+        marginRight: 10,
+        backgroundColor: 'green',
+    },
+    orderBody: {
+        width: '95%',
+        alignSelf: 'center'
+    },
+    accumulativeInfo: {
+        
+    },
+    accumInfoText: {
+        fontSize: 18,
+        color: '#4A4A4A',
+        marginVertical: 4,
+    },
+    daysCont: {
+        width: 50,
+        height: 27,
+        borderWidth: 1,
+        borderRadius: 4,
+        marginHorizontal: 8,
+        position: 'relative'
+    },
+    pickerDays: {
+        width:'100%',
+        height: '100%',
+        padding: 0,
+    },
+    spent_n_daysCont: {
+        flexDirection: 'row',
+        alignItems: 'center',
+
     }
 });
 
