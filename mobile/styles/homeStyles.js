@@ -115,7 +115,7 @@ export const styles = StyleSheet.create({
         overflow:'hidden',
         backgroundColor: '#FFFFFF',
         borderWidth: 2.5,
-        borderColor: '#E4E6E5'
+        borderColor: '#E4E6E5',
     },
     orderHeader: {
         backgroundColor: '#F9F9F9',
@@ -178,10 +178,8 @@ export const styles = StyleSheet.create({
     },
     orderBody: {
         width: '95%',
-        alignSelf: 'center'
-    },
-    accumulativeInfo: {
-        
+        alignSelf: 'center',
+        paddingVertical: 8,
     },
     accumInfoText: {
         fontSize: 18,
@@ -204,7 +202,45 @@ export const styles = StyleSheet.create({
     spent_n_daysCont: {
         flexDirection: 'row',
         alignItems: 'center',
-
+    },
+    orderSectionBtns: {
+        height: 50,
+        marginVertical: 16,
+        flexDirection: 'row',
+    },
+    orderSelectionBtn: {
+        width: '25%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    orderSelectionText: {
+        textAlign: 'center',
+        fontSize: 14,
+        marginHorizontal: 8,
+    },
+    sectionItem: {
+        // height: 80,
+    },
+    reservationCustomerInfo: {
+        fontSize: 18,
+        color: '#4A4A4A',
+        marginVertical: 2
+    }, 
+    reservationTimeCont: {
+        flexDirection: 'row',
+        backgroundColor: 'blue',
+        marginVertical: 10,
+    },
+    reservationDateSelector: {
+        backgroundColor: 'red',
+        width: '55%',
+        flexDirection: 'column',
+    },
+    reservationDateTimeCont: {
+        height:38,
+        borderWidth: 1,
+        borderRadius: 4, 
     }
 });
 
