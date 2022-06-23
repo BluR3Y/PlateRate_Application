@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { styles, pickerSelectStyles } from '../styles/homeStyles';
+import { format12Hours, formatDate } from '../utilities/functions';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect, { defaultStyles } from 'react-native-picker-select';
 import Collapsible from 'react-native-collapsible';
-import { Input } from 'react-native-elements';
 
 import CheckMark from '../content/images/check_mark.svg';
 import Calendar from '../content/images/calendar.svg';
@@ -214,250 +214,210 @@ const ProviderDateSelector = () => {
 }
 
 const ReservationDateSelector = () => {
-
     const [showDate, setShowDate] = useState(false);
-    const [showTime, setShowTime] = useState(false);
     const [date, setDate] = useState(new Date());
+    const [timeSelector, setTimeSelector] = useState(null);
+    const [isDefault, setIsDefault] = useState(true);
+    const [save_notify, setSave_Notify] = useState(false);
+
+    const showTime = (event, selectedDate) => {
+        if(event.type === 'set') {
+            setTimeSelector(
+                <DateTimePicker
+                    testID='ReservationTime'
+                    value={selectedDate}
+                    mode={'time'}
+                    display='default'
+                    onChange={updateDate}
+                />
+            )
+        }
+        setShowDate(!showDate);
+    }
 
     const updateDate = (event, selectedDate) => {
-        // const currentDate = selectedDate || date;
-        // setShow(Platform.OS === 'ios');
-        // setDate(currentDate);
-        console.log(selectedDate);
-        setShowDate(Platform.OS === 'ios');
-        setShowTime(!showTime);
+        if(event.type === 'set') {
+            setDate(selectedDate);
+            setIsDefault(false);
+        }
+        setTimeSelector(null);
     }
 
     return (
         <View style={styles.reservationDateSelector}>
-            <Text style={{fontSize:18, marginBottom: 6}}>Reservation Date/Time</Text>
+            <Text style={styles.reservationInputText}>Reservation Date/Time</Text>
             <TouchableOpacity style={styles.reservationDateTimeCont} onPress={() => setShowDate(!showDate)}>
 
+                <Text style={[styles.reservationSelectorText,{color: (isDefault? '#979797' : 'black')}]}>
+                    {formatDate(date) + '  ' + format12Hours(date)}
+                </Text>
 
                 {showDate && (
                     <DateTimePicker
-                        testID='ReservationDateTime'
+                        testID='ReservationDate'
                         value={date}
-                        mode={'show'}
+                        mode={'date'}
                         display='default'
-                        onChange={updateDate}
+                        onChange={showTime}
                     />
                 )}
+                {timeSelector}
+                
+                <UpDownCaret caretStyle={{right: 6}}/>
 
+            </TouchableOpacity>
+            <View style={styles.reservationCheckBox}>
+                <TouchableOpacity style={styles.reservationCheckBoxBtn} onPress={() => setSave_Notify(!save_notify)}>
+                    <View style={{borderWidth:1, borderRadius: 4, height: 15, width: 15, backgroundColor: (save_notify? 'green' : null)}}>
+                        <CheckMark width={12} height={12} fill={'#FFF'} />
+                    </View>
+                    <Text style={{marginLeft: 6, fontSize: 16, color: '#4A4A4A'}}>Save and notify customer</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
+}
+
+const ReservationArrivalSelector = () => {
+    
+    const [time, setTime] = useState(new Date());
+    const [showTime, setShowTime] = useState(false);
+    const [isDefault, setIsDefault] = useState(true);
+
+    const updateTime = (event, selectedTime) => {
+        if(event.type === 'set'){
+            setTime(selectedTime);
+            setIsDefault(false);
+        }
+        setShowTime(false);
+    }
+
+    return (
+        <View style={styles.ReservationArrivalSelector}>
+            <Text style={[styles.reservationInputText]}>Customer Arrived</Text>
+            <TouchableOpacity style={[styles.ReservationArrivalCont]} onPress={() => setShowTime(!showTime)}>
+
+            <Text style={[styles.reservationSelectorText, {color: (isDefault? '#979797' : 'black')}]}>{format12Hours(time)}</Text>
+
+            {showTime && (
+                <DateTimePicker
+                    testID='ReservationArrivalTime'
+                    value={time}
+                    mode={'time'}
+                    display='default'
+                    onChange={updateTime}
+                />
+            )}
+
+            <UpDownCaret caretStyle={{right:6}}/>
             </TouchableOpacity>
         </View>
     );
 }
 
-const ReservationDateTimeSelector = () => {
-    const [startingDateTimeValue, setStartingDateTimeValue] = useState(null);
-    const [toDateValue, setToDateValue] = useState(null);
-    const [toTimeValue, setToTimeValue] = useState(null);
-    const [isStartingDateTimePickerVisible, setIsStartingDateTimePickerVisible] = useState(false);
-    const [isToDatePickerVisible, setIsToDatePickerVisible] = useState(false);
-    const [isToTimePickerVisible] = useState(false);
-    const [dateOrTimeValue, setDateOrTimeValue] = useState(false);
-    const [datePickerVisible, setDatePickerVisible] = useState(false);
-    const [timePickerVisible, setTimePickerVisible] = useState(false);
+const ReservationLengthSelectors = () => {
 
-    const saveStartingDateTime = (value) => {
-        console.log('saveStartingDateTime - value: ', value);
-        setStartingDateTimeValue(value);
+    const [isDefaultHours, setIsDefaultHours] = useState(true);
+    const [isDefaultMinutes, setIsDefaultMinutes] = useState(true);
+
+    const hours = [{ label: '1 hour', value: '1' }];
+    for(var i = 2; i <= 10; i++) {
+        hours.push({
+            label: `${i} hours`,
+            value: `${i}`
+        });
     }
-
-    const saveEndingDate = (value) => {
-        console.log("saveEndingDate - value:", value);
-        setToDateValue(value);
-    }
-
-    const saveEndingTime = (value) => {
-        console.log("saveEndingTime - value:", value);
-        setToTimeValue(value);
-    }
-
-    const fRenderDateTimePicker = (dateTimePickerVisible, visibilityVariableName, dateTimePickerMode, defaultValue, saveValueFunctionName) => {
-        return (
-            <View>
-                {Platform.OS === 'ios' && dateTimePickerVisible &&
-                    (<DateTimePicker
-                        mode={dateTimePickerMode}
-                        value={defaultValue}
-
-                        onChange={ (event, value) => {
-                            this.setState({
-                                dateOrTimeValue: value,
-
-                                [visibilityVariableName]: Platform.OS === 'ios' ? true : false,
-                            });
-
-                            if (event.type === "set") {
-                                saveValueFunctionName(value);
-                            }
-
-                        }}
-                    />)
-                }
-                {Platform.OS === 'android' && dateTimePickerVisible && this.state.datePickerVisible &&
-                    (<DateTimePicker
-                        mode={"date"}
-                        display='default'
-                        value={defaultValue}
-
-                        onChange={ (event, value) => {
-                            this.setState({
-                                dateOrTimeValue: value,
-                                datePickerVisible: false,
-                            });
-
-                            if (event.type === "set" && dateTimePickerMode === "datetime") {
-                                this.setState({
-                                    timePickerVisible: true,
-                                });
-                            }
-
-                            else if (event.type === "set" && dateTimePickerMode === "date") {
-                                this.setState({ 
-                                    [visibilityVariableName]: Platform.OS === 'ios' ? true : false, 
-                                }); 
-
-                                saveValueFunctionName(value);
-                            }
-                        }}
-                    />)
-                }
-                {Platform.OS === 'android' && dateTimePickerVisible && this.state.timePickerVisible &&
-                    (<DateTimePicker
-                        mode={"time"}
-                        display='spinner' 
-                        is24Hour={false} 
-                        value={defaultValue}
-
-                        onChange={(event, value) => {
-                            let newDateTime = value;
-
-                            if (event.type === "set" && dateTimePickerMode === "datetime") {
-
-                                newDateTime = this.state.dateOrTimeValue;
-
-                                const newHours = value.getHours();
-                                const newMinutes = value.getMinutes();
-
-                                newDateTime.setHours(newHours);
-                                newDateTime.setMinutes(newMinutes);
-                                newDateTime.setSeconds(0);
-                            }
-
-                            this.setState({
-                                dateOrTimeValue: newDateTime,
-                                datePickerVisible: false,
-                                timePickerVisible: false,
-
-                                [visibilityVariableName]: Platform.OS === 'ios' ? true : false,
-                            });
-
-                            if (event.type === "set") {
-                                saveValueFunctionName(newDateTime);
-                                // console.log("visibilityVariableName:", [visibilityVariableName], " - newDateTime:", newDateTime); 
-                            } 
-                        }}
-
-                    />)
-                } 
-            </View>
-        );
-    };
-
-    const fRenderDatePicker = (mode, visibilityVariableName) => {
-        switch (mode) {
-            case "datetime":
-                return this.setState({ [visibilityVariableName]: true, datePickerVisible: true, timePickerVisible: false });
-            case "date":
-                return this.setState({ [visibilityVariableName]: true, datePickerVisible: true, timePickerVisible: false });
-            case "time":
-                return this.setState({ [visibilityVariableName]: true, datePickerVisible: false, timePickerVisible: true });
+    
+    const minutes = [
+        {
+            label: '15 mins',
+            value: '15',
+        },
+        {
+            label: '30 mins',
+            value: '30',
+        },
+        {
+            label: '45 mins',
+            value: '45',
         }
+    ]
+
+    const onChangeHours = (value) => {
+        setIsDefaultHours(false);
+    }
+
+    const onChangeMinutes = (value) => {
+        setIsDefaultMinutes(false);
     }
 
     return (
-        <View>
-            <TouchableOpacity
-                // THE FOLLOWING ARGUMENT VALUE IS THE (1st place OF 2) PLACES, WHICH DIFFERENTIATE BETWEEN THE DIFFERENT MODES (DATETIME, DATE & TIME)
-                onPress={() => {
-                    // this.setState({ isStartingDateTimePickerVisible: true, });
-                    this.fRenderDatePicker("datetime", "isStartingDateTimePickerVisible");
-                }}>
-                <Input
-                    label='Starting Date & Time'
-                    placeholder={"01/01/2019 - 09:00 AM"}
-                    editable={false}
-                    value={this.fFormatDateTime(this.state.StartingDateTimeValue)}
-                />
-            </TouchableOpacity>
-
-            {// This function would render the necessary DateTimePicker only if the relevant state variable is set (above)
-            this.fRenderDateTimePicker(
-                this.state.isStartingDateTimePickerVisible,
-                "isStartingDateTimePickerVisible",
-
-                // THE FOLLOWING ARGUMENT VALUE IS THE (2nd place OF 2) PLACES, WHICH DIFFERENTIATE BETWEEN THE DIFFERENT MODES (DATETIME, DATE & TIME)
-                "datetime",
-
-                defaultShiftStartDateTime,
-
-                // This is my function, which saves the selected value to my app's state. 
-                // YOU NEED TO REPLACE IT WITH SOMETHING RELEVANT TO YOUR APP. 
-                this.saveStartingDateTime,
-            )}
-
-
-            <TouchableOpacity
-                onPress={() => {
-                    // this.setState({ isToDatePickerVisible: true, });
-                    this.fRenderDatePicker("date", "isToDatePickerVisible");
-                }}>
-                <Input
-                    label='Ending Date'
-                    placeholder={"01/01/2019"}
-                    editable={false}
-                    value={this.fFormatDateTime(this.state.ToDateValue, "date")}
-                />
-            </TouchableOpacity>
-            {this.fRenderDateTimePicker(
-                this.state.isToDatePickerVisible,
-                "isToDatePickerVisible",
-                "date",
-                defaultShiftEndDateTime,
-
-                // This is my function, which saves the selected value to my app's state. 
-                // YOU NEED TO REPLACE IT WITH SOMETHING RELEVANT TO YOUR APP. 
-                this.saveEndingDate,
-            )}
-
-            <TouchableOpacity
-                onPress={() => {
-                    // this.setState({ isToTimePickerVisible: true, });
-                    this.fRenderDatePicker("time", "isToTimePickerVisible");
-                }}>
-                <Input
-                    label='Ending Time'
-                    placeholder={"09:00 AM"}
-                    editable={false}
-                    value={this.fFormatDateTime(this.state.ToTimeValue, "time")}
-                />
-            </TouchableOpacity>
-            {this.fRenderDateTimePicker(
-                this.state.isToTimePickerVisible,
-                "isToTimePickerVisible",
-                "time",
-                defaultShiftEndDateTime,
-
-                // This is my function, which saves the selected value to my app's state. 
-                // YOU NEED TO REPLACE IT WITH SOMETHING RELEVANT TO YOUR APP. 
-                this.saveEndingTime,
-            )}
+        <View style={styles.ReservationLengthSelectors}>
+            <Text style={styles.reservationInputText}>Reservation Length</Text>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <View style={styles.reservationLengthSelectorCont}>
+                    <RNPickerSelect
+                        placeholder={{
+                            label: '0 hours',
+                            value: null,
+                        }}
+                        useNativeAndroidPickerStyle={false}
+                        items={hours}
+                        onValueChange={onChangeHours}
+                        style={pickerSelectStyles}
+                        textInputProps={{color: (isDefaultHours? '#979797' : 'black')}}
+                    />
+                    <UpDownCaret caretStyle={{right:6}} />
+                </View>
+                <View style={styles.reservationLengthSelectorCont}>
+                    <RNPickerSelect
+                        placeholder={{
+                            label: '00 mins',
+                            value: null,
+                        }}
+                        useNativeAndroidPickerStyle={false}
+                        items={minutes}
+                        onValueChange={onChangeMinutes}
+                        style={pickerSelectStyles}
+                        textInputProps={{color: (isDefaultMinutes? '#979797' : 'black')}}
+                    />
+                    <UpDownCaret caretStyle={{right:6}} />
+                </View>
+            </View>
         </View>
-);
+    );
+}
 
+const ReservationNumPeopleSelector = () => {
+
+    const [isDefault, setIsDefault] = useState(true);
+    const numPeople = [];
+    for(var i = 1; i < 20; i++){
+        numPeople.push({
+            label: `${i}`,
+            value: `${i}`
+        });
+    }
+
+    const onChange = (value) => {
+        setIsDefault(false);
+    }
+
+    return(
+        <View style={styles.ReservationNumPeopleSelector}>
+            <Text style={[styles.reservationInputText, {alignSelf: 'center'}]}>Reservation # People</Text>
+            <View style={styles.reservationNumPeopleCont}>
+                <RNPickerSelect
+                    useNativeAndroidPickerStyle={false}
+                    items={numPeople}
+                    value={'1'}
+                    onValueChange={onChange}
+                    style={pickerSelectStyles}
+                    textInputProps={{color: (isDefault? '#979797' : 'black'), textAlign: 'center'}}
+                />
+            </View>
+        </View>
+    );
 }
 
 const OrderItem = (props) => {
@@ -499,11 +459,23 @@ const OrderItem = (props) => {
 
     const orderPayment = (paymentStatus) => {
         if(paymentStatus === 'Paid') {
-            return 'Paid';
-        }else if(paymentStatus === 'Paying') {
-            return 'Paying';
+            return(
+                <View style={[styles.paidCont,{backgroundColor: '#E6F3EC', borderColor: '#02843D'}]}>
+                    <Text style={{color: '#02843D', fontSize: 11}}>Paid</Text>
+                </View>
+            );
+        }else if(paymentStatus === 'Paying'){
+            return(
+                <View style={[styles.paidCont,{backgroundColor: '#FFF3CE', borderColor: '#FCC41F'}]}>
+                    <Text style={{color: '#000', fontSize: 11}}>Paying</Text>
+                </View>
+            );
         }else {
-            return 'Not Paid';
+            return(
+                <View style={[styles.paidCont,{backgroundColor: '#fad4d4', borderColor: '#a10202'}]}>
+                    <Text style={{color: '#a10202', fontSize: 11}}>Not Paid</Text>
+                </View>
+            );
         }
     }
 
@@ -519,9 +491,7 @@ const OrderItem = (props) => {
                         {orderBanner(props.orderType)}
                     </View>
                     <View style={styles.orderAmountCont}>
-                        <View style={styles.paidCont}>
-                            <Text style={{color: '#02843D', fontSize:11}}>{orderPayment(props.paymentStatus)}</Text>
-                        </View>
+                        {orderPayment(props.paymentStatus)}
                         <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${props.orderAmount})</Text>
                     </View>
                 </View>
@@ -574,8 +544,13 @@ const OrderItem = (props) => {
                             <Text style={styles.reservationCustomerInfo}>Customer Name: <Text style={{color: '#02843D'}}>{props.customerName}</Text></Text>
                             <Text style={styles.reservationCustomerInfo}>Customer phone number: <Text style={{color: '#02843D'}}>{props.customerPhoneNumber}</Text></Text>
                         </View>
-                        <View style={styles.reservationTimeCont}>
-                            <ReservationDateTimeSelector/>
+                        <View style={styles.reservationSelectorsCont}>
+                            <ReservationDateSelector/>
+                            <ReservationArrivalSelector/>
+                        </View>
+                        <View style={styles.reservationSelectorsCont}>
+                            <ReservationLengthSelectors/>
+                            <ReservationNumPeopleSelector/>
                         </View>
                     </View>
                     <View style={[styles.sectionItem, {display: (selectedSection === 3? 'flex' : 'none')}]}>

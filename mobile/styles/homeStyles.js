@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
         borderBottomStartRadius: 12,
     },
     checkMark: {
-        backgroundColor: 'green',
+        backgroundColor: '#02843D',
         width: 18,
         height: 18,
         borderRadius: 50,
@@ -147,9 +147,7 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
         paddingHorizontal: 8,
         paddingVertical: 0.5,
-        borderColor: 'green',
         marginRight: 8,
-        backgroundColor: '#E6F3EC',
     },
     orderReservationCont: {
         flexDirection: 'row',
@@ -172,9 +170,9 @@ export const styles = StyleSheet.create({
         marginLeft: 10
     },
     confirmReservationBtn: {
-        borderColor: 'green',
+        borderColor: '#02843D',
         marginRight: 10,
-        backgroundColor: 'green',
+        backgroundColor: '#02843D',
     },
     orderBody: {
         width: '95%',
@@ -227,20 +225,71 @@ export const styles = StyleSheet.create({
         color: '#4A4A4A',
         marginVertical: 2
     }, 
-    reservationTimeCont: {
+    reservationSelectorsCont: {
         flexDirection: 'row',
-        backgroundColor: 'blue',
         marginVertical: 10,
     },
     reservationDateSelector: {
-        backgroundColor: 'red',
-        width: '55%',
+        width: '56%',
         flexDirection: 'column',
     },
+    reservationInputText: {
+        fontSize:18,
+        marginBottom: 6,
+        color: '#4A4A4A'
+    },
     reservationDateTimeCont: {
-        height:38,
+        height:40,
         borderWidth: 1,
         borderRadius: 4, 
+        justifyContent: 'center',
+        borderColor: '#CBCBCB'
+    },
+    reservationSelectorText: {
+        fontSize: 18,
+        position: 'absolute',
+        right: 25
+    },
+    reservationCheckBox: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    reservationCheckBoxBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4
+    },
+    ReservationArrivalSelector: {
+        flex:1,
+        marginLeft: 17,
+    },
+    ReservationArrivalCont: {
+        height: 40,
+        width: '90%',
+        borderWidth: 1,
+        borderRadius: 4,
+        justifyContent: 'center',
+        borderColor: '#CBCBCB'
+    },
+    ReservationLengthSelectors: {
+        width: '50%',
+    },
+    reservationLengthSelectorCont: {
+        width: '49%',
+        height: 40,
+        borderWidth:1,
+        borderRadius: 4,
+        borderColor: '#CBCBCB'
+    },
+    ReservationNumPeopleSelector: {
+        flex: 1,
+        marginLeft: 5,
+    },
+    reservationNumPeopleCont: {
+        height: 40,
+        borderWidth: 1,
+        borderRadius: 4,
+        borderColor: '#CBCBCB'
     }
 });
 
@@ -261,7 +310,7 @@ export const pickerSelectStyles = StyleSheet.create({
         padding: 0,
         paddingLeft: 5,
         fontSize: 16,
-      },
+      }
 })
 
 // export default { styles, pickerSelectStyles};
