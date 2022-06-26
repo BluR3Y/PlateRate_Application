@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { styles, pickerSelectStyles } from '../styles/homeStyles';
 import { format12Hours, formatDate } from '../utilities/functions';
 
@@ -53,7 +53,15 @@ const RatingFilter = (props) => {
 }
 
 const UpDownCaret = (props) => {
-    return (
+    if(props.onPress) {
+        return (
+            <TouchableOpacity style={[styles.caretCont, props.caretStyle]} onPress={props.onPress}>
+                <Caret width={5} height={5} fill={'#4A4A4A'} />
+                <Caret width={5} height={5} fill={'#4A4A4A'} style={{transform: [{rotate: '180deg'}]}} />
+            </TouchableOpacity>
+        );
+    }
+    return(
         <View style={[styles.caretCont, props.caretStyle]}>
             <Caret width={5} height={5} fill={'#4A4A4A'} />
             <Caret width={5} height={5} fill={'#4A4A4A'} style={{transform: [{rotate: '180deg'}]}} />
@@ -93,50 +101,6 @@ const ProviderSelector = () => {
                 textInputProps={{color: 'black'}}
             />
             <UpDownCaret caretStyle={{right: 8}} />
-        </View>
-    );
-}
-
-const SelectorDays = () => {
-
-    const dayIntervals = [
-        {
-            label: '365',
-            value: '365',
-        },
-        {
-            label: '182',
-            value: '182',
-        },
-        {
-            label: '90',
-            value: '90',
-        },
-        {
-            label: '30',
-            value: '30',
-        },
-        {
-            label: '15',
-            value: '15',
-        },
-        {
-            label: '7',
-            value: '7',
-        }
-    ];
-
-    return (
-        <View style={styles.daysCont}>
-            <RNPickerSelect
-                value={'90'}
-                useNativeAndroidPickerStyle={false}
-                items={dayIntervals}
-                onValueChange={(value) => console.log(value)}
-                style={pickerSelectStyles}
-                textInputProps={{color: 'black'}}
-            />
-            <UpDownCaret caretStyle={{right: 3}}/>
         </View>
     );
 }
@@ -390,32 +354,90 @@ const ReservationLengthSelectors = () => {
 
 const ReservationNumPeopleSelector = () => {
 
+    const [numPeople, setNumPeople] = useState(1);
     const [isDefault, setIsDefault] = useState(true);
-    const numPeople = [];
-    for(var i = 1; i < 20; i++){
-        numPeople.push({
-            label: `${i}`,
-            value: `${i}`
-        });
-    }
 
-    const onChange = (value) => {
+    const onChange = (selected) => {
+        setNumPeople(selected);
         setIsDefault(false);
     }
 
     return(
         <View style={styles.ReservationNumPeopleSelector}>
-            <Text style={[styles.reservationInputText, {alignSelf: 'center'}]}>Reservation # People</Text>
-            <View style={styles.reservationNumPeopleCont}>
-                <RNPickerSelect
-                    useNativeAndroidPickerStyle={false}
-                    items={numPeople}
-                    value={'1'}
-                    onValueChange={onChange}
-                    style={pickerSelectStyles}
-                    textInputProps={{color: (isDefault? '#979797' : 'black'), textAlign: 'center'}}
-                />
-            </View>
+        <Text style={[styles.reservationInputText, {alignSelf: 'center'}]}>Reservation # People</Text>
+        <View style={styles.reservationNumPeopleCont}>
+            <TextInput
+                onChangeText={onChange}
+                value={numPeople.toString()}
+                keyboardType={'numeric'}
+                style={{padding: 0, marginHorizontal: 4, fontSize: 18 ,textAlign: 'center', color: (isDefault ? '#979797' : 'black')}}
+            />
+            <UpDownCaret caretStyle={{right: 8}} />
+        </View>
+    </View>
+    );
+
+    // const [isDefault, setIsDefault] = useState(true);
+    // const numPeople = [];
+    // for(var i = 1; i < 20; i++){
+    //     numPeople.push({
+    //         label: `${i}`,
+    //         value: `${i}`
+    //     });
+    // }
+
+    // const onChange = (value) => {
+    //     setIsDefault(false);
+    // }
+
+    // return(
+        // <View style={styles.ReservationNumPeopleSelector}>
+        //     <Text style={[styles.reservationInputText, {alignSelf: 'center'}]}>Reservation # People</Text>
+        //     <View style={styles.reservationNumPeopleCont}>
+        //         <RNPickerSelect
+        //             useNativeAndroidPickerStyle={false}
+        //             items={numPeople}
+        //             value={'1'}
+        //             onValueChange={onChange}
+        //             style={pickerSelectStyles}
+        //             textInputProps={{color: (isDefault? '#979797' : 'black'), textAlign: 'center'}}
+        //         />
+        //     </View>
+        // </View>
+    // );
+}
+
+const SelectorDays = () => {
+    const [value, setValue] = useState(90);
+
+    const onChange = (selected) => {
+        setValue(selected);
+        console.log(value);
+    }
+
+    const onPress = () => {
+        console.log('triggered');
+    }
+
+    return(
+        <View style={styles.daysCont}>
+            <TextInput
+                onChangeText={onChange}
+                value={value.toString()}
+                keyboardType={'numeric'}
+                maxLength={3}
+                style={{padding:0, marginHorizontal: 4, fontSize:15, marginLeft: 8}}
+            />
+            <UpDownCaret caretStyle={{right:2}} onPress={onPress} />
+        </View>
+    );
+}
+
+const ReservationPaidOrderAhead = () => {
+
+    return (
+        <View style={styles.ReservationPaidOrderAhead}>
+            <Text>Hello</Text>
         </View>
     );
 }
@@ -533,35 +555,65 @@ const OrderItem = (props) => {
                             <Text style={[styles.orderSelectionText, {color: (selectedSection === 3? '#FFF' : '#7D7D7D')}]}>Order Timing</Text>
                         </TouchableOpacity>
                     </View>
-                    <View style={[styles.sectionItem, {display: (selectedSection === 0? 'flex' : 'none')}]}>
-                        <Text>Section 1</Text>
-                    </View>
-                    <View style={[styles.sectionItem, {display: (selectedSection === 1? 'flex' : 'none')}]}>
-                        <Text>Section 2</Text>
-                    </View>
-                    <View style={[styles.sectionItem, {display: (selectedSection === 2? 'flex' : 'none')}]}>
-                        <View style={{marginVertical: 8}}>
-                            <Text style={styles.reservationCustomerInfo}>Customer Name: <Text style={{color: '#02843D'}}>{props.customerName}</Text></Text>
-                            <Text style={styles.reservationCustomerInfo}>Customer phone number: <Text style={{color: '#02843D'}}>{props.customerPhoneNumber}</Text></Text>
-                        </View>
-                        <View style={styles.reservationSelectorsCont}>
-                            <ReservationDateSelector/>
-                            <ReservationArrivalSelector/>
-                        </View>
-                        <View style={styles.reservationSelectorsCont}>
-                            <ReservationLengthSelectors/>
-                            <ReservationNumPeopleSelector/>
-                        </View>
-                    </View>
-                    <View style={[styles.sectionItem, {display: (selectedSection === 3? 'flex' : 'none')}]}>
-                        <Text>Section 4</Text>
-                    </View>
+                    <OrderSummarySection displaySection={selectedSection === 0 ? 'flex' : 'none'} />
+                    <CustomerMgmtSection displaySection={selectedSection === 1 ? 'flex' : 'none'} />
+                    <ReservationSection displaySection={selectedSection === 2 ? 'flex' : 'none'} />
+                    <OrderTimingSection displaySection={selectedSection === 3 ? 'flex' : 'none'} />
                 </View>
             </Collapsible>
         </View>
     );
 };
 
+const ReservationSection = (props) => {
+
+    return(
+        <View style={[styles.sectionItem, {display: props.displaySection}]}>
+            <View style={{marginVertical: 8}}>
+                <Text style={styles.reservationCustomerInfo}>Customer Name: <Text style={{color: '#02843D'}}>{props.customerName}</Text></Text>
+                <Text style={styles.reservationCustomerInfo}>Customer phone number: <Text style={{color: '#02843D'}}>{props.customerPhoneNumber}</Text></Text>
+            </View>
+            <View style={styles.reservationSelectorsCont}>
+                <ReservationDateSelector/>
+                <ReservationArrivalSelector/>
+            </View>
+            <View style={styles.reservationSelectorsCont}>
+                <ReservationLengthSelectors/>
+                <ReservationNumPeopleSelector/>
+            </View>
+            <View style={styles.reservationSelectorsCont}>
+                <ReservationPaidOrderAhead/>
+            </View>
+        </View>
+    )
+}
+
+const OrderSummarySection = (props) => {
+
+    return(
+        <View style={[styles.sectionItem, {display: props.displaySection}]}>
+            <Text>Section 2</Text>
+        </View>
+    )
+}
+
+const CustomerMgmtSection = (props) => {
+
+    return (
+        <View style={[styles.sectionItem, {display: props.displaySection}]}>
+            <Text>Section 3</Text>
+        </View>
+    )
+}
+
+const OrderTimingSection = (props) => {
+    
+    return(
+        <View style={[styles.sectionItem, {display: props.displaySection}]}>
+            <Text>Section 4</Text>
+        </View>
+    )
+}
 
 export function HomeView({ navigation }) {
     return (

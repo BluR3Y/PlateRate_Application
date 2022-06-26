@@ -186,11 +186,10 @@ export const styles = StyleSheet.create({
     },
     daysCont: {
         width: 50,
-        height: 27,
+        height: 30,
         borderWidth: 1,
         borderRadius: 4,
-        marginHorizontal: 8,
-        position: 'relative'
+        marginHorizontal: 5
     },
     pickerDays: {
         width:'100%',
@@ -289,7 +288,12 @@ export const styles = StyleSheet.create({
         height: 40,
         borderWidth: 1,
         borderRadius: 4,
-        borderColor: '#CBCBCB'
+        borderColor: '#CBCBCB',
+        justifyContent: 'center'
+    },
+    ReservationPaidOrderAhead: {
+        height: 50,
+        backgroundColor: 'red'
     }
 });
 
