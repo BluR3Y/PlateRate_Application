@@ -111,7 +111,7 @@ export const styles = StyleSheet.create({
     orderCont: {
         width: '95%',
         marginTop:20,
-        borderRadius: 5,
+        borderRadius: 10,
         overflow:'hidden',
         backgroundColor: '#FFFFFF',
         borderWidth: 2.5,
@@ -232,7 +232,7 @@ export const styles = StyleSheet.create({
         width: '56%',
         flexDirection: 'column',
     },
-    reservationInputText: {
+    reservationInputText: {     // multiple uses
         fontSize:18,
         marginBottom: 6,
         color: '#4A4A4A'
@@ -291,9 +291,41 @@ export const styles = StyleSheet.create({
         borderColor: '#CBCBCB',
         justifyContent: 'center'
     },
-    ReservationPaidOrderAhead: {
-        height: 50,
-        backgroundColor: 'red'
+    ReservationAheadInputs: {
+        width: '100%',
+        flexDirection: 'row'
+    },
+    paidAheadInput: {
+        height: 40,
+        borderWidth: 1,
+        borderRadius: 4,
+        borderColor: '#CBCBCB',
+        justifyContent: 'center'
+    },
+    reservationTextInput: {     // multiple uses
+        padding: 0,
+        marginHorizontal: 4,
+        fontSize: 18 ,
+        textAlign: 'center',
+    },
+    RSVPInput: {
+        height: 40,
+        borderWidth: 1,
+        borderRadius: 4,
+        borderColor: '#CBCBCB',
+        justifyContent: 'center'
+    },
+    reservationResponseInputs: {
+        marginTop: 8,
+        marginBottom: 8,
+    },
+    reservationInputItem: {
+        marginTop: 8
+    },
+    responseInputCont: {
+        borderWidth: 1,
+        height: 40,
+        borderRadius: 4
     }
 });
 

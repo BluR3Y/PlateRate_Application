@@ -39,3 +39,17 @@ module.exports.signup = (req, res, next) => {
     });
 };
 
+module.exports.getUser = (req, res, next) => {
+    console.log('here')
+    User.findOne({
+        email: req.body.email
+    })
+    .then(dbUser => {
+        if(dbUser) {
+            return res.json({message: dbUser});
+        }else{
+            return res.status(500).json({message: 'user does not exist'});
+        }
+    })
+}
+

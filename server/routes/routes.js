@@ -5,7 +5,9 @@ const router = express.Router();
 
 router.post('/signup', Auth.signup);
 
-router.get('/public', (req, res, next) => {
+router.post('/getuser', Auth.getUser);
+
+router.post('/public', (req, res, next) => {
     res.status(200).json({message: 'here is your public resources'});
 });
 
