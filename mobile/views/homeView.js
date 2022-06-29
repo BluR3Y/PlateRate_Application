@@ -17,7 +17,7 @@ import Biker from '../content/images/person_biking.svg';
 import Walker from '../content/images/person_walking.svg';
 
 const testUser = {
-    name: 'rey flores',
+    name: 'John Doe',
     email: 'rey@gmail.com',
     phone_number: '1 (234) 567-8901',
     orders: [
@@ -50,7 +50,7 @@ const testOrder = {
     orderNumber: 15040,
     spentWithinDaysN: 350.35,
     tipPercentage: 22,
-    customerName: 'rey flores',
+    customerName: 'John Doe',
     customerPhoneNumber: '1 (202) 294-9906'
 };
 
@@ -599,9 +599,9 @@ const ReservationResponseInputs = ({ daysRemaining, setDaysRemaining, dateReques
 
     return(
         <View style={styles.reservationResponseInputs}>
-            <View style={styles.reservationInputItem}>
+            <View style={{marginTop: 8}}>
                 <Text style={styles.reservationInputText}>Days Remaining For people to reserve</Text>
-                <TouchableOpacity style={styles.responseInputCont}>
+                <TouchableOpacity style={styles.reservationDateTimeCont}>
                     <RNPickerSelect
                         placeholder={{ label: '0 day(s)', value: null }}
                         useNativeAndroidPickerStyle={false}
@@ -614,7 +614,7 @@ const ReservationResponseInputs = ({ daysRemaining, setDaysRemaining, dateReques
                 </TouchableOpacity>
             </View>
             <DashedLine/>
-            <View style={styles.reservationInputItem}>
+            <View style={{marginTop: 8}}>
                 <Text style={styles.reservationInputText}>Reservation Requested</Text>
                 <TouchableOpacity style={styles.reservationDateTimeCont} onPress={() => setShowRequestedDate(!showRequestedDate)}>
 
@@ -636,7 +636,7 @@ const ReservationResponseInputs = ({ daysRemaining, setDaysRemaining, dateReques
                     <UpDownCaret caretStyle={{right: 8}} />
                 </TouchableOpacity>
             </View>
-            <View style={styles.reservationInputItem}>
+            <View style={{marginTop: 8}}>
                 <Text style={styles.reservationInputText}>Reservation Confirmed</Text>
                 <TouchableOpacity style={styles.reservationDateTimeCont} onPress={() => setShowConfirmedDate(!showConfirmedDate)}>
 
@@ -662,11 +662,49 @@ const ReservationResponseInputs = ({ daysRemaining, setDaysRemaining, dateReques
     );
 }
 
+const InstructionInput = ({ instructionTitle, instructionPlaceHolder, instructionStyle, orderInstructions, setOrderInstructions }) => {
+
+    const changeInstructions = (instructions) => {
+        setOrderInstructions(instructions);
+    }
+
+    return(
+        <View style={[styles.instructionInput, instructionStyle]}>
+            <Text style={styles.instructionInputText}>{instructionTitle}</Text>
+            <TextInput
+                placeholder={instructionPlaceHolder}
+                style={styles.InstructionInputBox}
+                onChangeText={changeInstructions}
+                value={orderInstructions}
+            />
+        </View>
+    );
+}
+
+const CustomDropDown = ({ dropdownTitle }) => {
+    
+    return(
+        <View style={styles.CustomDropDown}>
+            <View style={{backgroundColor: '#E6F3EC', justifyContent: 'center', paddingHorizontal: 5}}>
+                <Text style={{fontSize: 14}}>{dropdownTitle}</Text>
+
+            </View>
+            <TouchableOpacity style={{ backgroundColor: '#F9F9F9', flex: 1}}>
+
+                <UpDownCaret caretStyle={{right: 8}} />
+            </TouchableOpacity>
+        </View>
+    );
+}
+
 //------------------------------------------- Order Item Sections
 const OrderSummarySection = ({ displayedSection }) => {
+
+    const [orderInstructions, setOrderInstructions] = useState('');
+
     return(
         <View style={[styles.sectionItem, {display: (displayedSection === 0 ? 'flex' : 'none')}]}>
-            <Text>Section 1</Text>
+            <InstructionInput instructionStyle={{marginTop: 8}} instructionTitle={'Order Special Instructions'} instructionPlaceHolder={'Less spicy ...'} orderInstructions={orderInstructions} setOrderInstructions={setOrderInstructions} />
         </View>
     )
 }
@@ -696,7 +734,7 @@ const ReservationSection = ({ displayedSection }) => {
     return(
         <View style={[styles.sectionItem, {display: (displayedSection === 2 ? 'flex' : 'none')}]}>
             <View style={{marginVertical: 8}}>
-                <Text style={styles.reservationCustomerInfo}>Customer Name: <Text style={{color: '#02843D'}}>Rey Flores</Text></Text>
+                <Text style={styles.reservationCustomerInfo}>Customer Name: <Text style={{color: '#02843D'}}>John Doe</Text></Text>
                 <Text style={styles.reservationCustomerInfo}>Customer phone number: <Text style={{color: '#02843D'}}>1 (234) 567-8901</Text></Text>
             </View>
             <ReservationDTInputs date={reservationDT} setDate={setReservationDT} save_notify={order_save_notify} setSave_Notify={setOrder_Save_Notify} time={arrivalTime} setTime={setArrivalTime} />
@@ -714,12 +752,59 @@ const OrderTimingSection = ({ displayedSection }) => {
         </View>
     )
 }
+
+const OrderOptions = ({ selectedSection, setReservationAcceptance }) => {
+    
+    return(
+        <View style={styles.orderOptionsCont}>
+            {selectedSection === 0 && (
+                <>
+                    <CustomDropDown dropdownTitle={'Table No.'} />
+                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn, {marginLeft: 5}]}>
+                        <Text style={{color: 'white', fontSize: 16}}>Claim</Text>
+                    </TouchableOpacity>
+                </>
+            )}
+            {selectedSection === 1 && (
+                <>
+                    <CustomDropDown dropdownTitle={'Table No.'} />
+                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn, {marginLeft: 5}]}>
+                        <Text style={{color: 'white', fontSize: 16}}>Send to Kitchen</Text>
+                    </TouchableOpacity>
+                </>
+            )}
+            {selectedSection === 2 && (
+                <>
+                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.declineOptionBtn]}>
+                        <Text style={{color:'red', fontSize: 16}}>Decline Reservation</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn]}>
+                        <Text style={{color:'white', fontSize: 16}}>Confirm Reservation</Text>
+                    </TouchableOpacity>
+                </>
+            )}
+            {selectedSection === 3 && (
+                <>
+                    <CustomDropDown dropdownTitle={'Table No.'} />
+                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn, {marginLeft: 5}]}>
+                        <Text style={{color: 'white', fontSize: 16}}>Claim</Text>
+                    </TouchableOpacity>
+                </>
+            )}
+        </View>
+    );
+}
+
 // ------------------------------------------------------------------
 
 const OrderItem = ({ orderInfo }) => {
 
     const [isCollapsed, setIsCollapsed] = useState(true);
-    const [selectedSection, setSelectedSection] = useState(2);
+    const [selectedSection, setSelectedSection] = useState(0);
+    const [reservationAcceptance, setReservationAcceptance] = useState(null);   // reservation options
+    const [summaryTableSelection, setSummaryTableSelection] = useState(null);   // order summary options
+    const [mgmtTableSelection, setMgmtTableSelection] = useState(null);     // customer management options
+    const [orderTimingTableSelection, setOrderTimingTableSelection] = useState(null);   // order timing options
 
     const updateIsCollapsed = () => {
         setIsCollapsed(!isCollapsed);
@@ -792,14 +877,7 @@ const OrderItem = ({ orderInfo }) => {
                         <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderInfo.orderAmount})</Text>
                     </View>
                 </View>
-                <View style={styles.orderReservationCont}>
-                    <TouchableOpacity style={[styles.reservationBtns, styles.declineReservationBtn]}>
-                        <Text style={{color:'red', fontSize: 16}}>Decline Reservation</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.reservationBtns, styles.confirmReservationBtn]}>
-                        <Text style={{color:'white', fontSize: 16}}>Confirm Reservation</Text>
-                    </TouchableOpacity>
-                </View>
+                <OrderOptions selectedSection={selectedSection} setReservationAcceptance={setReservationAcceptance} />
             </View>
             <Collapsible collapsed={isCollapsed}>
                 <View style={{height:2, backgroundColor:'#DBE0DD'}}></View>

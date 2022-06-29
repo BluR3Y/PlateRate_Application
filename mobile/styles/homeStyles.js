@@ -149,29 +149,26 @@ export const styles = StyleSheet.create({
         paddingVertical: 0.5,
         marginRight: 8,
     },
-    orderReservationCont: {
+    orderOptionsCont: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingBottom: 5,
     },
-    reservationBtns: {
-        width: '46.75%',
-        height: 43,
+    orderOptionsBtns: {
+        width: '49%',
+        height: 40,
         borderWidth: 1,
-        borderColor: 'red',
-        marginTop: 5,
-        marginBottom: 12,
-        borderRadius:6,
+        borderRadius: 4,
         alignItems: 'center',
         justifyContent: 'center'
     },
-    declineReservationBtn: {
+    declineOptionBtn: {
         borderColor: 'red',
-        marginLeft: 10
     },
-    confirmReservationBtn: {
+    confirmOptionBtn: {
         borderColor: '#02843D',
-        marginRight: 10,
         backgroundColor: '#02843D',
     },
     orderBody: {
@@ -189,7 +186,7 @@ export const styles = StyleSheet.create({
         height: 30,
         borderWidth: 1,
         borderRadius: 4,
-        marginHorizontal: 5
+        marginHorizontal: 5,
     },
     pickerDays: {
         width:'100%',
@@ -319,13 +316,41 @@ export const styles = StyleSheet.create({
         marginTop: 8,
         marginBottom: 8,
     },
-    reservationInputItem: {
-        marginTop: 8
-    },
-    responseInputCont: {
+    instructionInput: {
         borderWidth: 1,
-        height: 40,
+        height: 50,
         borderRadius: 4
+    },
+    instructionInputText: {
+        fontSize: 15,
+        backgroundColor: '#FFFFFF',
+        position: 'absolute',
+        top: -10,
+        left: 6,
+        paddingLeft: 8,
+        paddingRight: 4,
+        color: '#02843D'
+    },
+    InstructionInputBox: {
+        paddingHorizontal: 15,
+        fontSize: 18,
+    },
+    CustomDropDown: {
+        borderWidth: 1,
+        borderRadius: 4,
+        borderColor: '#D1DCD6',
+        height: 40,
+        flex: 1,
+        flexDirection: 'row',
+    },
+    OrderOptionsSubmitBtn: {
+        backgroundColor: 'green',
+        height: 40,
+        width: '52%',
+        marginLeft: 5,
+        borderRadius: 4,
+        alignItems: 'center',
+        justifyContent: 'center',
     }
 });
 
