@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Dimensions } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Dimensions, Image } from 'react-native';
 import { styles, pickerSelectStyles } from '../styles/homeStyles';
 import { format12Hours, formatDate } from '../utilities/functions';
 import Svg, { G, Rect } from 'react-native-svg';
@@ -681,18 +681,48 @@ const InstructionInput = ({ instructionTitle, instructionPlaceHolder, instructio
     );
 }
 
-const CustomDropDown = ({ dropdownTitle }) => {
+const CustomDropDown = ({ dropdownTitle, setVal, selectionList, customStyle }) => {
     
+    const updateSelection = (selection) => {
+        setVal(selection);
+    }
+
     return(
-        <View style={styles.CustomDropDown}>
+        <View style={[styles.CustomDropDown, customStyle]}>
             <View style={{backgroundColor: '#E6F3EC', justifyContent: 'center', paddingHorizontal: 5}}>
                 <Text style={{fontSize: 14}}>{dropdownTitle}</Text>
-
             </View>
-            <TouchableOpacity style={{ backgroundColor: '#F9F9F9', flex: 1}}>
-
+            <View style={{ backgroundColor: '#F9F9F9', flex: 1}}>
+                <RNPickerSelect
+                    placeholder={{ label: '', value: null }}
+                    useNativeAndroidPickerStyle={false}
+                    items={selectionList}
+                    style={pickerSelectStyles}
+                    onValueChange={updateSelection}
+                    textInputProps={{color: 'black', textAlign: 'center'}}
+                />
                 <UpDownCaret caretStyle={{right: 8}} />
-            </TouchableOpacity>
+            </View>
+        </View>
+    );
+}
+
+const FoodOrderItem = () => {
+
+    const [seatNum, setSeatNum] = useState(null);
+    const [assignedTo, setAssignedTo] = useState(null);
+
+    return(
+        <View style={styles.foodOrderItem}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                <View style={styles.foodOrderUserInfo}>
+                    <Image source={{ uri: 'https://reactjs.org/logo-og.png' }} style={styles.foodOrderUserImg}/>
+                    <Text style={{fontSize: 16, marginHorizontal: 7, fontWeight: 'bold'}}>Sam A's Order</Text>
+                </View>
+                <CustomDropDown dropdownTitle={'Seat No.'} setVal={setSeatNum} selectionList={[{ label: '1', value: '1' },{ label: '2', value: '2' },{ label: '3', value: '3' }]} customStyle={{ width: 130, height: 30}}/>
+            </View>
+
+            <CustomDropDown dropdownTitle={'Assign(ed) to:'} setVal={setAssignedTo} customStyle={{marginVertical:6}} selectionList={[{ label: '1', value: '1' },{ label: '2', value: '2' },{ label: '3', value: '3' }]} />
         </View>
     );
 }
@@ -705,6 +735,10 @@ const OrderSummarySection = ({ displayedSection }) => {
     return(
         <View style={[styles.sectionItem, {display: (displayedSection === 0 ? 'flex' : 'none')}]}>
             <InstructionInput instructionStyle={{marginTop: 8}} instructionTitle={'Order Special Instructions'} instructionPlaceHolder={'Less spicy ...'} orderInstructions={orderInstructions} setOrderInstructions={setOrderInstructions} />
+            <Text style={{fontSize: 15, color: 'black', marginTop: 10,marginBottom:5}}>Food Ordered</Text>
+            <View>
+                <FoodOrderItem/>
+            </View>
         </View>
     )
 }
@@ -753,40 +787,89 @@ const OrderTimingSection = ({ displayedSection }) => {
     )
 }
 
-const OrderOptions = ({ selectedSection, setReservationAcceptance }) => {
+const OrderOptions = ({ selectedSection, setReservationAcceptance, setSummaryTableSelection, setMgmtTableSelection, setOrderTimingTableSelection }) => {
     
+    const [summarySelection, setSummarySelection] = useState(null);
+    const [mgmtSelection, setMgmtSelection] = useState(null);
+    const [timingSelection, setTimingSelection] = useState(null);
+
+    // fetch from database available tables
+
+    const reservationResponse = (response) => {
+        setReservationAcceptance(response);
+        console.log(response);
+    }
+
+    const linkSummarySelection = () => {
+        setSummaryTableSelection(summarySelection);
+        console.log(summarySelection);
+    }
+
+    const linkMgmtSelection = () => {
+        setMgmtTableSelection(mgmtSelection);
+        console.log(mgmtSelection);
+    }
+
+    const linkTimingSelection = () => {
+        setOrderTimingTableSelection(timingSelection);
+        console.log(timingSelection);
+    }
+
+    const testList = [
+        {
+            label: '1',
+            value: '1',
+        },
+        {
+            label: '2',
+            value: '2',
+        },
+        {
+            label: '3',
+            value: '3',
+        },
+        {
+            label: '4',
+            value: '4',
+        },
+        {
+            label: '5',
+            value: '5',
+        }
+    ]
+
     return(
         <View style={styles.orderOptionsCont}>
             {selectedSection === 0 && (
                 <>
-                    <CustomDropDown dropdownTitle={'Table No.'} />
-                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn, {marginLeft: 5}]}>
+                    <CustomDropDown dropdownTitle={'Table No.'} setVal={setSummarySelection} selectionList={testList} customStyle={{flex: 1}}/>
+                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn, {marginLeft: 5}]} onPress={linkSummarySelection}>
                         <Text style={{color: 'white', fontSize: 16}}>Claim</Text>
                     </TouchableOpacity>
                 </>
             )}
             {selectedSection === 1 && (
                 <>
-                    <CustomDropDown dropdownTitle={'Table No.'} />
-                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn, {marginLeft: 5}]}>
+                    <CustomDropDown dropdownTitle={'Table No.'} setVal={setMgmtSelection} selectionList={testList} customStyle={{flex: 1}} />
+                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn, {marginLeft: 5}]} onPress={linkMgmtSelection}>
                         <Text style={{color: 'white', fontSize: 16}}>Send to Kitchen</Text>
                     </TouchableOpacity>
                 </>
             )}
             {selectedSection === 2 && (
                 <>
-                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.declineOptionBtn]}>
+                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.declineOptionBtn]} onPress={() => reservationResponse(0)}>
                         <Text style={{color:'red', fontSize: 16}}>Decline Reservation</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn]}>
+                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn]} onPress={() => reservationResponse(1)}>
                         <Text style={{color:'white', fontSize: 16}}>Confirm Reservation</Text>
                     </TouchableOpacity>
                 </>
             )}
             {selectedSection === 3 && (
                 <>
-                    <CustomDropDown dropdownTitle={'Table No.'} />
-                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn, {marginLeft: 5}]}>
+                    <CustomDropDown dropdownTitle={'Table No.'} setVal={setTimingSelection} selectionList={testList} customStyle={{flex: 1}}/>
+                    <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn, {marginLeft: 5}]} onPress={linkTimingSelection}>
                         <Text style={{color: 'white', fontSize: 16}}>Claim</Text>
                     </TouchableOpacity>
                 </>
@@ -877,7 +960,7 @@ const OrderItem = ({ orderInfo }) => {
                         <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderInfo.orderAmount})</Text>
                     </View>
                 </View>
-                <OrderOptions selectedSection={selectedSection} setReservationAcceptance={setReservationAcceptance} />
+                <OrderOptions selectedSection={selectedSection} setReservationAcceptance={setReservationAcceptance} setSummaryTableSelection={setSummaryTableSelection} setMgmtTableSelection={setMgmtTableSelection} setOrderTimingTableSelection={setOrderTimingTableSelection} />
             </View>
             <Collapsible collapsed={isCollapsed}>
                 <View style={{height:2, backgroundColor:'#DBE0DD'}}></View>

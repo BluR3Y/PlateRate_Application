@@ -340,7 +340,7 @@ export const styles = StyleSheet.create({
         borderRadius: 4,
         borderColor: '#D1DCD6',
         height: 40,
-        flex: 1,
+        // flex: 1,
         flexDirection: 'row',
     },
     OrderOptionsSubmitBtn: {
@@ -351,6 +351,25 @@ export const styles = StyleSheet.create({
         borderRadius: 4,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    foodOrderItem: {
+        borderWidth: 1,
+        borderRadius: 4,
+        // borderColor: '#F2F5F3',
+        borderColor: 'black',
+        paddingHorizontal: 5,
+        paddingVertical: 7,
+    },
+    foodOrderUserInfo: {
+        alignSelf: 'flex-start',
+        flexDirection: 'row',
+        height: 40,
+        alignItems: 'center',
+    },
+    foodOrderUserImg: {
+        height: 32,
+        width: 32,
+        borderRadius: 30,
     }
 });
 
