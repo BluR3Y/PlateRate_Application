@@ -370,6 +370,13 @@ export const styles = StyleSheet.create({
         height: 32,
         width: 32,
         borderRadius: 30,
+    },
+    menuItem: {
+
+    },
+    menuItemInfo: {
+        flexDirection: 'row',
+        alignItems: 'center'
     }
 });
 

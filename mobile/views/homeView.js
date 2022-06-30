@@ -345,10 +345,8 @@ const ReservationDTInputs = ({ date, setDate, save_notify, setSave_Notify, time,
                 </TouchableOpacity>
                 <View style={styles.reservationCheckBox}>
                     <TouchableOpacity style={styles.reservationCheckBoxBtn} onPress={() => setSave_Notify(!save_notify)}>
-                        <View style={{borderWidth:1, borderRadius: 4, height: 15, width: 15, backgroundColor: (save_notify? 'green' : null)}}>
-                            <CheckMark width={12} height={12} fill={'#FFF'} />
-                        </View>
-                        <Text style={{marginLeft: 6, fontSize: 16, color: '#4A4A4A'}}>Save and notify customer</Text>
+                        <CheckBox customSize={12} isVisible={save_notify} />
+                        <Text style={{marginLeft: 6, fontSize: 17, color: '#4A4A4A'}}>Save and notify customer</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -707,10 +705,91 @@ const CustomDropDown = ({ dropdownTitle, setVal, selectionList, customStyle }) =
     );
 }
 
+const CheckBox = ({ customSize, isVisible }) => {
+
+    return(
+        <View style={{backgroundColor: (isVisible ? 'green' : '#FFF'), borderWidth: 1, justifyContent: 'center', alignItems: 'center', borderRadius: 4,  width: customSize+3, height: customSize+3}}>
+            <CheckMark width={customSize} height={customSize} fill={'#FFF'} />
+        </View>
+    );
+}
+
+const CircledBullet = ({customSize, isVisible}) => {
+
+    return(
+        <View style={{width: customSize, height: customSize, borderWidth: 1, borderColor: 'green', borderRadius: 100, justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{backgroundColor: (isVisible ? 'green' : null), borderRadius: 100, width: '82%', height: '85%'}}></View>
+        </View>
+    );
+}
+
+const MenuItem = ({ numItems, itemName, itemPrice, paymentStatus, subOptions }) => {
+
+    const [isSelected, setIsSelected] = useState(false);
+    const [selectedSub, setSelectedSub] = useState(new Array(subOptions.length).fill(false));
+
+    const updateStatus = () => {
+        setIsSelected(!isSelected);
+    }
+
+    const orderPayment = () => {
+        if(paymentStatus === 'paid') {
+            return(
+                <View style={[styles.paidCont,{backgroundColor: '#E6F3EC', borderColor: '#02843D'}]}>
+                    <Text style={{color: '#02843D', fontSize: 11}}>Paid</Text>
+                </View>
+            );
+        }else if(paymentStatus === 'paying'){
+            return(
+                <View style={[styles.paidCont,{backgroundColor: '#FFF3CE', borderColor: '#FCC41F'}]}>
+                    <Text style={{color: '#000', fontSize: 11}}>Paying</Text>
+                </View>
+            );
+        }else {
+            return(
+                <View style={[styles.paidCont,{backgroundColor: '#fad4d4', borderColor: '#a10202'}]}>
+                    <Text style={{color: '#a10202', fontSize: 11}}>Not Paid</Text>
+                </View>
+            );
+        }
+    }
+
+    const updateSelection = (id) => {
+        let modifiedOptions = [];
+        for(var i = 0; i < selectedSub.length; i++) {
+            if(i !== id) {
+                modifiedOptions.push(selectedSub[i]);
+            }else{
+                modifiedOptions.push(!selectedSub[i]);
+            }
+        }
+        setSelectedSub(modifiedOptions);
+    }
+
+    return(
+        <View style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItemInfo} onPress={updateStatus}>
+                <CheckBox customSize={12} isVisible={isSelected} />
+                <Text style={{fontSize: 20, marginLeft: 8, fontWeight:'bold'}}>{`${numItems}x  ${itemName}`}</Text>
+                <Text style={{fontSize: 20, marginHorizontal: 10}}>{`(${numItems} order)  $${itemPrice}`}</Text>
+                {orderPayment()}
+            </TouchableOpacity>
+            {subOptions.map((subOption) => (
+                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 6 }} key={subOption.id} onPress={() => updateSelection(subOption.id)}>
+                    <CircledBullet customSize={16} isVisible={selectedSub[subOption.id]} />
+                    <Text style={{marginLeft: 10, fontSize: 18}}>{`${subOption.optionName} ${subOption.numSelections} x $${subOption.price} = $${(subOption.numSelections * subOption.price).toFixed(2)}`}</Text>
+                </TouchableOpacity>
+            ))}
+        </View>
+    );
+}
+
 const FoodOrderItem = () => {
 
     const [seatNum, setSeatNum] = useState(null);
     const [assignedTo, setAssignedTo] = useState(null);
+
+    //fetch from db menu items included in this order
 
     return(
         <View style={styles.foodOrderItem}>
@@ -721,8 +800,10 @@ const FoodOrderItem = () => {
                 </View>
                 <CustomDropDown dropdownTitle={'Seat No.'} setVal={setSeatNum} selectionList={[{ label: '1', value: '1' },{ label: '2', value: '2' },{ label: '3', value: '3' }]} customStyle={{ width: 130, height: 30}}/>
             </View>
-
-            <CustomDropDown dropdownTitle={'Assign(ed) to:'} setVal={setAssignedTo} customStyle={{marginVertical:6}} selectionList={[{ label: '1', value: '1' },{ label: '2', value: '2' },{ label: '3', value: '3' }]} />
+            <CustomDropDown dropdownTitle={'Assign(ed) to:'} setVal={setAssignedTo} customStyle={{marginVertical:6, marginHorizontal: 0}} selectionList={[{ label: '1', value: '1' },{ label: '2', value: '2' },{ label: '3', value: '3' }]} />
+            <View>
+                <MenuItem numItems={2} itemName={'Fried Cauliflower'} itemPrice={16.95} paymentStatus={'paid'} subOptions={[{ id: 0, optionName: 'Parmigiana', numSelections: 2, price: 2 },{ id:1, optionName: 'Others', numSelections: 4, price: 6 }]} />
+            </View>
         </View>
     );
 }
