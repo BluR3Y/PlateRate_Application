@@ -1,13 +1,26 @@
 import React, {useState} from 'react';
 import 'react-native-gesture-handler';
-import { DrawerActions, NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { createDrawerNavigator, useDrawerStatus } from '@react-navigation/drawer';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
-import { styles } from './styles/drawerStyles';
+import { 
+  View, 
+  Text, 
+  Image, 
+  TouchableOpacity 
+} from 'react-native';
 
-import { AuthView, authView } from './views/authView';
+import { 
+  DrawerActions, 
+  NavigationContainer 
+} from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { 
+  createDrawerNavigator, 
+  useDrawerStatus,
+  DrawerItem
+} from '@react-navigation/drawer';
+
+import { styles } from './styles/drawerStyles';
 import { HomeView } from './views/homeView';
+import { Login } from './views/login';
 import { TestView } from './views/tester';
 
 import Hamburger from './content/images/hamburger.svg';
@@ -103,13 +116,66 @@ const DrawerHeader = (props) => {
   );
 }
 
+const DrawerContent = (props) => {
+
+  return(
+    <View style={{flex:1, flexDirection: 'column'}}>
+      <View style={styles.credentialsCont}>
+        {!props.userInfo && (
+          <>
+            <DrawerItem
+              style={styles.credentialItem}
+              label={'Log In'}
+              labelStyle={styles.credentialLabel}
+              onPress={() => {
+                props.navigation.navigate('Login', { formType: 'login', setUserInfo: props.setUserInfo });
+              }}
+            />
+            <DrawerItem 
+              style={styles.credentialItem}
+              label={'Sign Up'}
+              labelStyle={styles.credentialLabel}
+              onPress={() => {
+                props.navigation.navigate('Login', { formType: 'signup', setUserInfo: props.setUserInfo });
+              }}
+            />
+          </>
+        )}
+        {props.userInfo && (
+          <DrawerItem
+            style={styles.credentialItem}
+            label={'Log Out'}
+            labelStyle={[styles.credentialLabel, {marginLeft: '40%'}]}
+            onPress={() => {
+              props.setUserInfo(null);
+            }}
+          />
+        )}
+      </View>
+    </View>
+  );
+}
+
 export default function App() {
+
+  const [userInfo, setUserInfo] = useState(null);
+
   return (
     <NavigationContainer>
       <Drawer.Navigator
-        screenOptions={{drawerPosition: 'right', header: (props) => {return <DrawerHeader {...props} />}}}
+        initialRouteName='Home'
+        screenOptions={{
+          drawerPosition: 'right', 
+          header: (props) => {return <DrawerHeader {...props} />}
+        }}
+        drawerContent={(props) => {
+          props.userInfo = userInfo;
+          props.setUserInfo = setUserInfo;
+          return <DrawerContent {...props} />
+        }}
       >
         <Drawer.Screen name='Home' component={HomeView} />
+        <Drawer.Screen name='Login' component={Login} />
         <Drawer.Screen name='Test' component={TestView} />
       </Drawer.Navigator>
     </NavigationContainer>

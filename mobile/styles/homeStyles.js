@@ -355,10 +355,11 @@ export const styles = StyleSheet.create({
     foodOrderItem: {
         borderWidth: 1,
         borderRadius: 4,
-        // borderColor: '#F2F5F3',
-        borderColor: 'black',
-        paddingHorizontal: 5,
-        paddingVertical: 7,
+        borderColor: '#F2F5F3',
+        paddingHorizontal: 8,
+        paddingTop:7,
+        paddingBottom: 10,
+        marginBottom: 15
     },
     foodOrderUserInfo: {
         alignSelf: 'flex-start',
@@ -367,16 +368,13 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
     },
     foodOrderUserImg: {
-        height: 32,
-        width: 32,
+        height: 40,
+        width: 40,
         borderRadius: 30,
-    },
-    menuItem: {
-
     },
     menuItemInfo: {
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
     }
 });
 

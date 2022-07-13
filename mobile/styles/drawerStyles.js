@@ -1,6 +1,9 @@
 import React from "react";
 import { StyleSheet } from 'react-native';
 
+const primaryColor = '#02843D';
+const secondaryColor = '#FFE20B';
+
 export const styles = StyleSheet.create({
     header: {
         width: '100%',
@@ -28,5 +31,27 @@ export const styles = StyleSheet.create({
         right: 20,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    credentialsCont: {
+        height:100,
+        backgroundColor: primaryColor,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    credentialItem: {
+        backgroundColor: secondaryColor,
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignContent: 'center',
+        borderRadius: 10,
+    },
+    credentialLabel: {
+        color: primaryColor,
+        fontSize: 20,
+        marginVertical: -5,
+        marginLeft: 30,
+        marginRight: -10
     }
 })

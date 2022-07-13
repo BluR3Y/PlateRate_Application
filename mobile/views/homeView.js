@@ -16,6 +16,8 @@ import Dash from '../content/images/dash.svg';
 import Biker from '../content/images/person_biking.svg';
 import Walker from '../content/images/person_walking.svg';
 
+// ----------------------- test Values --------------------
+
 const testUser = {
     name: 'John Doe',
     email: 'rey@gmail.com',
@@ -53,6 +55,77 @@ const testOrder = {
     customerName: 'John Doe',
     customerPhoneNumber: '1 (202) 294-9906'
 };
+
+const testMenuItems = [
+    {
+        itemId: 1,
+        itemName: 'Fried Cauliflower',
+        itemPrice: 16.95,
+        paymentStatus: 'paid',
+        numItemSelections: 2,
+        specialInstructions: 'No cooked peppers please',
+        subOptions: [
+            {
+                optionId: 1,
+                optionName: 'Parmigiana',
+                price: 2,
+                numSelections: 2,
+            },
+            {
+                optionId: 2,
+                optionName: 'lasagna',
+                price: 4,
+                numSelections: 2
+            }
+        ]
+    },{
+        itemId: 2,
+        itemName: 'Chicken Parm',
+        itemPrice: 16.95,
+        paymentStatus: 'not paid',
+        numItemSelections: 1,
+        subOptions: [
+            {
+                optionId: 1,
+                optionName: 'Rigatoni',
+                price: 3,
+                numSelections: 2,
+            },{
+                optionId: 2,
+                optionName: 'Penne',
+                price: 2,
+                numSelections: 3,
+            }
+        ]
+    }
+];
+
+const testFoodOrderedItem = [
+    {
+        orderId: 1,
+        clientName: 'Marcus Anderson',
+        clientProfileImg: 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cHJvZmlsZXxlbnwwfHwwfHw%3D&w=1000&q=80',
+        seatNo: 4,
+        assignedServer: 'John Cena',
+        menuItems: testMenuItems
+    },{
+        orderId: 2,
+        clientName: 'Jessica Martinez',
+        clientProfileImg: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5GNLQ5Rq4_uCHZY7yxKiYXxjkkhro_aIbGQ&usqp=CAU',
+        seatNo: 1,
+        assignedServer: 'Duane Beltre',
+        menuItems: testMenuItems
+    },{
+        orderId: 3,
+        clientName: 'Patrick Mellos',
+        clientProfileImg: 'https://images.unsplash.com/photo-1594751543129-6701ad444259?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8ZGFyayUyMHByb2ZpbGV8ZW58MHx8MHx8&w=1000&q=80',
+        seatNo: 3,
+        assignedServer: 'Alice Parker',
+        menuItems: testMenuItems
+    }
+];
+
+// ------------------------------------------------------
 
 const OrderNotification = ({ newOrders }) => {
 
@@ -679,7 +752,7 @@ const InstructionInput = ({ instructionTitle, instructionPlaceHolder, instructio
     );
 }
 
-const CustomDropDown = ({ dropdownTitle, setVal, selectionList, customStyle }) => {
+const CustomDropDown = ({ dropdownTitle, setVal, selectionList, customStyle, initialVal }) => {
     
     const updateSelection = (selection) => {
         setVal(selection);
@@ -688,13 +761,14 @@ const CustomDropDown = ({ dropdownTitle, setVal, selectionList, customStyle }) =
     return(
         <View style={[styles.CustomDropDown, customStyle]}>
             <View style={{backgroundColor: '#E6F3EC', justifyContent: 'center', paddingHorizontal: 5}}>
-                <Text style={{fontSize: 14}}>{dropdownTitle}</Text>
+                <Text style={{fontSize: 18}}>{dropdownTitle}</Text>
             </View>
             <View style={{ backgroundColor: '#F9F9F9', flex: 1}}>
                 <RNPickerSelect
                     placeholder={{ label: '', value: null }}
                     useNativeAndroidPickerStyle={false}
                     items={selectionList}
+                    value={initialVal}
                     style={pickerSelectStyles}
                     onValueChange={updateSelection}
                     textInputProps={{color: 'black', textAlign: 'center'}}
@@ -723,23 +797,23 @@ const CircledBullet = ({customSize, isVisible}) => {
     );
 }
 
-const MenuItem = ({ numItems, itemName, itemPrice, paymentStatus, subOptions }) => {
+const MenuItem = ({ menuItem, subOptionChange}) => {
 
     const [isSelected, setIsSelected] = useState(false);
-    const [selectedSub, setSelectedSub] = useState(new Array(subOptions.length).fill(false));
+    const [selectedSub, setSelectedSub] = useState(new Array(menuItem.subOptions.length).fill(false));
 
     const updateStatus = () => {
         setIsSelected(!isSelected);
     }
 
     const orderPayment = () => {
-        if(paymentStatus === 'paid') {
+        if(menuItem.paymentStatus === 'paid') {
             return(
                 <View style={[styles.paidCont,{backgroundColor: '#E6F3EC', borderColor: '#02843D'}]}>
                     <Text style={{color: '#02843D', fontSize: 11}}>Paid</Text>
                 </View>
             );
-        }else if(paymentStatus === 'paying'){
+        }else if(menuItem.paymentStatus === 'paying'){
             return(
                 <View style={[styles.paidCont,{backgroundColor: '#FFF3CE', borderColor: '#FCC41F'}]}>
                     <Text style={{color: '#000', fontSize: 11}}>Paying</Text>
@@ -757,52 +831,92 @@ const MenuItem = ({ numItems, itemName, itemPrice, paymentStatus, subOptions }) 
     const updateSelection = (id) => {
         let modifiedOptions = [];
         for(var i = 0; i < selectedSub.length; i++) {
-            if(i !== id) {
-                modifiedOptions.push(selectedSub[i]);
-            }else{
-                modifiedOptions.push(!selectedSub[i]);
-            }
+            modifiedOptions.push(id === i + 1? !selectedSub[i] : selectedSub[i]);
         }
         setSelectedSub(modifiedOptions);
     }
+
 
     return(
         <View style={styles.menuItem}>
             <TouchableOpacity style={styles.menuItemInfo} onPress={updateStatus}>
                 <CheckBox customSize={12} isVisible={isSelected} />
-                <Text style={{fontSize: 20, marginLeft: 8, fontWeight:'bold'}}>{`${numItems}x  ${itemName}`}</Text>
-                <Text style={{fontSize: 20, marginHorizontal: 10}}>{`(${numItems} order)  $${itemPrice}`}</Text>
+                <Text style={{fontSize: 20, marginLeft: 8, fontWeight:'bold'}}>{`${menuItem.numItemSelections}x  ${menuItem.itemName}`}</Text>
+                <Text style={{fontSize: 20, marginHorizontal: 10}}>{`(${menuItem.numItemSelections} order)  $${menuItem.itemPrice}`}</Text>
                 {orderPayment()}
             </TouchableOpacity>
-            {subOptions.map((subOption) => (
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 6 }} key={subOption.id} onPress={() => updateSelection(subOption.id)}>
-                    <CircledBullet customSize={16} isVisible={selectedSub[subOption.id]} />
+            {menuItem.subOptions.map((subOption) => (
+                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginTop:8 }} key={subOption.optionId} onPress={() => updateSelection(subOption.optionId)}>
+                    <CircledBullet customSize={16} isVisible={selectedSub[subOption.optionId-1]} />
                     <Text style={{marginLeft: 10, fontSize: 18}}>{`${subOption.optionName} ${subOption.numSelections} x $${subOption.price} = $${(subOption.numSelections * subOption.price).toFixed(2)}`}</Text>
                 </TouchableOpacity>
             ))}
+            <InstructionInput 
+                instructionTitle={'Menu Item Special Instructions'} 
+                orderInstructions={menuItem.specialInstructions} 
+                instructionStyle={{marginVertical: 25, display: (menuItem.specialInstructions? 'flex' : 'none')}} 
+            />
         </View>
     );
 }
 
-const FoodOrderItem = () => {
+const FoodOrderItem = ({ orderItemId, getOrders, setOrders}) => {
 
-    const [seatNum, setSeatNum] = useState(null);
-    const [assignedTo, setAssignedTo] = useState(null);
+    // const [seatNum, setSeatNum] = useState(null);
+    // const [assignedTo, setAssignedTo] = useState(null);
 
-    //fetch from db menu items included in this order
+    const setSeatNum = (seatNo) => {
+        let modifiedItems = getOrders.map((order) => (
+            order.orderId === orderItemId? {...order, seatNo: seatNo} : order
+        ));
+        setOrders(modifiedItems);
+    }
+
+    const setAssignedTo = (provider) => {
+        let modifiedItems = getOrders.map((order) => (
+            order.orderId === orderItemId ? {...order, assignedServer: provider} : order
+        ));
+        setOrders(modifiedItems);
+    }
+
+    const modifyItemOptions = (modifications) => {
+
+    }
 
     return(
         <View style={styles.foodOrderItem}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                 <View style={styles.foodOrderUserInfo}>
-                    <Image source={{ uri: 'https://reactjs.org/logo-og.png' }} style={styles.foodOrderUserImg}/>
-                    <Text style={{fontSize: 16, marginHorizontal: 7, fontWeight: 'bold'}}>Sam A's Order</Text>
+                    <Image source={{ uri: getOrders[orderItemId - 1].clientProfileImg }} style={styles.foodOrderUserImg}/>
+                    <Text style={{fontSize: 20, marginHorizontal: 7, fontWeight: 'bold'}}>{`${getOrders[orderItemId - 1].clientName.substring(0, getOrders[orderItemId - 1].clientName.indexOf(' ')+2)}'s Order`}</Text>
                 </View>
-                <CustomDropDown dropdownTitle={'Seat No.'} setVal={setSeatNum} selectionList={[{ label: '1', value: '1' },{ label: '2', value: '2' },{ label: '3', value: '3' }]} customStyle={{ width: 130, height: 30}}/>
+                <CustomDropDown 
+                    dropdownTitle={'Seat No.'} 
+                    initialVal={getOrders[orderItemId - 1].seatNo.toString()} 
+                    setVal={setSeatNum} 
+                    selectionList={[
+                        { label: '1', value: '1' },
+                        { label: '2', value: '2' },
+                        { label: '3', value: '3' },
+                        { label: '4', value: '4' },
+                        { label: '5', value: '5' }
+                    ]} 
+                    customStyle={{ width: 130, height: 30}}/>
             </View>
-            <CustomDropDown dropdownTitle={'Assign(ed) to:'} setVal={setAssignedTo} customStyle={{marginVertical:6, marginHorizontal: 0}} selectionList={[{ label: '1', value: '1' },{ label: '2', value: '2' },{ label: '3', value: '3' }]} />
+            <CustomDropDown 
+                dropdownTitle={'Assign(ed) to:'} 
+                setVal={setAssignedTo} 
+                customStyle={{marginVertical:6, marginHorizontal: 0}} 
+                selectionList={[
+                    { label: '1', value: '1' },
+                    { label: '2', value: '2' },
+                    { label: '3', value: '3' }
+                ]}
+            />
             <View>
-                <MenuItem numItems={2} itemName={'Fried Cauliflower'} itemPrice={16.95} paymentStatus={'paid'} subOptions={[{ id: 0, optionName: 'Parmigiana', numSelections: 2, price: 2 },{ id:1, optionName: 'Others', numSelections: 4, price: 6 }]} />
+                {getOrders[orderItemId - 1].menuItems.map((menuItem) => (
+                    <MenuItem menuItem={menuItem} subOptionChange={modifyItemOptions} key={menuItem.itemId}/>
+                ))}
             </View>
         </View>
     );
@@ -812,14 +926,28 @@ const FoodOrderItem = () => {
 const OrderSummarySection = ({ displayedSection }) => {
 
     const [orderInstructions, setOrderInstructions] = useState('');
+    const [foodOrders, setFoodOrders] = useState(testFoodOrderedItem);
+
+    //fetch from db Food Orders related to Order Summary
 
     return(
         <View style={[styles.sectionItem, {display: (displayedSection === 0 ? 'flex' : 'none')}]}>
-            <InstructionInput instructionStyle={{marginTop: 8}} instructionTitle={'Order Special Instructions'} instructionPlaceHolder={'Less spicy ...'} orderInstructions={orderInstructions} setOrderInstructions={setOrderInstructions} />
-            <Text style={{fontSize: 15, color: 'black', marginTop: 10,marginBottom:5}}>Food Ordered</Text>
+            <InstructionInput 
+                instructionStyle={{marginTop: 8}} 
+                instructionTitle={'Order Special Instructions'} 
+                instructionPlaceHolder={'Less spicy ...'} 
+                orderInstructions={orderInstructions} 
+                setOrderInstructions={setOrderInstructions} 
+            />
+            <Text style={{fontSize: 18, color: 'black', marginTop: 10,marginBottom:5}}>Food Ordered</Text>
             <View>
-                <FoodOrderItem/>
+                {foodOrders.map((orderItem) => (
+                    <FoodOrderItem orderItemId={orderItem.orderId} getOrders={foodOrders} setOrders={setFoodOrders} key={orderItem.orderId}/>
+                ))}
             </View>
+            <TouchableOpacity style={{borderWidth: 1, borderColor: 'red', paddingVertical: 15, width: 300, alignSelf:'center', borderRadius: 8, marginVertical: 20}}>
+                <Text style={{textAlign:'center', fontSize: 18, color: 'red'}}>Cancel Selected Menu Items</Text>
+            </TouchableOpacity>
         </View>
     )
 }
@@ -852,10 +980,36 @@ const ReservationSection = ({ displayedSection }) => {
                 <Text style={styles.reservationCustomerInfo}>Customer Name: <Text style={{color: '#02843D'}}>John Doe</Text></Text>
                 <Text style={styles.reservationCustomerInfo}>Customer phone number: <Text style={{color: '#02843D'}}>1 (234) 567-8901</Text></Text>
             </View>
-            <ReservationDTInputs date={reservationDT} setDate={setReservationDT} save_notify={order_save_notify} setSave_Notify={setOrder_Save_Notify} time={arrivalTime} setTime={setArrivalTime} />
-            <ReservationDurationInputs hours={durationHours} setHours={setDurationHours} minutes={durationMinutes} setMinutes={setDurationMinutes} numPeople={numPeople} setNumPeople={setNumPeople} />
-            <ReservationRSVPInputs numPaidAhead={numPaidAhead} setNumPaidAhead={setNumPaidAhead} numRSVP={numRSVP} setNumRSVP={setNumRSVP} />
-            <ReservationResponseInputs daysRemaining={reservation_days_remaining} setDaysRemaining={setReservation_days_remaining} dateRequested={reservation_date_requested} setDateRequested={setReservation_date_requested} dateConfirmed={reservation_date_confirmed} setDateConfirmed={setReservation_date_confirmed} />
+            <ReservationDTInputs 
+                date={reservationDT} 
+                setDate={setReservationDT} 
+                save_notify={order_save_notify} 
+                setSave_Notify={setOrder_Save_Notify} 
+                time={arrivalTime} 
+                setTime={setArrivalTime} 
+            />
+            <ReservationDurationInputs 
+                hours={durationHours} 
+                setHours={setDurationHours} 
+                minutes={durationMinutes} 
+                setMinutes={setDurationMinutes} 
+                numPeople={numPeople} 
+                setNumPeople={setNumPeople} 
+            />
+            <ReservationRSVPInputs 
+                numPaidAhead={numPaidAhead} 
+                setNumPaidAhead={setNumPaidAhead} 
+                numRSVP={numRSVP} 
+                setNumRSVP={setNumRSVP} 
+            />
+            <ReservationResponseInputs 
+                daysRemaining={reservation_days_remaining} 
+                setDaysRemaining={setReservation_days_remaining} 
+                dateRequested={reservation_date_requested} 
+                setDateRequested={setReservation_date_requested} 
+                dateConfirmed={reservation_date_confirmed} 
+                setDateConfirmed={setReservation_date_confirmed} 
+            />
         </View>
     )
 }
@@ -923,7 +1077,12 @@ const OrderOptions = ({ selectedSection, setReservationAcceptance, setSummaryTab
         <View style={styles.orderOptionsCont}>
             {selectedSection === 0 && (
                 <>
-                    <CustomDropDown dropdownTitle={'Table No.'} setVal={setSummarySelection} selectionList={testList} customStyle={{flex: 1}}/>
+                    <CustomDropDown 
+                        dropdownTitle={'Table No.'} 
+                        setVal={setSummarySelection} 
+                        selectionList={testList} 
+                        customStyle={{flex: 1}}
+                    />
                     <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn, {marginLeft: 5}]} onPress={linkSummarySelection}>
                         <Text style={{color: 'white', fontSize: 16}}>Claim</Text>
                     </TouchableOpacity>
@@ -931,7 +1090,12 @@ const OrderOptions = ({ selectedSection, setReservationAcceptance, setSummaryTab
             )}
             {selectedSection === 1 && (
                 <>
-                    <CustomDropDown dropdownTitle={'Table No.'} setVal={setMgmtSelection} selectionList={testList} customStyle={{flex: 1}} />
+                    <CustomDropDown 
+                        dropdownTitle={'Table No.'} 
+                        setVal={setMgmtSelection} 
+                        selectionList={testList} 
+                        customStyle={{flex: 1}} 
+                    />
                     <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn, {marginLeft: 5}]} onPress={linkMgmtSelection}>
                         <Text style={{color: 'white', fontSize: 16}}>Send to Kitchen</Text>
                     </TouchableOpacity>
@@ -949,7 +1113,12 @@ const OrderOptions = ({ selectedSection, setReservationAcceptance, setSummaryTab
             )}
             {selectedSection === 3 && (
                 <>
-                    <CustomDropDown dropdownTitle={'Table No.'} setVal={setTimingSelection} selectionList={testList} customStyle={{flex: 1}}/>
+                    <CustomDropDown 
+                        dropdownTitle={'Table No.'} 
+                        setVal={setTimingSelection} 
+                        selectionList={testList} 
+                        customStyle={{flex: 1}}
+                    />
                     <TouchableOpacity style={[styles.orderOptionsBtns, styles.confirmOptionBtn, {marginLeft: 5}]} onPress={linkTimingSelection}>
                         <Text style={{color: 'white', fontSize: 16}}>Claim</Text>
                     </TouchableOpacity>
@@ -1041,7 +1210,13 @@ const OrderItem = ({ orderInfo }) => {
                         <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderInfo.orderAmount})</Text>
                     </View>
                 </View>
-                <OrderOptions selectedSection={selectedSection} setReservationAcceptance={setReservationAcceptance} setSummaryTableSelection={setSummaryTableSelection} setMgmtTableSelection={setMgmtTableSelection} setOrderTimingTableSelection={setOrderTimingTableSelection} />
+                <OrderOptions 
+                    selectedSection={selectedSection} 
+                    setReservationAcceptance={setReservationAcceptance} 
+                    setSummaryTableSelection={setSummaryTableSelection} 
+                    setMgmtTableSelection={setMgmtTableSelection} 
+                    setOrderTimingTableSelection={setOrderTimingTableSelection} 
+                />
             </View>
             <Collapsible collapsed={isCollapsed}>
                 <View style={{height:2, backgroundColor:'#DBE0DD'}}></View>
