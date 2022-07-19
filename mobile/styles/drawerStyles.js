@@ -32,26 +32,61 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    credentialsCont: {
-        height:100,
-        backgroundColor: primaryColor,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between'
+    guestOptionBtn: {
+        paddingVertical: 15,
+        paddingLeft: 20,
+        borderBottomWidth: 1,
+
     },
-    credentialItem: {
-        backgroundColor: secondaryColor,
+    guestLabel: {
+        fontSize: 19,
+        fontWeight: 'bold',
+        color: primaryColor
+    },
+    userContainer: {
         flex: 1,
         flexDirection: 'column',
-        justifyContent: 'center',
-        alignContent: 'center',
-        borderRadius: 10,
     },
-    credentialLabel: {
-        color: primaryColor,
+    userInfoCont: {
+        // borderBottomWidth: 1,
+        paddingVertical: 20,
+        flexDirection: 'row',
+    },
+    userProfileImg: {
+        width: 80,
+        height: 80,
+        borderRadius: 150 /2 ,
+        borderWidth: 2,
+        borderColor: '#E6E6E6',
+        marginLeft: 15,
+    },
+    userNameCont: {
+        flex: 1,
+        marginHorizontal: 10
+    },
+    userNameText: {
         fontSize: 20,
-        marginVertical: -5,
-        marginLeft: 30,
-        marginRight: -10
+        fontWeight: '500',
+    },
+    userOptionsCont: {
+        height: 26,
+        width: 170,
+        marginTop: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    userOptionText: {
+        fontSize: 20,
+        color: primaryColor
+    },
+    ScreenList: {
+        flex:1,
+        flexDirection: 'column',
+    },
+    screenItem: {
+        borderTopWidth: 1,
+        paddingHorizontal: 40,
+        paddingVertical: 20
     }
 })

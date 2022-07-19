@@ -21,79 +21,13 @@ import {
 import { styles } from './styles/drawerStyles';
 import { HomeView } from './views/homeView';
 import { Login } from './views/login';
+import { ViewProfile } from './views/viewProfile';
 import { TestView } from './views/tester';
 
 import Hamburger from './content/images/hamburger.svg';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator()
-
-// const App = () => {
-//   return (
-//     <NavigationContainer>
-//       <Stack.Navigator
-//         screenOptions={{headerShown: false}} // removes the header visible at the top of each Page
-//       >
-//         {/* <Stack.Screen
-//           name='Auth View'
-//           component={AuthView}
-//         /> */}
-//         <Stack.Screen
-//           name='Home View'
-//           component={HomeView}
-//         />
-//         {/* <Stack.Screen
-//           name='Test View'
-//           component={TestView}
-//         /> */}
-//       </Stack.Navigator>
-//     </NavigationContainer>
-//   )
-// }
-
-// const App = () => {
-//   return (
-//     <NavigationContainer>
-//       <Drawer.Navigator screenOptions={{headerShown: false, drawerPosition: 'right'}} initialRouteName='Tester'>
-//         <Drawer.Screen name='Home' component={HomeView} />
-//         <Drawer.Screen name='Tester' component={TestView} />
-//       </Drawer.Navigator>
-//     </NavigationContainer>
-//   );
-// }
-
-
-
-// function CustomDrawerContent(props) {
-  // const width = useWindowDimensions().width * 0.3;
-
-  // return (
-  //   <DrawerContentScrollView{...props}>
-  //     <View style={{position:'absolute', width:50, height: 50, backgroundColor: 'red'}}>
-
-  //     </View>
-  //   </DrawerContentScrollView>
-  // );
-// }
-
-// const MyHeader = () => {
-  // return(
-  //   <View style={{width: '100%', height: 30, backgroundColor: 'red'}}>
-  //     <Text>Hello</Text>
-  //   </View>
-  // );
-// }
-
-// function MyDrawer() {
-//   return (
-//     <Drawer.Navigator
-//       drawerContent={(props) => <CustomDrawerContent {...props}/>}
-//       screenOptions={{ drawerPosition: 'right', header: () => {return <MyHeader/>}}}
-//     >
-//       <Drawer.Screen name='Home' component={HomeView} />
-//     </Drawer.Navigator>
-//   )
-// }
 
 const DrawerHeader = (props) => {
   
@@ -119,39 +53,80 @@ const DrawerHeader = (props) => {
 const DrawerContent = (props) => {
 
   return(
-    <View style={{flex:1, flexDirection: 'column'}}>
-      <View style={styles.credentialsCont}>
-        {!props.userInfo && (
-          <>
-            <DrawerItem
-              style={styles.credentialItem}
-              label={'Log In'}
-              labelStyle={styles.credentialLabel}
-              onPress={() => {
-                props.navigation.navigate('Login', { formType: 'login', setUserInfo: props.setUserInfo });
-              }}
-            />
-            <DrawerItem 
-              style={styles.credentialItem}
-              label={'Sign Up'}
-              labelStyle={styles.credentialLabel}
-              onPress={() => {
-                props.navigation.navigate('Login', { formType: 'signup', setUserInfo: props.setUserInfo });
-              }}
-            />
-          </>
-        )}
-        {props.userInfo && (
-          <DrawerItem
-            style={styles.credentialItem}
-            label={'Log Out'}
-            labelStyle={[styles.credentialLabel, {marginLeft: '40%'}]}
+    <View style={{flex:1}}>
+      {!props.userInfo && (
+        <>
+          <TouchableOpacity 
+            style={styles.guestOptionBtn}
             onPress={() => {
-              props.setUserInfo(null);
+              props.navigation.navigate('Login', { formType: 'login', setUserInfo: props.setUserInfo });
+            }}  
+          >
+            <Text style={styles.guestLabel}>Log In</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.guestOptionBtn}
+            onPress={() => {
+              props.navigation.navigate('Login', { formType: 'signup', setUserInfo: props.setUserInfo });
             }}
-          />
-        )}
-      </View>
+          >
+            <Text style={styles.guestLabel}>Sign Up</Text>
+          </TouchableOpacity>
+        </>
+      )}
+      {props.userInfo && (
+        <View style={styles.userContainer}>
+          <View style={styles.userInfoCont}>
+            <Image
+              style={styles.userProfileImg}
+              source={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }}
+            />
+            <View style={styles.userNameCont}>
+              <Text numberOfLines={1} style={styles.userNameText}>Rey Hector Flores</Text>
+              <View style={styles.userOptionsCont}>
+                <TouchableOpacity 
+                  style={{flex: 1}}
+                  onPress={() => {
+                    props.navigation.navigate('Profile');
+                  }}
+                >
+                  <Text style={styles.userOptionText}>Profile</Text>
+                </TouchableOpacity>
+                <View style={{height: '80%', width: 1, backgroundColor: '#979797'}}/>
+                <TouchableOpacity 
+                  style={{flex: 1}}
+                  onPress={() => props.setUserInfo(null)} 
+                >
+                  <Text style={[styles.userOptionText, {marginLeft: 20}]}>Logout</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+          <View style={styles.ScreenList}>
+            <TouchableOpacity style={styles.screenItem}>
+              <Text style={{fontSize: 22, color: '#02843D'}}>Current Orders</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.screenItem}>
+              <Text style={{fontSize: 22, color: '#4A4A4A'}}>Waitstaff Screen</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.screenItem}>
+              <Text style={{fontSize: 22, color: '#4A4A4A'}}>Bar/Kitchen Screen</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.screenItem}>
+              <Text style={{fontSize: 22, color: '#4A4A4A'}}>Delivery person Screen</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.screenItem}>
+              <Text style={{fontSize: 22, color: '#4A4A4A'}}>Settings</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.screenItem}>
+              <Text style={{fontSize: 22, color: '#4A4A4A'}}>Closed Orders</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.screenItem}>
+              <Text style={{fontSize: 22, color: '#F64646'}}>Exit</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -176,6 +151,7 @@ export default function App() {
       >
         <Drawer.Screen name='Home' component={HomeView} />
         <Drawer.Screen name='Login' component={Login} />
+        <Drawer.Screen name='Profile' component={ViewProfile} />
         <Drawer.Screen name='Test' component={TestView} />
       </Drawer.Navigator>
     </NavigationContainer>

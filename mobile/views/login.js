@@ -9,7 +9,6 @@ export function Login({ navigation, route }) {
     var webViewProps = {
         source: { uri: `https://platerate.com/users/${(route.params.formType === 'login' ? 'login' : 'register')}` },
         javaScriptEnabled: true,
-        injectedJavaScript: getSubmitted
     };
 
     webViewProps.ref = ref => {
@@ -19,8 +18,12 @@ export function Login({ navigation, route }) {
     webViewProps.injectedJavaScript =  `
         document.getElementById('signin').addEventListener('submit', function(event) {
             event.preventDefault();
-            let email = document.getElementById('email').value;
-            let password = document.getElementById('password').value;
+            let emailInput = document.getElementById('email');
+            let passwordInput = document.getElementById('password');
+            let email = emailInput.value;
+            let password = passwordInput.value;
+            emailInput.value = '';
+            passwordInput.value = '';
             window.ReactNativeWebView.postMessage(JSON.stringify([email,password]));
         });
     `;
@@ -29,6 +32,8 @@ export function Login({ navigation, route }) {
         let userCredentials = JSON.parse(event.nativeEvent.data);
         
         // fetch from db and check if credentials are valid
+        // if credentials are valid, update state of {userInfo}
+        // if not, inject into webview passed credentials and submit, which should prompt user that credentials are invalid
 
         if(true) {
             route.params.setUserInfo(userCredentials);
@@ -39,7 +44,7 @@ export function Login({ navigation, route }) {
     }
 
     webViewProps.onNavigationStateChange = newNavState => {
-        console.log(newNavState);
+        // console.log(newNavState);
 
         const { url } = newNavState;
         if(!url) return;
@@ -50,15 +55,6 @@ export function Login({ navigation, route }) {
             webView.injectJavaScript(redirectTo);
         }
     }
-
-    const getSubmitted = `
-        document.getElementById('signin').addEventListener('submit', function(event) {
-            event.preventDefault();
-            let email = document.getElementById('email').value;
-            let password = document.getElementById('password').value;
-            window.ReactNativeWebView.postMessage(JSON.stringify([email,password]));
-        });
-    `;
 
     const passInvalidCredentials = (email,password) => {
         return `
