@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import Hamburger from '../content/images/hamburger.svg';
 import { useSelector, useDispatch } from 'react-redux';
+import { setUserId, setUserEmail, setUserFirstName, setUserLastName } from '../redux/actions';
 
 export function DrawerHeader(props){
 
@@ -25,7 +26,16 @@ export function DrawerHeader(props){
 
 export function DrawerContent(props) {
 
-    const { userId, userName, userEmail } = useSelector(state => state.userReducer);
+    const { userId, firstName, lastName } = useSelector(state => state.userReducer);
+
+    const dispatch = useDispatch();
+
+    const logoutUser = () => {
+        dispatch(setUserId(null));
+        dispatch(setUserEmail(''));
+        dispatch(setUserFirstName(''));
+        dispatch(setUserLastName('')); 
+    }
 
     return(
         <View style={{flex:1}}>
@@ -34,7 +44,7 @@ export function DrawerContent(props) {
                     <TouchableOpacity 
                     style={styles.guestOptionBtn}
                     onPress={() => {
-                        props.navigation.navigate('Login', { formType: 'login' });
+                        props.navigation.navigate('WebView', { viewType: 'accountAccess', formType: 'login' });
                     }}  
                     >
                     <Text style={styles.guestLabel}>Log In</Text>
@@ -42,7 +52,7 @@ export function DrawerContent(props) {
                     <TouchableOpacity 
                     style={styles.guestOptionBtn}
                     onPress={() => {
-                        props.navigation.navigate('Login', { formType: 'signup' });
+                        props.navigation.navigate('WebView', { viewType: 'accountAccess', formType: 'register' });
                     }}
                     >
                     <Text style={styles.guestLabel}>Sign Up</Text>
@@ -57,12 +67,12 @@ export function DrawerContent(props) {
                             source={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }}
                         />
                         <View style={styles.userNameCont}>
-                            <Text numberOfLines={1} style={styles.userNameText}>Rey Hector Flores</Text>
+                            <Text numberOfLines={1} style={styles.userNameText}>{`${firstName} ${lastName}`}</Text>
                             <View style={styles.userOptionsCont}>
                                 <TouchableOpacity 
                                     style={{flex: 1}}
                                     onPress={() => {
-                                    props.navigation.navigate('Profile');
+                                    props.navigation.navigate('WebView', { viewType: 'profile' });
                                     }}
                                 >
                                     <Text style={styles.userOptionText}>Profile</Text>
@@ -70,7 +80,7 @@ export function DrawerContent(props) {
                                 <View style={{height: '80%', width: 1, backgroundColor: '#979797'}}/>
                                 <TouchableOpacity 
                                     style={{flex: 1}}
-                                    onPress={() => props.setUserInfo(null)} 
+                                    onPress={logoutUser}
                                 >
                                     <Text style={[styles.userOptionText, {marginLeft: 20}]}>Logout</Text>
                                 </TouchableOpacity>
@@ -186,12 +196,13 @@ const styles =  StyleSheet.create({
         color: primaryColor
     },
     ScreenList: {
-        flex:1,
         flexDirection: 'column',
+        backgroundColor: '#E4E4E4'
     },
     screenItem: {
-        borderTopWidth: 1,
         paddingHorizontal: 40,
-        paddingVertical: 20
+        paddingVertical: 20,
+        backgroundColor: 'white',
+        marginTop: 2,
     }
 });

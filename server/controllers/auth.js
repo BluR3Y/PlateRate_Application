@@ -53,3 +53,13 @@ module.exports.getUser = (req, res, next) => {
     })
 }
 
+module.exports.validatePassword = (req,res, next) => {
+    var userInput = req.body.userInput;
+    var password = req.body.hashedPword;
+    console.log(userInput,password);
+    bcrypt.compare(userInput, password, function(err, result) {
+        if(err) {console.error(err)}
+        return res.json({validity: result});
+    })
+}
+

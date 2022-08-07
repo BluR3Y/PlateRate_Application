@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, Text, View, Button, Platform, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, Button, Platform, StatusBar, TextInput } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { WebView } from 'react-native-webview';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Axios from 'axios';
 
 function TestPickers({navigation}) {
     const [date, setDate] = useState(new Date());
@@ -161,11 +162,153 @@ function TestWebView() {
 
 }
 
+function TestDataFetch() {
+
+    const [loginUsername, setLoginUsername] = useState('');
+    const [loginPassword, setLoginPassword] = useState('');
+
+    const loginSubmit = () => {
+        // Axios({
+        //     method: 'post',
+        //     url: 'https://platerate.com/users/login',
+        //     data: {
+        //         email: loginUsername,
+        //         password: loginPassword,
+        //     },
+        //     withCredentials: true,
+        // })
+        // .then((res) => console.log(res.request.responseURL))
+        fetch('https://platerate.com/users/login', {
+            method: 'post',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: loginUsername,
+                password: loginPassword,
+            }),
+        })
+        .then((res) => console.log(res))
+    }
+
+    const getUser = () => {
+        // Axios({
+        //     method: 'post',
+        //     url: 'https://platerate.com/orders/getRestaurantOrdersHistory',
+        //     withCredentials: true,
+        // })
+        // .then((res) => console.log(res.data))
+        fetch('https://platerate.com/orders/getRestaurantOrdersHistory', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then((res) => console.log(res))
+    }
+
+    const getUserOrders = () => {
+        // Axios({
+        //     method: 'get',
+        //     url: 'https://platerate.com/getUserOrders',
+        //     withCredentials: true,
+        // })
+        // .then((res) => console.log(res.data))
+        fetch('https://platerate.com/getUserOrders', {
+            method: 'get',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then((res) => res.json())
+        .then((data) => console.log(data))
+    }
+
+    const getUserFriends = () => {
+        // Axios({
+        //     method: 'get',
+        //     url: 'https://platerate.com/userfriends/friends',
+        //     withCredentials: true,
+        // })
+        // .then((res) => console.log(res.data))
+        fetch('https://platerate.com/userfriends/friends', {
+            method: 'get',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then((res) => res.json())
+        .then((data) => console.log(data))
+    }
+
+    const getUserSettings = () => {
+        // Axios({
+        //     method: 'get',
+        //     url: 'https://platerate.com/platerateadmin/getsettings',
+        //     withCredentials: true,
+        // })
+        // .then((res) => console.log(res.data))
+        fetch('https://platerate.com/platerateadmin/getsettings', {
+            method: 'get',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then((res) => res.json())
+        .then((data) => console.log(data))
+    }
+
+    return(
+        <View style={{flex:1, flexDirection:'column', justifyContent: 'center'}}>
+            <View style={{height: 100, backgroundColor: 'red'}}>
+                <Text style={{fontSize:30, alignSelf: 'center'}}>Login</Text>
+                <View style={{flex:1, flexDirection: 'row', justifyContent: 'space-evenly', backgroundColor: 'green'}}>
+                    <TextInput
+                        style={{fontSize:25}}
+                        placeholder='username'
+                        onChangeText={setLoginUsername}
+                    />
+                    <TextInput
+                        style={{fontSize: 25}}
+                        placeholder='password'
+                        onChangeText={setLoginPassword}
+                    />
+                </View>
+            </View>
+            <View style={{height: 60, backgroundColor: 'red'}}>
+            <Button
+                        title='sign in'
+                        onPress={loginSubmit}
+                    />
+                    <Button
+                        title='Get User'
+                        onPress={getUser}
+                    />
+                    <Button
+                        title='Get User Orders'
+                        onPress={getUserOrders}
+                    />
+                    <Button
+                        title='Get User Friends'
+                        onPress={getUserFriends}
+                    />
+                    <Button
+                        title='Get User Settings'
+                        onPress={getUserSettings}
+                    />
+            </View>
+        </View>
+    );
+}
+
 export function TestView({navigation}) {
     return(
         <>
             {/* <TestPickers navigation={navigation} /> */}
-            <TestWebView/>
+            {/* <TestWebView/> */}
+            <TestDataFetch/>
         </>
     );
 }

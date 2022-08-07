@@ -11,6 +11,8 @@ router.post('/public', (req, res, next) => {
     res.status(200).json({message: 'here is your public resources'});
 });
 
+router.post('/validatePassword', Auth.validatePassword);
+
 router.use('/', (req, res, next) => {
     res.status(404).json({error : "page not found"});
     console.log('sheesh');

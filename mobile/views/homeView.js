@@ -1301,3 +1301,20 @@ export function HomeView({ navigation }) {
         </ScrollView>
     )
 }
+
+
+/*
+    approach: 
+        1. Get user id +
+        2. Get all user orders
+        3. Filter by type: pickup/delivery/ahead
+        4. Optional: Filter by delivery person and date range
+        5. For each order, create an "OrderItem" to display
+
+
+    useful db functions:
+
+    - showOrderHistory: server/controllers/profile-controller.js
+
+
+*/

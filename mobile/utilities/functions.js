@@ -1,4 +1,3 @@
-
 export function format12Hours(time) {
     var hours = time.getHours();
     var minutes = time.getMinutes();
