@@ -16,3 +16,12 @@ export function formatDate(date) {
     var strTime = month + '/' + day + '/' + year;
     return strTime;
 }
+
+export function withinRange(date, lower, upper) {
+    var dateObj = new Date(date);
+    
+    if(lower && lower > dateObj) return false;
+    if(upper && upper < dateObj) return false;
+
+    return true;
+}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, Dimensions, Image } from 'react-native';
 import { styles, pickerSelectStyles } from '../styles/homeStyles';
-import { format12Hours, formatDate } from '../utilities/functions';
+import { format12Hours, formatDate, withinRange } from '../utilities/functions';
 import Svg, { G, Rect } from 'react-native-svg';
 import { useSelector, useDispatch } from 'react-redux';
 import { store } from '../redux/store';
@@ -243,7 +243,9 @@ const DateSelectorItem = ({ title ,date, setDate }) => {
                     marginLeft: 5,
                     color: 'black',
                 }}>
-                    {date.getDate()+'/'+(date.getMonth()+1)}
+                    {date && (
+                        date.getDate()+'/'+(date.getMonth()+1)
+                    )}
                 </Text>
                 <Text style={{
                     fontSize: 14,
@@ -252,14 +254,16 @@ const DateSelectorItem = ({ title ,date, setDate }) => {
                     marginLeft: 5,
                     color: '#979797',
                 }}>
-                    {date.getFullYear()}
+                    {date && (
+                        date.getFullYear()
+                    )}
                 </Text>
             </View>
 
             {show && (
                 <DateTimePicker
                     testID='ProviderDatePicker'
-                    value={date}
+                    value={date?date : new Date()}
                     mode={'date'}
                     display='default'
                     onChange={onChange}
@@ -1138,6 +1142,9 @@ const OrderItem = ({ orderInfo }) => {
     const [summaryTableSelection, setSummaryTableSelection] = useState(null);   // order summary options
     const [mgmtTableSelection, setMgmtTableSelection] = useState(null);     // customer management options
     const [orderTimingTableSelection, setOrderTimingTableSelection] = useState(null);   // order timing options
+    const [orderData, setOrderData] = useState([]);
+
+    const { firstName, lastName } = useSelector(state => state.userReducer);
 
     const updateIsCollapsed = () => {
         setIsCollapsed(!isCollapsed);
@@ -1147,15 +1154,30 @@ const OrderItem = ({ orderInfo }) => {
         setSelectedSection(section);
     }
 
+    const getOrderData = async () => {
+        var orderRes = await fetch(`https://platerate.com/orders/details/user?orderId=${orderInfo.order_id}&res=json`);
+        var orderData = await orderRes.json();
+        var orderObj = Object.keys(orderData.data);
+        orderObj.forEach(obj => {
+            if(obj.includes('spend'))
+                console.log(obj)
+        })
+        setOrderData(orderData.data);
+    }
+
+    useEffect(() => {
+        getOrderData();
+    }, [])
+
     const orderBanner = (orderType) => {
-        if(orderType === 'OrderIn') {
+        if(orderType === 'order-ahead') {
             return (
                 <>
                     <Utensils width={13} height={13} fill={'#02843D'}/>
                     <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Order In</Text>
                 </>
             );
-        }else if(orderType === 'Delivery') {
+        }else if(orderType === 'delivery') {
             return (
                 <>
                     <Biker width={18} height={18} fill={'#02843D'} />
@@ -1173,13 +1195,13 @@ const OrderItem = ({ orderInfo }) => {
     }
 
     const orderPayment = (paymentStatus) => {
-        if(paymentStatus === 'Paid') {
+        if(paymentStatus === 'paid') {
             return(
                 <View style={[styles.paidCont,{backgroundColor: '#E6F3EC', borderColor: '#02843D'}]}>
                     <Text style={{color: '#02843D', fontSize: 11}}>Paid</Text>
                 </View>
             );
-        }else if(paymentStatus === 'Paying'){
+        }else if(paymentStatus === 'paying'){
             return(
                 <View style={[styles.paidCont,{backgroundColor: '#FFF3CE', borderColor: '#FCC41F'}]}>
                     <Text style={{color: '#000', fontSize: 11}}>Paying</Text>
@@ -1201,13 +1223,13 @@ const OrderItem = ({ orderInfo }) => {
                     <TouchableOpacity style={styles.orderExpandBtn} onPress={updateIsCollapsed}>
                         <Dash width={20} height={20} fill={'#000'}/>
                     </TouchableOpacity>
-                    <Text style={{color: 'black', fontSize: 17, marginRight: 10}}>{orderInfo.vendorName}'s</Text>
+                    <Text style={{color: 'black', fontSize: 17, marginRight: 10}}>{`${firstName} ${lastName[0]}`}'s</Text>
                     <View style={styles.orderBanner}>
                         {orderBanner(orderInfo.orderType)}
                     </View>
                     <View style={styles.orderAmountCont}>
-                        {orderPayment(orderInfo.paymentStatus)}
-                        <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderInfo.orderAmount})</Text>
+                        {orderPayment(orderInfo.payment_status)}
+                        <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderInfo.total_price})</Text>
                     </View>
                 </View>
                 <OrderOptions 
@@ -1222,7 +1244,7 @@ const OrderItem = ({ orderInfo }) => {
                 <View style={{height:2, backgroundColor:'#DBE0DD'}}></View>
                 <View style={styles.orderBody}>
                     <View>
-                        <Text style={[styles.accumInfoText,{fontWeight: 'bold'}]}>Order number #{orderInfo.orderNumber}</Text>
+                        <Text style={[styles.accumInfoText,{fontWeight: 'bold'}]}>Order number #{orderInfo.order_id}</Text>
                         <Text style={styles.accumInfoText}>
                             Order Lifetime Spend: 
                             <Text style={{color: '#02843D'}}> ${orderInfo.lifetimeSpent}</Text>    
@@ -1253,25 +1275,41 @@ const OrderItem = ({ orderInfo }) => {
     );
 }
 
-const OrderList = ({ orderTypes, serviceProvider, from, to }) => {
+const OrderList = ({ userOrders, ratingFilters, serviceProvider, from, to }) => {
 
     const [filteredOrders, setFilteredOrders] = useState([]);
 
-    const fiterOrders = () => {
-        var validOrders = [];
+    const filterOrders = async () => {
+        if(!userOrders.length) { return []; }
+        var selectedRatingFilters = [];
+        var filteredOrders = [];
 
+        ratingFilters.forEach((filterItem) => {
+            if(filterItem.selected)
+                selectedRatingFilters.push(filterItem.orderType);
+        })
 
+        userOrders.forEach((orderItem) => {
+            if(selectedRatingFilters.includes(orderItem.order_type) && withinRange(orderItem.order_placed_date, from, to))
+                filteredOrders.push(orderItem);
+        });
 
-        return validOrders;
+        return filteredOrders;
     }
 
     useEffect(() => {
-
-    },[orderTypes, serviceProvider, from, to])
+        filterOrders()
+        .then(async filtered => {
+            setFilteredOrders(filtered);
+        })
+    }, [userOrders, ratingFilters, serviceProvider, from, to]);
 
     return(
         <View style={styles.orderList}>
-            <OrderItem orderInfo={testOrder} />
+            {/* <OrderItem orderInfo={testOrder} /> */}
+            {filteredOrders.map(function(orderItem, index) {
+                return <OrderItem key={index} orderInfo={orderItem} />
+            })}
         </View>
     );
 }
@@ -1279,7 +1317,7 @@ const OrderList = ({ orderTypes, serviceProvider, from, to }) => {
 export function HomeView({ navigation }) {
     
     const [userOrders, setUserOrders] = useState([]);
-    const [filteredOrders, setFilteredOrders] = useState([]);
+    // const [filteredOrders, setFilteredOrders] = useState([]);
     const [ratingFilters, setRatingFilters] = useState([
         {
             id: 1,
@@ -1301,8 +1339,8 @@ export function HomeView({ navigation }) {
         }
     ]);
     const [provider, setProvider] = useState(null);
-    const [fromDate, setFromDate] = useState(new Date());
-    const [toDate, setToDate] = useState(new Date());
+    const [fromDate, setFromDate] = useState(null);
+    const [toDate, setToDate] = useState(null);
 
     const { userId, userEmail } = useSelector(state => state.userReducer);
 
@@ -1317,35 +1355,10 @@ export function HomeView({ navigation }) {
         }
     };
 
-    const filterOrders = () => {
-        if(!userOrders.length) { return []; }
-
-        let filtered_orders = [];
-        var selectedRatingFilters = [];
-
-        ratingFilters.forEach(filterItem => {
-            if(filterItem.selected)
-                selectedRatingFilters.push(filterItem.orderType);
-        });
-
-        userOrders.forEach(order => {
-            if(selectedRatingFilters.includes(order.order_type)) 
-                filtered_orders.push(order);
-        });
-
-        setFilteredOrders(filtered_orders);
-    }
-
     useEffect(() => {
         console.log('fetch orders called')
         getUserOrders();
     }, [userId]);
-
-    useEffect(() => {
-        console.log('filter called');
-        console.log('orders: ', userOrders.length);
-        filterOrders();
-    },[userOrders, ratingFilters])
 
     return(
         <ScrollView contentContainerStyle={{flexGrow:1, justifyContent: 'space-between'}}>
@@ -1360,7 +1373,7 @@ export function HomeView({ navigation }) {
                 to={toDate} setTo={setToDate} 
             />
             <OrderList 
-                orderTypes={ratingFilters}
+                ratingFilters={ratingFilters}
                 serviceProvider={provider} 
                 from={fromDate} to={toDate}
                 userOrders={userOrders}
