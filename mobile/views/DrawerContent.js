@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import Hamburger from '../content/images/hamburger.svg';
 import { useSelector, useDispatch } from 'react-redux';
-import { setUserId, setUserEmail, setUserFirstName, setUserLastName } from '../redux/actions';
+import { setUserId, setUserEmail, setUserFirstName, setUserLastName, setUserImage, setUserPhone } from '../redux/actions';
 
 export function DrawerHeader(props){
 
@@ -26,15 +26,28 @@ export function DrawerHeader(props){
 
 export function DrawerContent(props) {
 
-    const { userId, firstName, lastName } = useSelector(state => state.userReducer);
+    const { userId, firstName, lastName, userImage } = useSelector(state => state.userReducer);
 
     const dispatch = useDispatch();
 
     const logoutUser = () => {
-        dispatch(setUserId(null));
-        dispatch(setUserEmail(''));
-        dispatch(setUserFirstName(''));
-        dispatch(setUserLastName('')); 
+
+        fetch('https://platerate.com/users/logout', {
+            method: 'post',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(async res => {
+            console.log(res);
+            dispatch(setUserId(null));
+            dispatch(setUserEmail(''));
+            dispatch(setUserFirstName(''));
+            dispatch(setUserLastName(''));
+            dispatch(setUserImage(''));
+            dispatch(setUserPhone(''));
+        })
     }
 
     return(
@@ -64,7 +77,7 @@ export function DrawerContent(props) {
                     <View style={styles.userInfoCont}>
                         <Image
                             style={styles.userProfileImg}
-                            source={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }}
+                            source={{ uri: userImage }}
                         />
                         <View style={styles.userNameCont}>
                             <Text numberOfLines={1} style={styles.userNameText}>{`${firstName} ${lastName}`}</Text>

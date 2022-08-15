@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, Dimensions, Image } from 'react-native';
 import { styles, pickerSelectStyles } from '../styles/homeStyles';
 import { format12Hours, formatDate } from '../utilities/functions';
 import Svg, { G, Rect } from 'react-native-svg';
+import { useSelector, useDispatch } from 'react-redux';
+import { store } from '../redux/store';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect, { defaultStyles } from 'react-native-picker-select';
@@ -127,11 +129,9 @@ const testFoodOrderedItem = [
 
 // ------------------------------------------------------
 
-const OrderNotification = ({ newOrders }) => {
+const OrderNotification = ({ userId }) => {
 
-    //fetch from database
-
-    const [show, setShow] = useState(newOrders? true : false);
+    const [show, setShow] = useState((!userId && 1)? true : false);
     
     const hideNotification = () => {
         setShow(!show);
@@ -143,7 +143,7 @@ const OrderNotification = ({ newOrders }) => {
             style={[styles.orderNotification, {display: (show ? 'flex' : 'none')}]}
         >
             <View style={{borderBottomWidth: 2}}>
-                <Text style={styles.notificationText}>{`${newOrders} New Orders`}</Text>
+                <Text style={styles.notificationText}>{`${1} New Orders`}</Text>
             </View>
         </TouchableOpacity>
     );
@@ -166,7 +166,7 @@ const RatingFilters = ({ selectedFilters, modifyRatingFilters }) => {
                     <View style={[styles.checkMark, {opacity: (filterItem.selected ? 1 : 0)}]}>
                         <CheckMark width={18} height={13} fill={'#FFF'} />
                     </View>
-                    <Text style={styles.ratingFilterText}>{filterItem.orderType}</Text>
+                    <Text style={styles.ratingFilterText}>{filterItem.orderText}</Text>
                 </TouchableOpacity>
             ))}
         </View>
@@ -887,7 +887,7 @@ const FoodOrderItem = ({ orderItemId, getOrders, setOrders}) => {
         <View style={styles.foodOrderItem}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                 <View style={styles.foodOrderUserInfo}>
-                    <Image source={{ uri: getOrders[orderItemId - 1].clientProfileImg }} style={styles.foodOrderUserImg}/>
+                    {/* <Image source={{ uri: getOrders[orderItemId - 1].clientProfileImg }} style={styles.foodOrderUserImg}/> */}
                     <Text style={{fontSize: 20, marginHorizontal: 7, fontWeight: 'bold'}}>{`${getOrders[orderItemId - 1].clientName.substring(0, getOrders[orderItemId - 1].clientName.indexOf(' ')+2)}'s Order`}</Text>
                 </View>
                 <CustomDropDown 
@@ -1254,12 +1254,21 @@ const OrderItem = ({ orderInfo }) => {
 }
 
 const OrderList = ({ orderTypes, serviceProvider, from, to }) => {
-    // fetch user review:
-    //  reviews for all selected filters: orderin, delivery,takeout
-    //  filter by selected delivery person
-    //  filter by from and to dates
 
-    //After fetching data, map all orders, creating a <OrderItem/> for each one
+    const [filteredOrders, setFilteredOrders] = useState([]);
+
+    const fiterOrders = () => {
+        var validOrders = [];
+
+
+
+        return validOrders;
+    }
+
+    useEffect(() => {
+
+    },[orderTypes, serviceProvider, from, to])
+
     return(
         <View style={styles.orderList}>
             <OrderItem orderInfo={testOrder} />
@@ -1268,23 +1277,26 @@ const OrderList = ({ orderTypes, serviceProvider, from, to }) => {
 }
 
 export function HomeView({ navigation }) {
-    // fetch user information after logging in:
-    //   userId
-    //   service providers that handled user's order
+    
+    const [userOrders, setUserOrders] = useState([]);
+    const [filteredOrders, setFilteredOrders] = useState([]);
     const [ratingFilters, setRatingFilters] = useState([
         {
             id: 1,
-            orderType: 'OrderIn',
+            orderText: 'Order In',
+            orderType: 'order-ahead',
             selected: true,
         },
         {
             id: 2,
-            orderType: 'Delivery',
+            orderText: 'Delivery',
+            orderType: 'delivery',
             selected: true,
         },
         {
             id: 3,
-            orderType: 'TakeOut',
+            orderText: 'Pick-Up',
+            orderType: 'pickup',
             selected: true,
         }
     ]);
@@ -1292,16 +1304,70 @@ export function HomeView({ navigation }) {
     const [fromDate, setFromDate] = useState(new Date());
     const [toDate, setToDate] = useState(new Date());
 
+    const { userId, userEmail } = useSelector(state => state.userReducer);
+
+    const getUserOrders = async () => {
+        try {
+            const resp = await fetch('https://platerate.com/getUserOrders');
+            const orders = await resp.json();
+            setUserOrders(orders);
+        } catch (error) {
+            console.error(error);
+            setUserOrders([]);
+        }
+    };
+
+    const filterOrders = () => {
+        if(!userOrders.length) { return []; }
+
+        let filtered_orders = [];
+        var selectedRatingFilters = [];
+
+        ratingFilters.forEach(filterItem => {
+            if(filterItem.selected)
+                selectedRatingFilters.push(filterItem.orderType);
+        });
+
+        userOrders.forEach(order => {
+            if(selectedRatingFilters.includes(order.order_type)) 
+                filtered_orders.push(order);
+        });
+
+        setFilteredOrders(filtered_orders);
+    }
+
+    useEffect(() => {
+        console.log('fetch orders called')
+        getUserOrders();
+    }, [userId]);
+
+    useEffect(() => {
+        console.log('filter called');
+        console.log('orders: ', userOrders.length);
+        filterOrders();
+    },[userOrders, ratingFilters])
+
     return(
         <ScrollView contentContainerStyle={{flexGrow:1, justifyContent: 'space-between'}}>
-            <OrderNotification newOrders={8} />
-            <RatingFilters selectedFilters={ratingFilters} modifyRatingFilters={setRatingFilters} />
-            <ProviderSelectors changeProvider={setProvider} from={fromDate} setFrom={setFromDate} to={toDate} setTo={setToDate} />
-            <OrderList orderTypes={ratingFilters} serviceProvider={provider} from={fromDate} to={toDate} />
+            <OrderNotification  />
+            <RatingFilters 
+                selectedFilters={ratingFilters} 
+                modifyRatingFilters={setRatingFilters} 
+            />
+            <ProviderSelectors 
+                changeProvider={setProvider} 
+                from={fromDate} setFrom={setFromDate} 
+                to={toDate} setTo={setToDate} 
+            />
+            <OrderList 
+                orderTypes={ratingFilters}
+                serviceProvider={provider} 
+                from={fromDate} to={toDate}
+                userOrders={userOrders}
+            />
         </ScrollView>
     )
 }
-
 
 /*
     approach: 

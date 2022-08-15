@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, Platform, StatusBar, TextInput } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { WebView } from 'react-native-webview';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Axios from 'axios';
+import { useSelector } from 'react-redux';
 
 function TestPickers({navigation}) {
     const [date, setDate] = useState(new Date());
@@ -68,7 +68,7 @@ function TestWebView() {
 
     let webView = useRef();
     let webViewProps = { 
-        source: { uri: 'https://platerate.com/users/login' } ,
+        source: { uri: 'http://192.168.1.13:3003/users/login' } ,
         javaScriptEnabled: true,
         injectedJavaScript: getSubmitted
     };
@@ -112,7 +112,7 @@ function TestWebView() {
     //         if(!url) return;
 
     //         if(!url.includes('register') && !url.includes('login')) {
-    //             const newURL = 'https://platerate.com/users/login';
+    //             const newURL = 'http://192.168.1.13:3003/users/login';
     //             const redirectTo = `window.location = '${newURL}'`;
     //             webView.injectJavaScript(redirectTo);   
     //         }
@@ -126,7 +126,7 @@ function TestWebView() {
         if(!url) return;
 
         if(!url.includes('register') && !url.includes('login')) {
-            const newURL = 'https://platerate.com/users/login';
+            const newURL = 'http://192.168.1.13:3003/users/login';
             const redirectTo = `window.location = '${newURL}'`;
             webView.injectJavaScript(redirectTo);
         }
@@ -170,7 +170,7 @@ function TestDataFetch() {
     const loginSubmit = () => {
         // Axios({
         //     method: 'post',
-        //     url: 'https://platerate.com/users/login',
+        //     url: 'http://192.168.1.13:3003/users/login',
         //     data: {
         //         email: loginUsername,
         //         password: loginPassword,
@@ -178,7 +178,7 @@ function TestDataFetch() {
         //     withCredentials: true,
         // })
         // .then((res) => console.log(res.request.responseURL))
-        fetch('https://platerate.com/users/login', {
+        fetch('http://192.168.1.13:3003/users/login', {
             method: 'post',
             headers: {
                 Accept: 'application/json',
@@ -195,11 +195,11 @@ function TestDataFetch() {
     const getUser = () => {
         // Axios({
         //     method: 'post',
-        //     url: 'https://platerate.com/orders/getRestaurantOrdersHistory',
+        //     url: 'http://192.168.1.13:3003/orders/getRestaurantOrdersHistory',
         //     withCredentials: true,
         // })
         // .then((res) => console.log(res.data))
-        fetch('https://platerate.com/orders/getRestaurantOrdersHistory', {
+        fetch('http://192.168.1.13:3003/orders/getRestaurantOrdersHistory', {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json',
@@ -211,11 +211,11 @@ function TestDataFetch() {
     const getUserOrders = () => {
         // Axios({
         //     method: 'get',
-        //     url: 'https://platerate.com/getUserOrders',
+        //     url: 'http://192.168.1.13:3003/getUserOrders',
         //     withCredentials: true,
         // })
         // .then((res) => console.log(res.data))
-        fetch('https://platerate.com/getUserOrders', {
+        fetch('http://192.168.1.13:3003/getUserOrders', {
             method: 'get',
             headers: {
                 Accept: 'application/json',
@@ -229,11 +229,11 @@ function TestDataFetch() {
     const getUserFriends = () => {
         // Axios({
         //     method: 'get',
-        //     url: 'https://platerate.com/userfriends/friends',
+        //     url: 'http://192.168.1.13:3003/userfriends/friends',
         //     withCredentials: true,
         // })
         // .then((res) => console.log(res.data))
-        fetch('https://platerate.com/userfriends/friends', {
+        fetch('http://192.168.1.13:3003/userfriends/friends', {
             method: 'get',
             headers: {
                 'Content-Type': 'application/json',
@@ -246,11 +246,11 @@ function TestDataFetch() {
     const getUserSettings = () => {
         // Axios({
         //     method: 'get',
-        //     url: 'https://platerate.com/platerateadmin/getsettings',
+        //     url: 'http://192.168.1.13:3003/platerateadmin/getsettings',
         //     withCredentials: true,
         // })
         // .then((res) => console.log(res.data))
-        fetch('https://platerate.com/platerateadmin/getsettings', {
+        fetch('http://192.168.1.13:3003/platerateadmin/getsettings', {
             method: 'get',
             headers: {
                 'Content-Type': 'application/json',
@@ -303,12 +303,162 @@ function TestDataFetch() {
     );
 }
 
+function TestModifyData() {
+
+    const [serverName, setServerName] = useState('');
+    const [serverEmail, setServerEmail] = useState('');
+    const [serverPhone, setServerPhone] = useState('');
+    const [venueId, setVenueId] = useState('52aa54ec11d261e0be7777b8');
+
+    const submitAddServer = () => {
+        fetch('http://192.168.1.13:3003/restaurantadmin/addyourserver', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                venueId: venueId,
+                name: serverName,
+                email: serverEmail,
+                phone: serverPhone,
+            })
+        })
+        .then(async res => {
+            if(res.status !== 200) {
+                console.log('error');
+                return;
+            }
+            res.json()
+            .then(data => console.log(data));
+        })
+    }
+
+    const fetchWaitStaff = async () => {
+        var restStaff = await fetch(`http://192.168.1.13:3003/restaurantadmin/list-restaurant-staff/${venueId}`);
+        if(restStaff.status === 200) { restStaff = await restStaff.json() }
+        console.log(restStaff);
+    }
+
+    return(
+        <View style={{flex:1, flexDirection:'column', alignItems:'center', justifyContent: 'center'}}>
+            <View style={{width: '90%', flexDirection: 'column'}}>
+
+                <TextInput
+                    placeholder='food server'
+                    onChangeText={setServerName}
+                    style={{height:50, borderWidth:1, marginBottom:10}}
+                />
+                <TextInput
+                    placeholder='email'
+                    onChangeText={setServerEmail}
+                    style={{height:50, borderWidth:1, marginBottom:10}}
+                />
+                <TextInput
+                    placeholder='phone'
+                    onChangeText={setServerPhone}
+                    style={{height:50, borderWidth:1, marginBottom:10}}
+                />
+
+                <Button
+                    title='add server'
+                    onPress={submitAddServer}
+                />
+
+            </View>
+            <View>
+                <Button
+                    title='get waitstaff'
+                    onPress={fetchWaitStaff}
+                />
+            </View>
+        </View>
+    )
+}
+
+function TestFetchOrder({ userId, userEmail }) {
+    console.log(userId)
+    const [orderId, setOrderId] = useState('6994');
+
+    const fetchOrderInfo = async () => {
+        console.log('called')
+        return fetch('http://192.168.1.13:3003/getInfo', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                email: userEmail,
+                order_id: orderId,
+            })
+        })
+        .then(res => {
+            if(!res.ok) {
+                return Promise.reject('Response not ok with status ' + res.status);
+            }
+            console.log(res)
+            return res;
+        })
+        .then(data => data.json())
+    }
+
+    useEffect(() => {
+        fetchOrderInfo()
+        .then(async res => console.log(res))
+    })
+
+    return(
+        <View>
+
+        </View>
+    )
+}
+
+function FetchUserData() {
+
+    const fetchUserData = () => {
+        fetch('http://192.168.1.13:3003/user/validateEmail', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: 'garrett@platerate.guru'
+            })
+        })
+        .then(async res => {
+            console.log(res)
+            if(!res.ok) { return }
+            return res.json()
+        })
+        .then(data => {
+            console.log(data)
+        })
+    }
+
+    // useEffect(() => {
+    //     fetchUserData()
+    // })
+
+    return(
+        <View>
+
+        </View>
+    )
+}
+
 export function TestView({navigation}) {
+
+    const { userId, userEmail } = useSelector(state => state.userReducer);
+
     return(
         <>
             {/* <TestPickers navigation={navigation} /> */}
             {/* <TestWebView/> */}
-            <TestDataFetch/>
+            {/* <TestDataFetch/> */}
+            {/* <TestModifyData/> */}
+            <TestFetchOrder userId={userId} userEmail={userEmail} />
+            {/* <FetchUserData/> */}
         </>
     );
 }
@@ -321,3 +471,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     }
 });
+
+// Notes:
+
+// mongodb testing account:
+    // email: garrett@platerate.guru
+    // password: 121212
+    // _id: 59177f050c9db20629f49222

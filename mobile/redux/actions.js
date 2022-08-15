@@ -2,6 +2,8 @@ export const SET_USER_ID = 'SET_USER_ID';
 export const SET_USER_FIRST_NAME = 'SET_USER_FIRST_NAME';
 export const SET_USER_LAST_NAME = 'SET_USER_LAST_NAME';
 export const SET_USER_EMAIL = 'SET_USER_EMAIL';
+export const SET_USER_PHONE = 'SET_USER_PHONE';
+export const SET_USER_IMAGE = 'SET_USER_IMAGE';
 
 export const setUserId = userId => dispatch => {
     dispatch({
@@ -31,22 +33,16 @@ export const setUserEmail = userEmail => dispatch => {
     });
 };
 
-// export const logoutUser = () => dispatch => {
-//     dispatch({
-//         type: SET_USER_ID,
-//         payload: null,
-//     });
-//     dispatch({
-//         type: SET_USER_EMAIL,
-//         payload: '',
-//     });
-//     dispatch({
-//         type: SET_USER_FIRST_NAME,
-//         payload: '',
-//     });
-//     dispatch({
-//         type: SET_USER_LAST_NAME,
-//         payload: '',
-//     });
-//     console.log('marker');
-// }
+export const setUserPhone = userPhone => dispatch => {
+    dispatch({
+        type: SET_USER_PHONE,
+        payload: userPhone,
+    });
+};
+
+export const setUserImage = userImage => dispatch => {
+    dispatch({
+        type: SET_USER_IMAGE,
+        payload: userImage,
+    });
+};
