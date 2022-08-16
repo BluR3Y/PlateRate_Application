@@ -274,29 +274,29 @@ const DateSelectorItem = ({ title ,date, setDate }) => {
     );
 }
 
-const ProviderSelectors = ({ changeProvider, from, setFrom, to, setTo }) => {
+const ProviderSelectors = ({ provider, setProvider, from, setFrom, to, setTo }) => {
 
-    const serviceProviders = [
-        {
-          label: 'Jessica',
-          value: 'Jessica',
-        },
-        {
-          label: 'Richard',
-          value: 'Richard',
-        },
-        {
-          label: 'James',
-          value: 'James',
-        },
-        {
-            label: 'Andrew',
-            value: 'Andrew'
-        }
-    ];
+    // const serviceProviders = [
+    //     {
+    //       label: 'Jessica',
+    //       value: 'Jessica',
+    //     },
+    //     {
+    //       label: 'Richard',
+    //       value: 'Richard',
+    //     },
+    //     {
+    //       label: 'James',
+    //       value: 'James',
+    //     },
+    //     {
+    //         label: 'Andrew',
+    //         value: 'Andrew'
+    //     }
+    // ];
 
     const updateProvider = (provider) => {
-        changeProvider(provider);
+        setProvider(provider);
     }
 
     return(
@@ -305,7 +305,7 @@ const ProviderSelectors = ({ changeProvider, from, setFrom, to, setTo }) => {
                 <RNPickerSelect
                     placeholder={{ label: 'Server / Delivery Person', value: null }}
                     useNativeAndroidPickerStyle={false}
-                    items={serviceProviders}
+                    items={provider}
                     onValueChange={updateProvider}
                     style={pickerSelectStyles}
                     textInputProps={{color: 'black'}}
@@ -319,39 +319,6 @@ const ProviderSelectors = ({ changeProvider, from, setFrom, to, setTo }) => {
                     <DateSelectorItem title={'To'} date={to} setDate={setTo}/>
                 </View>
             </View>
-        </View>
-    );
-}
-
-const SpentWithinDays = ({  }) => {
-
-    // fetch lifetime spent and spent in N days
-    // requires: venueId, userId
-
-    const [numDays, setNumDays] = useState('90');
-
-    const changeNumDays = (selected) => {
-        setNumDays(selected.replace(/\D/g,''));
-    }
-
-    const onPress = () => {
-        console.log('triggered');
-    }
-
-    return (
-        <View style={styles.spent_n_daysCont}>
-            <Text style={styles.accumInfoText}>Last</Text>
-            <View style={styles.daysCont}>
-                <TextInput
-                    onChangeText={changeNumDays}
-                    value={numDays}
-                    keyboardType={'numeric'}
-                    maxLength={3}
-                    style={{padding:0, marginHorizontal: 4, fontSize:15, marginLeft: 8}}
-                />
-                <UpDownCaret caretStyle={{right: 2}} />
-            </View>
-            <Text style={styles.accumInfoText}>days = Spend: <Text style={{color: '#02843D'}}>${4000}</Text> Tip: <Text style={{color: '#02843D'}}>{22}%</Text></Text>
         </View>
     );
 }
@@ -1134,17 +1101,21 @@ const OrderOptions = ({ selectedSection, setReservationAcceptance, setSummaryTab
 
 // ------------------------------------------------------------------
 
-const OrderItem = ({ orderInfo }) => {
+// key={index} 
+// orderInfo={orderItem}
+// lifetimeSpent={lifetimeSpent}
+// inRangeSpent_days={inRangeSpent_days}
+// setInRangeSpent_days={setInRangeSpent_days}
+// inRangeSpent_amount={inRangeSpent_amount} 
+
+const OrderItem = ({ orderInfo, orderData, lifetimeSpent, inRangeSpent_days, setInRangeSpent_days, inRangeSpent_amount }) => {
 
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [selectedSection, setSelectedSection] = useState(0);
-    const [reservationAcceptance, setReservationAcceptance] = useState(null);   // reservation options
-    const [summaryTableSelection, setSummaryTableSelection] = useState(null);   // order summary options
-    const [mgmtTableSelection, setMgmtTableSelection] = useState(null);     // customer management options
-    const [orderTimingTableSelection, setOrderTimingTableSelection] = useState(null);   // order timing options
-    const [orderData, setOrderData] = useState([]);
-
-    const { firstName, lastName } = useSelector(state => state.userReducer);
+    // const [reservationAcceptance, setReservationAcceptance] = useState(null);   // reservation options
+    // const [summaryTableSelection, setSummaryTableSelection] = useState(null);   // order summary options
+    // const [mgmtTableSelection, setMgmtTableSelection] = useState(null);     // customer management options
+    // const [orderTimingTableSelection, setOrderTimingTableSelection] = useState(null);   // order timing options
 
     const updateIsCollapsed = () => {
         setIsCollapsed(!isCollapsed);
@@ -1155,15 +1126,49 @@ const OrderItem = ({ orderInfo }) => {
     }
 
     const getOrderData = async () => {
-        var orderRes = await fetch(`https://platerate.com/orders/details/user?orderId=${orderInfo.order_id}&res=json`);
-        var orderData = await orderRes.json();
-        var orderObj = Object.keys(orderData.data);
-        orderObj.forEach(obj => {
-            if(obj.includes('spend'))
-                console.log(obj)
-        })
-        setOrderData(orderData.data);
+        // var orderDetailsRes = await fetch(`https://platerate.com/orders/details/user?orderId=${orderInfo.order_id}&res=json`);
+        // var orderDetails = await orderDetailsRes.json();
+
+        // var orderItemsRes = await fetch(`https://platerate.com/orders/items?orderId=${orderInfo.order_id}`);
+        // var orderItems = await orderItemsRes.json();
     }
+
+    // const getOrderData = async () => {
+    //     var orderRes = await fetch(`https://platerate.com/orders/details/user?orderId=${orderInfo.order_id}&res=json`);
+    //     var orderData = await orderRes.json();
+    //     var subOrderTotalRes = await fetch('https://platerate.com/orders/subOrderTotal', {
+    //         method: 'post',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             userId: orderData.data.user.userId,
+    //             venueId: orderInfo.venue_id,
+    //             orderId: orderInfo.order_id,
+    //         })
+    //     });
+    //     var subOrderTotalData = await subOrderTotalRes.json();
+    //     var detailsRes = await fetch(`https://platerate.com/orders/details/restaurant?venueId=${orderInfo.venue_id}&orderId=${orderInfo.order_id}&res=json`);
+    //     var orderDetails = await detailsRes.json();
+
+    //     var getMoreRes = await fetch('https://platerate.com/orders/get-more-order-infor', {
+    //         method: 'post',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             data: {
+    //                 order_id : orderInfo.order_id,
+    //                 parent_order_id: null,
+    //             }
+    //         })
+    //     })
+    //     var getMoreData = await getMoreRes.json()
+    //     console.log(getMoreData);
+
+    //     setOrderData(orderData.data);
+    //     setOrderTotal(subOrderTotalData.data);
+    // }
 
     useEffect(() => {
         getOrderData();
@@ -1223,22 +1228,22 @@ const OrderItem = ({ orderInfo }) => {
                     <TouchableOpacity style={styles.orderExpandBtn} onPress={updateIsCollapsed}>
                         <Dash width={20} height={20} fill={'#000'}/>
                     </TouchableOpacity>
-                    <Text style={{color: 'black', fontSize: 17, marginRight: 10}}>{`${firstName} ${lastName[0]}`}'s</Text>
+                    <Text style={{color: 'black', fontSize: 17, marginRight: 10}}>{orderData.order_name}</Text>
                     <View style={styles.orderBanner}>
-                        {orderBanner(orderInfo.orderType)}
+                        {orderBanner(orderInfo.order_type)}
                     </View>
                     <View style={styles.orderAmountCont}>
                         {orderPayment(orderInfo.payment_status)}
                         <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderInfo.total_price})</Text>
                     </View>
                 </View>
-                <OrderOptions 
+                {/* <OrderOptions 
                     selectedSection={selectedSection} 
                     setReservationAcceptance={setReservationAcceptance} 
                     setSummaryTableSelection={setSummaryTableSelection} 
                     setMgmtTableSelection={setMgmtTableSelection} 
                     setOrderTimingTableSelection={setOrderTimingTableSelection} 
-                />
+                /> */}
             </View>
             <Collapsible collapsed={isCollapsed}>
                 <View style={{height:2, backgroundColor:'#DBE0DD'}}></View>
@@ -1247,9 +1252,22 @@ const OrderItem = ({ orderInfo }) => {
                         <Text style={[styles.accumInfoText,{fontWeight: 'bold'}]}>Order number #{orderInfo.order_id}</Text>
                         <Text style={styles.accumInfoText}>
                             Order Lifetime Spend: 
-                            <Text style={{color: '#02843D'}}> ${orderInfo.lifetimeSpent}</Text>    
+                            <Text style={{color: '#02843D'}}> ${lifetimeSpent}</Text>    
                         </Text>
-                        <SpentWithinDays />
+                        <View style={styles.spent_n_daysCont}>
+                            <Text style={styles.accumInfoText}>Last</Text>
+                            <View style={styles.daysCont}>
+                                <TextInput
+                                    onChangeText={(val) => setInRangeSpent_days(val.replace(/\D/g,''))}
+                                    value={inRangeSpent_days}
+                                    keyboardType={'numeric'}
+                                    maxLength={3}
+                                    style={{padding:0, marginHorizontal: 4, fontSize:15, marginLeft: 8}}
+                                />
+                                <UpDownCaret caretStyle={{right: 2}} />
+                            </View>
+                            <Text style={styles.accumInfoText}>days = Spend: <Text style={{color: '#02843D'}}>${inRangeSpent_amount}</Text> Tip: <Text style={{color: '#02843D'}}>{22}%</Text></Text>
+                        </View>
                     </View>
                     <View style={styles.orderSectionBtns}>
                         <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 0? '#02843D' : '#F3F3F3')}]} onPress={() => setSection(0)}>
@@ -1278,6 +1296,9 @@ const OrderItem = ({ orderInfo }) => {
 const OrderList = ({ userOrders, ratingFilters, serviceProvider, from, to }) => {
 
     const [filteredOrders, setFilteredOrders] = useState([]);
+    const [lifetimeSpent, setLifeTimeSpent] = useState(null);
+    const [inRangeSpent_days, setInRangeSpent_days] = useState('100');
+    const [inRangeSpent_amount, setInRangeSpent_amount] = useState(null);
 
     const filterOrders = async () => {
         if(!userOrders.length) { return []; }
@@ -1290,25 +1311,55 @@ const OrderList = ({ userOrders, ratingFilters, serviceProvider, from, to }) => 
         })
 
         userOrders.forEach((orderItem) => {
-            if(selectedRatingFilters.includes(orderItem.order_type) && withinRange(orderItem.order_placed_date, from, to))
+            if(selectedRatingFilters.includes(orderItem.orderInfo.order_type) && withinRange(orderItem.orderInfo.order_placed_date, from, to))
                 filteredOrders.push(orderItem);
         });
 
         return filteredOrders;
     }
 
+    const calculateSpending = () => {
+        if(!userOrders.length) { return; }
+        var totalSpent = 0;
+        var inRangeSpent = 0;
+        var currentDate = new Date();
+        var priorDate = new Date(new Date().setDate(currentDate.getDate() - inRangeSpent_days));
+
+        userOrders.forEach((orderItem) => {
+            if(!orderItem.orderInfo.order_placed_date) { return; }
+            if(withinRange(orderItem.orderInfo.order_placed_date,priorDate, currentDate))
+                inRangeSpent += orderItem.orderInfo.total_price;
+            totalSpent += orderItem.orderInfo.total_price;
+        })
+        setLifeTimeSpent(totalSpent);
+        setInRangeSpent_amount(inRangeSpent);
+    }
+
     useEffect(() => {
         filterOrders()
         .then(async filtered => {
             setFilteredOrders(filtered);
+            calculateSpending();
         })
     }, [userOrders, ratingFilters, serviceProvider, from, to]);
+
+    useEffect(() => {
+        calculateSpending();
+    }, [inRangeSpent_days]);
 
     return(
         <View style={styles.orderList}>
             {/* <OrderItem orderInfo={testOrder} /> */}
             {filteredOrders.map(function(orderItem, index) {
-                return <OrderItem key={index} orderInfo={orderItem} />
+                return <OrderItem 
+                    key={index} 
+                    orderInfo={orderItem.orderInfo}
+                    orderData={orderItem.orderData}
+                    lifetimeSpent={lifetimeSpent}
+                    inRangeSpent_days={inRangeSpent_days}
+                    setInRangeSpent_days={setInRangeSpent_days}
+                    inRangeSpent_amount={inRangeSpent_amount} 
+                />
             })}
         </View>
     );
@@ -1338,7 +1389,7 @@ export function HomeView({ navigation }) {
             selected: true,
         }
     ]);
-    const [provider, setProvider] = useState(null);
+    const [provider, setProvider] = useState([]);
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
 
@@ -1346,9 +1397,20 @@ export function HomeView({ navigation }) {
 
     const getUserOrders = async () => {
         try {
+            var orderItems = [];
             const resp = await fetch('https://platerate.com/getUserOrders');
             const orders = await resp.json();
-            setUserOrders(orders);
+
+            for(var i = 0; i < orders.length; i++) {
+                let orderData = await fetch(`https://platerate.com/orders/details/user?orderId=${orders[i].order_id}&res=json`);
+                orderData = await orderData.json();
+                let orderObj = {
+                    orderInfo: orders[i],
+                    orderData: orderData.data,
+                };
+                orderItems.push(orderObj);
+            }
+            setUserOrders(orderItems);
         } catch (error) {
             console.error(error);
             setUserOrders([]);
@@ -1368,7 +1430,8 @@ export function HomeView({ navigation }) {
                 modifyRatingFilters={setRatingFilters} 
             />
             <ProviderSelectors 
-                changeProvider={setProvider} 
+                provider={provider}
+                setProvider={setProvider} 
                 from={fromDate} setFrom={setFromDate} 
                 to={toDate} setTo={setToDate} 
             />
