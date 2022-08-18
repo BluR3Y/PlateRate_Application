@@ -704,7 +704,7 @@ const ReservationResponseInputs = ({ daysRemaining, setDaysRemaining, dateReques
     );
 }
 
-const InstructionInput = ({ instructionTitle, instructionPlaceHolder, instructionStyle, orderInstructions, setOrderInstructions }) => {
+const InstructionInput = ({ instructionTitle, instructionPlaceHolder, instructionStyle, orderInstructions, setOrderInstructions, isModifiable }) => {
 
     const changeInstructions = (instructions) => {
         setOrderInstructions(instructions);
@@ -718,6 +718,8 @@ const InstructionInput = ({ instructionTitle, instructionPlaceHolder, instructio
                 style={styles.InstructionInputBox}
                 onChangeText={changeInstructions}
                 value={orderInstructions}
+                editable={isModifiable}
+                selectTextOnFocus={isModifiable}
             />
         </View>
     );
@@ -831,96 +833,153 @@ const MenuItem = ({ menuItem, subOptionChange}) => {
     );
 }
 
-const FoodOrderItem = ({ orderItemId, getOrders, setOrders}) => {
+const FoodOrderItem = ({ orderData, isModifiable }) => {
+
+    console.log(menuItemData)
+
+    return(
+        <View style={styles.foodOrderItem}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                <View style={styles.foodOrderUserInfo}>
+
+                </View>
+            </View>
+        </View>
+    );
+
 
     // const [seatNum, setSeatNum] = useState(null);
     // const [assignedTo, setAssignedTo] = useState(null);
 
-    const setSeatNum = (seatNo) => {
-        let modifiedItems = getOrders.map((order) => (
-            order.orderId === orderItemId? {...order, seatNo: seatNo} : order
-        ));
-        setOrders(modifiedItems);
-    }
+    
 
-    const setAssignedTo = (provider) => {
-        let modifiedItems = getOrders.map((order) => (
-            order.orderId === orderItemId ? {...order, assignedServer: provider} : order
-        ));
-        setOrders(modifiedItems);
-    }
+    // const setSeatNum = (seatNo) => {
+    //     let modifiedItems = getOrders.map((order) => (
+    //         order.orderId === orderItemId? {...order, seatNo: seatNo} : order
+    //     ));
+    //     setOrders(modifiedItems);
+    // }
 
-    const modifyItemOptions = (modifications) => {
+    // const setAssignedTo = (provider) => {
+    //     let modifiedItems = getOrders.map((order) => (
+    //         order.orderId === orderItemId ? {...order, assignedServer: provider} : order
+    //     ));
+    //     setOrders(modifiedItems);
+    // }
 
-    }
+    // const modifyItemOptions = (modifications) => {
 
-    return(
-        <View style={styles.foodOrderItem}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                <View style={styles.foodOrderUserInfo}>
-                    {/* <Image source={{ uri: getOrders[orderItemId - 1].clientProfileImg }} style={styles.foodOrderUserImg}/> */}
-                    <Text style={{fontSize: 20, marginHorizontal: 7, fontWeight: 'bold'}}>{`${getOrders[orderItemId - 1].clientName.substring(0, getOrders[orderItemId - 1].clientName.indexOf(' ')+2)}'s Order`}</Text>
-                </View>
-                <CustomDropDown 
-                    dropdownTitle={'Seat No.'} 
-                    initialVal={getOrders[orderItemId - 1].seatNo.toString()} 
-                    setVal={setSeatNum} 
-                    selectionList={[
-                        { label: '1', value: '1' },
-                        { label: '2', value: '2' },
-                        { label: '3', value: '3' },
-                        { label: '4', value: '4' },
-                        { label: '5', value: '5' }
-                    ]} 
-                    customStyle={{ width: 130, height: 30}}/>
-            </View>
-            <CustomDropDown 
-                dropdownTitle={'Assign(ed) to:'} 
-                setVal={setAssignedTo} 
-                customStyle={{marginVertical:6, marginHorizontal: 0}} 
-                selectionList={[
-                    { label: '1', value: '1' },
-                    { label: '2', value: '2' },
-                    { label: '3', value: '3' }
-                ]}
-            />
-            <View>
-                {getOrders[orderItemId - 1].menuItems.map((menuItem) => (
-                    <MenuItem menuItem={menuItem} subOptionChange={modifyItemOptions} key={menuItem.itemId}/>
-                ))}
-            </View>
-        </View>
-    );
+    // }
+
+    // return(
+    //     <View style={styles.foodOrderItem}>
+    //         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+    //             <View style={styles.foodOrderUserInfo}>
+    //                 {/* <Image source={{ uri: getOrders[orderItemId - 1].clientProfileImg }} style={styles.foodOrderUserImg}/> */}
+    //                 <Text style={{fontSize: 20, marginHorizontal: 7, fontWeight: 'bold'}}>{`${getOrders[orderItemId - 1].clientName.substring(0, getOrders[orderItemId - 1].clientName.indexOf(' ')+2)}'s Order`}</Text>
+    //             </View>
+    //             <CustomDropDown 
+    //                 dropdownTitle={'Seat No.'} 
+    //                 initialVal={getOrders[orderItemId - 1].seatNo.toString()} 
+    //                 setVal={setSeatNum} 
+    //                 selectionList={[
+    //                     { label: '1', value: '1' },
+    //                     { label: '2', value: '2' },
+    //                     { label: '3', value: '3' },
+    //                     { label: '4', value: '4' },
+    //                     { label: '5', value: '5' }
+    //                 ]} 
+    //                 customStyle={{ width: 130, height: 30}}/>
+    //         </View>
+    //         <CustomDropDown 
+    //             dropdownTitle={'Assign(ed) to:'} 
+    //             setVal={setAssignedTo} 
+    //             customStyle={{marginVertical:6, marginHorizontal: 0}} 
+    //             selectionList={[
+    //                 { label: '1', value: '1' },
+    //                 { label: '2', value: '2' },
+    //                 { label: '3', value: '3' }
+    //             ]}
+    //         />
+    //         <View>
+    //             {getOrders[orderItemId - 1].menuItems.map((menuItem) => (
+    //                 <MenuItem menuItem={menuItem} subOptionChange={modifyItemOptions} key={menuItem.itemId}/>
+    //             ))}
+    //         </View>
+    //     </View>
+    // );
 }
 
 //------------------------------------------- Order Item Sections
-const OrderSummarySection = ({ displayedSection }) => {
+const OrderSummarySection = ({ displayedSection, isOrderModifiable, orderData }) => {
 
-    const [orderInstructions, setOrderInstructions] = useState('');
-    const [foodOrders, setFoodOrders] = useState(testFoodOrderedItem);
+    const [orderSpecialInstruction, setOrderSpecialInstructions] = useState(orderData.special_instructions === 'None'? '' : orderData.special_instructions);
+    const [foodOrders, setFoodOrders] = useState([]);
 
-    //fetch from db Food Orders related to Order Summary
+    const getFoodOrders = async () => {
 
+        if(!orderData.parent_order_id) { return []; }
+    
+        var parentOrder = await fetch(`https://platerate.com/orders/details/user?orderId=${orders[i].order_id}&res=json`);
+        parentOrder = await parentOrder.json();
+        return parentOrder;
+    }
+
+    useEffect(() => {
+        getFoodOrders()
+        .then(orders => {
+            setFoodOrders(orders);
+        })
+    },[])
+    
     return(
         <View style={[styles.sectionItem, {display: (displayedSection === 0 ? 'flex' : 'none')}]}>
             <InstructionInput 
                 instructionStyle={{marginTop: 8}} 
                 instructionTitle={'Order Special Instructions'} 
                 instructionPlaceHolder={'Less spicy ...'} 
-                orderInstructions={orderInstructions} 
-                setOrderInstructions={setOrderInstructions} 
+                orderInstructions={orderSpecialInstruction}
+                setOrderInstructions={setOrderSpecialInstructions} 
+                isModifiable={isOrderModifiable}
             />
             <Text style={{fontSize: 18, color: 'black', marginTop: 10,marginBottom:5}}>Food Ordered</Text>
             <View>
-                {foodOrders.map((orderItem) => (
-                    <FoodOrderItem orderItemId={orderItem.orderId} getOrders={foodOrders} setOrders={setFoodOrders} key={orderItem.orderId}/>
-                ))}
+                {foodOrders.map(function(foodOrder, index) {
+                    return (<FoodOrderItem
+                        orderData={foodOrder}
+                        isModifiable={isModifiable}
+                        key={index}
+                    />)
+                })}
             </View>
-            <TouchableOpacity style={{borderWidth: 1, borderColor: 'red', paddingVertical: 15, width: 300, alignSelf:'center', borderRadius: 8, marginVertical: 20}}>
-                <Text style={{textAlign:'center', fontSize: 18, color: 'red'}}>Cancel Selected Menu Items</Text>
-            </TouchableOpacity>
         </View>
-    )
+    );
+
+    // const [orderInstructions, setOrderInstructions] = useState('');
+    // const [foodOrders, setFoodOrders] = useState(testFoodOrderedItem);
+
+    // //fetch from db Food Orders related to Order Summary
+
+    // return(
+    //     <View style={[styles.sectionItem, {display: (displayedSection === 0 ? 'flex' : 'none')}]}>
+    //         <InstructionInput 
+    //             instructionStyle={{marginTop: 8}} 
+    //             instructionTitle={'Order Special Instructions'} 
+    //             instructionPlaceHolder={'Less spicy ...'} 
+    //             orderInstructions={orderInstructions} 
+    //             setOrderInstructions={setOrderInstructions} 
+    //         />
+            // <Text style={{fontSize: 18, color: 'black', marginTop: 10,marginBottom:5}}>Food Ordered</Text>
+    //         <View>
+    //             {foodOrders.map((orderItem) => (
+    //                 <FoodOrderItem orderItemId={orderItem.orderId} getOrders={foodOrders} setOrders={setFoodOrders} key={orderItem.orderId}/>
+    //             ))}
+    //         </View>
+    //         <TouchableOpacity style={{borderWidth: 1, borderColor: 'red', paddingVertical: 15, width: 300, alignSelf:'center', borderRadius: 8, marginVertical: 20}}>
+    //             <Text style={{textAlign:'center', fontSize: 18, color: 'red'}}>Cancel Selected Menu Items</Text>
+    //         </TouchableOpacity>
+    //     </View>
+    // )
 }
 
 const CustomerMgmtSection = ({ displayedSection }) => {
@@ -1101,88 +1160,206 @@ const OrderOptions = ({ selectedSection, setReservationAcceptance, setSummaryTab
 
 // ------------------------------------------------------------------
 
-// key={index} 
-// orderInfo={orderItem}
-// lifetimeSpent={lifetimeSpent}
-// inRangeSpent_days={inRangeSpent_days}
-// setInRangeSpent_days={setInRangeSpent_days}
-// inRangeSpent_amount={inRangeSpent_amount} 
+// const OrderItem = ({ orderInfo, orderData, lifetimeSpent, inRangeSpent_days, setInRangeSpent_days, inRangeSpent_amount }) => {
 
-const OrderItem = ({ orderInfo, orderData, lifetimeSpent, inRangeSpent_days, setInRangeSpent_days, inRangeSpent_amount }) => {
+//     const [isCollapsed, setIsCollapsed] = useState(true);
+//     const [selectedSection, setSelectedSection] = useState(0);
+//     // const [reservationAcceptance, setReservationAcceptance] = useState(null);   // reservation options
+//     // const [summaryTableSelection, setSummaryTableSelection] = useState(null);   // order summary options
+//     // const [mgmtTableSelection, setMgmtTableSelection] = useState(null);     // customer management options
+//     // const [orderTimingTableSelection, setOrderTimingTableSelection] = useState(null);   // order timing options
+
+//     const updateIsCollapsed = () => {
+//         setIsCollapsed(!isCollapsed);
+//     }
+
+//     const setSection = (section) => {
+//         setSelectedSection(section);
+//     }
+
+//     const getOrderData = async () => {
+//         // var orderDetailsRes = await fetch(`https://platerate.com/orders/details/user?orderId=${orderInfo.order_id}&res=json`);
+//         // var orderDetails = await orderDetailsRes.json();
+
+//         // var orderItemsRes = await fetch(`https://platerate.com/orders/items?orderId=${orderInfo.order_id}`);
+//         // var orderItems = await orderItemsRes.json();
+//     }
+
+//     // const getOrderData = async () => {
+//     //     var orderRes = await fetch(`https://platerate.com/orders/details/user?orderId=${orderInfo.order_id}&res=json`);
+//     //     var orderData = await orderRes.json();
+//     //     var subOrderTotalRes = await fetch('https://platerate.com/orders/subOrderTotal', {
+//     //         method: 'post',
+//     //         headers: {
+//     //             'Content-Type': 'application/json',
+//     //         },
+//     //         body: JSON.stringify({
+//     //             userId: orderData.data.user.userId,
+//     //             venueId: orderInfo.venue_id,
+//     //             orderId: orderInfo.order_id,
+//     //         })
+//     //     });
+//     //     var subOrderTotalData = await subOrderTotalRes.json();
+//     //     var detailsRes = await fetch(`https://platerate.com/orders/details/restaurant?venueId=${orderInfo.venue_id}&orderId=${orderInfo.order_id}&res=json`);
+//     //     var orderDetails = await detailsRes.json();
+
+//     //     var getMoreRes = await fetch('https://platerate.com/orders/get-more-order-infor', {
+//     //         method: 'post',
+//     //         headers: {
+//     //             'Content-Type': 'application/json',
+//     //         },
+//     //         body: JSON.stringify({
+//     //             data: {
+//     //                 order_id : orderInfo.order_id,
+//     //                 parent_order_id: null,
+//     //             }
+//     //         })
+//     //     })
+//     //     var getMoreData = await getMoreRes.json()
+//     //     console.log(getMoreData);
+
+//     //     setOrderData(orderData.data);
+//     //     setOrderTotal(subOrderTotalData.data);
+//     // }
+
+//     useEffect(() => {
+//         getOrderData();
+//     }, [])
+
+//     const orderBanner = (orderType) => {
+//         if(orderType === 'order-ahead') {
+//             return (
+//                 <>
+//                     <Utensils width={13} height={13} fill={'#02843D'}/>
+//                     <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Order In</Text>
+//                 </>
+//             );
+//         }else if(orderType === 'delivery') {
+//             return (
+//                 <>
+//                     <Biker width={18} height={18} fill={'#02843D'} />
+//                     <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Delivery</Text>
+//                 </>
+//             );
+//         }else{
+//             return (
+//                 <>
+//                     <Walker width={18} height={18} fill={'#02843D'} style={{marginRight: -3}} />
+//                     <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Pickup</Text>
+//                 </>
+//             );
+//         }
+//     }
+
+//     const orderPayment = (paymentStatus) => {
+//         if(paymentStatus === 'paid') {
+//             return(
+//                 <View style={[styles.paidCont,{backgroundColor: '#E6F3EC', borderColor: '#02843D'}]}>
+//                     <Text style={{color: '#02843D', fontSize: 11}}>Paid</Text>
+//                 </View>
+//             );
+//         }else if(paymentStatus === 'paying'){
+//             return(
+//                 <View style={[styles.paidCont,{backgroundColor: '#FFF3CE', borderColor: '#FCC41F'}]}>
+//                     <Text style={{color: '#000', fontSize: 11}}>Paying</Text>
+//                 </View>
+//             );
+//         }else {
+//             return(
+//                 <View style={[styles.paidCont,{backgroundColor: '#fad4d4', borderColor: '#a10202'}]}>
+//                     <Text style={{color: '#a10202', fontSize: 11}}>Not Paid</Text>
+//                 </View>
+//             );
+//         }
+//     }
+
+//     return(
+//         <View style={styles.orderCont}>
+//             <View style={styles.orderHeader}>
+//                 <View style={styles.orderHeaderInfo}>
+//                     <TouchableOpacity style={styles.orderExpandBtn} onPress={updateIsCollapsed}>
+//                         <Dash width={20} height={20} fill={'#000'}/>
+//                     </TouchableOpacity>
+//                     <Text style={{color: 'black', fontSize: 17, marginRight: 10}}>{orderData.order_name}</Text>
+//                     <View style={styles.orderBanner}>
+//                         {orderBanner(orderInfo.order_type)}
+//                     </View>
+//                     <View style={styles.orderAmountCont}>
+//                         {orderPayment(orderInfo.payment_status)}
+//                         <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderInfo.total_price})</Text>
+//                     </View>
+//                 </View>
+//                 {/* <OrderOptions 
+//                     selectedSection={selectedSection} 
+//                     setReservationAcceptance={setReservationAcceptance} 
+//                     setSummaryTableSelection={setSummaryTableSelection} 
+//                     setMgmtTableSelection={setMgmtTableSelection} 
+//                     setOrderTimingTableSelection={setOrderTimingTableSelection} 
+//                 /> */}
+//             </View>
+//             <Collapsible collapsed={isCollapsed}>
+//                 <View style={{height:2, backgroundColor:'#DBE0DD'}}></View>
+//                 <View style={styles.orderBody}>
+//                     <View>
+//                         <Text style={[styles.accumInfoText,{fontWeight: 'bold'}]}>Order number #{orderInfo.order_id}</Text>
+//                         <Text style={styles.accumInfoText}>
+//                             Order Lifetime Spend: 
+//                             <Text style={{color: '#02843D'}}> ${lifetimeSpent}</Text>    
+//                         </Text>
+//                         <View style={styles.spent_n_daysCont}>
+//                             <Text style={styles.accumInfoText}>Last</Text>
+//                             <View style={styles.daysCont}>
+//                                 <TextInput
+//                                     onChangeText={(val) => setInRangeSpent_days(val.replace(/\D/g,''))}
+//                                     value={inRangeSpent_days}
+//                                     keyboardType={'numeric'}
+//                                     maxLength={3}
+//                                     style={{padding:0, marginHorizontal: 4, fontSize:15, marginLeft: 8}}
+//                                 />
+//                                 <UpDownCaret caretStyle={{right: 2}} />
+//                             </View>
+//                             <Text style={styles.accumInfoText}>days = Spend: <Text style={{color: '#02843D'}}>${inRangeSpent_amount}</Text> Tip: <Text style={{color: '#02843D'}}>{22}%</Text></Text>
+//                         </View>
+//                     </View>
+//                     <View style={styles.orderSectionBtns}>
+//                         <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 0? '#02843D' : '#F3F3F3')}]} onPress={() => setSection(0)}>
+//                             <Text style={[styles.orderSelectionText, {color: (selectedSection === 0? '#FFF' : '#7D7D7D')}]}>Order Summary</Text>
+//                         </TouchableOpacity>
+//                         <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 1? '#02843D' : '#F3F3F3')}]}  onPress={() => setSection(1)}>
+//                             <Text style={[styles.orderSelectionText, {color: (selectedSection === 1? '#FFF' : '#7D7D7D')}]}>Customer Mgmt</Text>
+//                         </TouchableOpacity>
+//                         <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 2? '#02843D' : '#F3F3F3')}]}  onPress={() => setSection(2)}>
+//                             <Text style={[styles.orderSelectionText, {color: (selectedSection === 2? '#FFF' : '#7D7D7D')}]}>Reservation</Text>
+//                         </TouchableOpacity>
+//                         <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 3? '#02843D' : '#F3F3F3')}]}  onPress={() => setSection(3)}>
+//                             <Text style={[styles.orderSelectionText, {color: (selectedSection === 3? '#FFF' : '#7D7D7D')}]}>Order Timing</Text>
+//                         </TouchableOpacity>
+//                     </View>
+//                     <OrderSummarySection displayedSection={selectedSection} />
+//                     <CustomerMgmtSection displayedSection={selectedSection} />
+//                     <ReservationSection displayedSection={selectedSection} />
+//                     <OrderTimingSection displayedSection={selectedSection} />
+//                 </View>
+//             </Collapsible>
+//         </View>
+//     );
+// }
+
+const PickupOrder = ({ orderInfo, orderData, lifetimeSpent, inRangeSpent_days, setInRangeSpent_days, inRangeSpent_amount }) => {
 
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [selectedSection, setSelectedSection] = useState(0);
-    // const [reservationAcceptance, setReservationAcceptance] = useState(null);   // reservation options
-    // const [summaryTableSelection, setSummaryTableSelection] = useState(null);   // order summary options
-    // const [mgmtTableSelection, setMgmtTableSelection] = useState(null);     // customer management options
-    // const [orderTimingTableSelection, setOrderTimingTableSelection] = useState(null);   // order timing options
+    const [isOrderModifiable, setIsOrderModifiable] = useState(orderInfo.state !== 'approved');
 
-    const updateIsCollapsed = () => {
-        setIsCollapsed(!isCollapsed);
-    }
-
-    const setSection = (section) => {
-        setSelectedSection(section);
-    }
-
-    const getOrderData = async () => {
-        // var orderDetailsRes = await fetch(`https://platerate.com/orders/details/user?orderId=${orderInfo.order_id}&res=json`);
-        // var orderDetails = await orderDetailsRes.json();
-
-        // var orderItemsRes = await fetch(`https://platerate.com/orders/items?orderId=${orderInfo.order_id}`);
-        // var orderItems = await orderItemsRes.json();
-    }
-
-    // const getOrderData = async () => {
-    //     var orderRes = await fetch(`https://platerate.com/orders/details/user?orderId=${orderInfo.order_id}&res=json`);
-    //     var orderData = await orderRes.json();
-    //     var subOrderTotalRes = await fetch('https://platerate.com/orders/subOrderTotal', {
-    //         method: 'post',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //             userId: orderData.data.user.userId,
-    //             venueId: orderInfo.venue_id,
-    //             orderId: orderInfo.order_id,
-    //         })
-    //     });
-    //     var subOrderTotalData = await subOrderTotalRes.json();
-    //     var detailsRes = await fetch(`https://platerate.com/orders/details/restaurant?venueId=${orderInfo.venue_id}&orderId=${orderInfo.order_id}&res=json`);
-    //     var orderDetails = await detailsRes.json();
-
-    //     var getMoreRes = await fetch('https://platerate.com/orders/get-more-order-infor', {
-    //         method: 'post',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //             data: {
-    //                 order_id : orderInfo.order_id,
-    //                 parent_order_id: null,
-    //             }
-    //         })
-    //     })
-    //     var getMoreData = await getMoreRes.json()
-    //     console.log(getMoreData);
-
-    //     setOrderData(orderData.data);
-    //     setOrderTotal(subOrderTotalData.data);
-    // }
-
-    useEffect(() => {
-        getOrderData();
-    }, [])
-
-    const orderBanner = (orderType) => {
-        if(orderType === 'order-ahead') {
+    const setOrderBanner = () => {
+        if(orderInfo.order_type === 'order-ahead') {
             return (
                 <>
                     <Utensils width={13} height={13} fill={'#02843D'}/>
                     <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Order In</Text>
                 </>
             );
-        }else if(orderType === 'delivery') {
+        }else if(orderInfo.order_type === 'delivery') {
             return (
                 <>
                     <Biker width={18} height={18} fill={'#02843D'} />
@@ -1199,14 +1376,14 @@ const OrderItem = ({ orderInfo, orderData, lifetimeSpent, inRangeSpent_days, set
         }
     }
 
-    const orderPayment = (paymentStatus) => {
-        if(paymentStatus === 'paid') {
+    const setPaymentStatus = () => {
+        if(orderInfo.payment_status === 'paid') {
             return(
                 <View style={[styles.paidCont,{backgroundColor: '#E6F3EC', borderColor: '#02843D'}]}>
                     <Text style={{color: '#02843D', fontSize: 11}}>Paid</Text>
                 </View>
             );
-        }else if(paymentStatus === 'paying'){
+        }else if(orderInfo.payment_status === 'paying'){
             return(
                 <View style={[styles.paidCont,{backgroundColor: '#FFF3CE', borderColor: '#FCC41F'}]}>
                     <Text style={{color: '#000', fontSize: 11}}>Paying</Text>
@@ -1221,29 +1398,30 @@ const OrderItem = ({ orderInfo, orderData, lifetimeSpent, inRangeSpent_days, set
         }
     }
 
+    // const tester = () => {
+    //     console.log(orderData.special_instructions)
+    // }
+
+    // useEffect(() => {
+    //     tester()
+    // })
+
     return(
         <View style={styles.orderCont}>
             <View style={styles.orderHeader}>
                 <View style={styles.orderHeaderInfo}>
-                    <TouchableOpacity style={styles.orderExpandBtn} onPress={updateIsCollapsed}>
+                    <TouchableOpacity style={styles.orderExpandBtn} onPress={() => setIsCollapsed(!isCollapsed)}>
                         <Dash width={20} height={20} fill={'#000'}/>
                     </TouchableOpacity>
                     <Text style={{color: 'black', fontSize: 17, marginRight: 10}}>{orderData.order_name}</Text>
                     <View style={styles.orderBanner}>
-                        {orderBanner(orderInfo.order_type)}
+                        {setOrderBanner()}
                     </View>
                     <View style={styles.orderAmountCont}>
-                        {orderPayment(orderInfo.payment_status)}
+                        {setPaymentStatus()}
                         <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderInfo.total_price})</Text>
                     </View>
                 </View>
-                {/* <OrderOptions 
-                    selectedSection={selectedSection} 
-                    setReservationAcceptance={setReservationAcceptance} 
-                    setSummaryTableSelection={setSummaryTableSelection} 
-                    setMgmtTableSelection={setMgmtTableSelection} 
-                    setOrderTimingTableSelection={setOrderTimingTableSelection} 
-                /> */}
             </View>
             <Collapsible collapsed={isCollapsed}>
                 <View style={{height:2, backgroundColor:'#DBE0DD'}}></View>
@@ -1270,17 +1448,235 @@ const OrderItem = ({ orderInfo, orderData, lifetimeSpent, inRangeSpent_days, set
                         </View>
                     </View>
                     <View style={styles.orderSectionBtns}>
-                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 0? '#02843D' : '#F3F3F3')}]} onPress={() => setSection(0)}>
+                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 0? '#02843D' : '#F3F3F3')}]} onPress={() => setSelectedSection(0)}>
                             <Text style={[styles.orderSelectionText, {color: (selectedSection === 0? '#FFF' : '#7D7D7D')}]}>Order Summary</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 1? '#02843D' : '#F3F3F3')}]}  onPress={() => setSection(1)}>
+                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 1? '#02843D' : '#F3F3F3')}]}  onPress={() => setSelectedSection(1)}>
                             <Text style={[styles.orderSelectionText, {color: (selectedSection === 1? '#FFF' : '#7D7D7D')}]}>Customer Mgmt</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 2? '#02843D' : '#F3F3F3')}]}  onPress={() => setSection(2)}>
-                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 2? '#FFF' : '#7D7D7D')}]}>Reservation</Text>
+                    </View>
+                    <OrderSummarySection
+                        displayedSection={selectedSection} 
+                        isOrderModifiable={isOrderModifiable}
+                        orderData={orderData}
+                    />
+                    <CustomerMgmtSection displayedSection={selectedSection} />
+                </View>
+            </Collapsible>
+        </View>
+    );
+}
+
+const DeliveryOrder = ({ orderInfo, orderData, lifetimeSpent, inRangeSpent_days, setInRangeSpent_days, inRangeSpent_amount }) => {
+    
+    const [isCollapsed, setIsCollapsed] = useState(true);
+    const [selectedSection, setSelectedSection] = useState(0);
+
+    const setOrderBanner = () => {
+        if(orderInfo.order_type === 'order-ahead') {
+            return (
+                <>
+                    <Utensils width={13} height={13} fill={'#02843D'}/>
+                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Order In</Text>
+                </>
+            );
+        }else if(orderInfo.order_type === 'delivery') {
+            return (
+                <>
+                    <Biker width={18} height={18} fill={'#02843D'} />
+                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Delivery</Text>
+                </>
+            );
+        }else{
+            return (
+                <>
+                    <Walker width={18} height={18} fill={'#02843D'} style={{marginRight: -3}} />
+                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Pickup</Text>
+                </>
+            );
+        }
+    }
+
+    const setPaymentStatus = () => {
+        if(orderInfo.payment_status === 'paid') {
+            return(
+                <View style={[styles.paidCont,{backgroundColor: '#E6F3EC', borderColor: '#02843D'}]}>
+                    <Text style={{color: '#02843D', fontSize: 11}}>Paid</Text>
+                </View>
+            );
+        }else if(orderInfo.payment_status === 'paying'){
+            return(
+                <View style={[styles.paidCont,{backgroundColor: '#FFF3CE', borderColor: '#FCC41F'}]}>
+                    <Text style={{color: '#000', fontSize: 11}}>Paying</Text>
+                </View>
+            );
+        }else {
+            return(
+                <View style={[styles.paidCont,{backgroundColor: '#fad4d4', borderColor: '#a10202'}]}>
+                    <Text style={{color: '#a10202', fontSize: 11}}>Not Paid</Text>
+                </View>
+            );
+        }
+    }
+
+    return(
+        <View style={styles.orderCont}>
+            <View style={styles.orderHeader}>
+                <View style={styles.orderHeaderInfo}>
+                    <TouchableOpacity style={styles.orderExpandBtn} onPress={() => setIsCollapsed(!isCollapsed)}>
+                        <Dash width={20} height={20} fill={'#000'}/>
+                    </TouchableOpacity>
+                    <Text style={{color: 'black', fontSize: 17, marginRight: 10}}>{orderData.order_name}</Text>
+                    <View style={styles.orderBanner}>
+                        {setOrderBanner()}
+                    </View>
+                    <View style={styles.orderAmountCont}>
+                        {setPaymentStatus()}
+                        <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderInfo.total_price})</Text>
+                    </View>
+                </View>
+            </View>
+            <Collapsible collapsed={isCollapsed}>
+                <View style={{height:2, backgroundColor:'#DBE0DD'}}></View>
+                <View style={styles.orderBody}>
+                    <View>
+                        <Text style={[styles.accumInfoText,{fontWeight: 'bold'}]}>Order number #{orderInfo.order_id}</Text>
+                        <Text style={styles.accumInfoText}>
+                            Order Lifetime Spend: 
+                            <Text style={{color: '#02843D'}}> ${lifetimeSpent}</Text>    
+                        </Text>
+                        <View style={styles.spent_n_daysCont}>
+                            <Text style={styles.accumInfoText}>Last</Text>
+                            <View style={styles.daysCont}>
+                                <TextInput
+                                    onChangeText={(val) => setInRangeSpent_days(val.replace(/\D/g,''))}
+                                    value={inRangeSpent_days}
+                                    keyboardType={'numeric'}
+                                    maxLength={3}
+                                    style={{padding:0, marginHorizontal: 4, fontSize:15, marginLeft: 8}}
+                                />
+                                <UpDownCaret caretStyle={{right: 2}} />
+                            </View>
+                            <Text style={styles.accumInfoText}>days = Spend: <Text style={{color: '#02843D'}}>${inRangeSpent_amount}</Text> Tip: <Text style={{color: '#02843D'}}>{22}%</Text></Text>
+                        </View>
+                    </View>
+                    <View style={styles.orderSectionBtns}>
+                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 0? '#02843D' : '#F3F3F3')}]} onPress={() => setSelectedSection(0)}>
+                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 0? '#FFF' : '#7D7D7D')}]}>Order Summary</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 3? '#02843D' : '#F3F3F3')}]}  onPress={() => setSection(3)}>
-                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 3? '#FFF' : '#7D7D7D')}]}>Order Timing</Text>
+                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 1? '#02843D' : '#F3F3F3')}]}  onPress={() => setSelectedSection(1)}>
+                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 1? '#FFF' : '#7D7D7D')}]}>Customer Mgmt</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <OrderSummarySection displayedSection={selectedSection} />
+                    <CustomerMgmtSection displayedSection={selectedSection} />
+                    <ReservationSection displayedSection={selectedSection} />
+                    <OrderTimingSection displayedSection={selectedSection} />
+                </View>
+            </Collapsible>
+        </View>
+    );
+}
+
+const DineInOrder = ({ orderInfo, orderData, lifetimeSpent, inRangeSpent_days, setInRangeSpent_days, inRangeSpent_amount }) => {
+
+    const [isCollapsed, setIsCollapsed] = useState(true);
+    const [selectedSection, setSelectedSection] = useState(0);
+
+    const setOrderBanner = () => {
+        if(orderInfo.order_type === 'order-ahead') {
+            return (
+                <>
+                    <Utensils width={13} height={13} fill={'#02843D'}/>
+                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Order In</Text>
+                </>
+            );
+        }else if(orderInfo.order_type === 'delivery') {
+            return (
+                <>
+                    <Biker width={18} height={18} fill={'#02843D'} />
+                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Delivery</Text>
+                </>
+            );
+        }else{
+            return (
+                <>
+                    <Walker width={18} height={18} fill={'#02843D'} style={{marginRight: -3}} />
+                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Pickup</Text>
+                </>
+            );
+        }
+    }
+
+    const setPaymentStatus = () => {
+        if(orderInfo.payment_status === 'paid') {
+            return(
+                <View style={[styles.paidCont,{backgroundColor: '#E6F3EC', borderColor: '#02843D'}]}>
+                    <Text style={{color: '#02843D', fontSize: 11}}>Paid</Text>
+                </View>
+            );
+        }else if(orderInfo.payment_status === 'paying'){
+            return(
+                <View style={[styles.paidCont,{backgroundColor: '#FFF3CE', borderColor: '#FCC41F'}]}>
+                    <Text style={{color: '#000', fontSize: 11}}>Paying</Text>
+                </View>
+            );
+        }else {
+            return(
+                <View style={[styles.paidCont,{backgroundColor: '#fad4d4', borderColor: '#a10202'}]}>
+                    <Text style={{color: '#a10202', fontSize: 11}}>Not Paid</Text>
+                </View>
+            );
+        }
+    }
+
+    return(
+        <View style={styles.orderCont}>
+            <View style={styles.orderHeader}>
+                <View style={styles.orderHeaderInfo}>
+                    <TouchableOpacity style={styles.orderExpandBtn} onPress={() => setIsCollapsed(!isCollapsed)}>
+                        <Dash width={20} height={20} fill={'#000'}/>
+                    </TouchableOpacity>
+                    <Text style={{color: 'black', fontSize: 17, marginRight: 10}}>{orderData.order_name}</Text>
+                    <View style={styles.orderBanner}>
+                        {setOrderBanner()}
+                    </View>
+                    <View style={styles.orderAmountCont}>
+                        {setPaymentStatus()}
+                        <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderInfo.total_price})</Text>
+                    </View>
+                </View>
+            </View>
+            <Collapsible collapsed={isCollapsed}>
+                <View style={{height:2, backgroundColor:'#DBE0DD'}}></View>
+                <View style={styles.orderBody}>
+                    <View>
+                        <Text style={[styles.accumInfoText,{fontWeight: 'bold'}]}>Order number #{orderInfo.order_id}</Text>
+                        <Text style={styles.accumInfoText}>
+                            Order Lifetime Spend: 
+                            <Text style={{color: '#02843D'}}> ${lifetimeSpent}</Text>    
+                        </Text>
+                        <View style={styles.spent_n_daysCont}>
+                            <Text style={styles.accumInfoText}>Last</Text>
+                            <View style={styles.daysCont}>
+                                <TextInput
+                                    onChangeText={(val) => setInRangeSpent_days(val.replace(/\D/g,''))}
+                                    value={inRangeSpent_days}
+                                    keyboardType={'numeric'}
+                                    maxLength={3}
+                                    style={{padding:0, marginHorizontal: 4, fontSize:15, marginLeft: 8}}
+                                />
+                                <UpDownCaret caretStyle={{right: 2}} />
+                            </View>
+                            <Text style={styles.accumInfoText}>days = Spend: <Text style={{color: '#02843D'}}>${inRangeSpent_amount}</Text> Tip: <Text style={{color: '#02843D'}}>{22}%</Text></Text>
+                        </View>
+                    </View>
+                    <View style={styles.orderSectionBtns}>
+                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 0? '#02843D' : '#F3F3F3')}]} onPress={() => setSelectedSection(0)}>
+                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 0? '#FFF' : '#7D7D7D')}]}>Order Summary</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 1? '#02843D' : '#F3F3F3')}]}  onPress={() => setSelectedSection(1)}>
+                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 1? '#FFF' : '#7D7D7D')}]}>Customer Mgmt</Text>
                         </TouchableOpacity>
                     </View>
                     <OrderSummarySection displayedSection={selectedSection} />
@@ -1326,7 +1722,7 @@ const OrderList = ({ userOrders, ratingFilters, serviceProvider, from, to }) => 
         var priorDate = new Date(new Date().setDate(currentDate.getDate() - inRangeSpent_days));
 
         userOrders.forEach((orderItem) => {
-            if(!orderItem.orderInfo.order_placed_date) { return; }
+            if(orderItem.orderInfo.state !== 'approved') { return; }
             if(withinRange(orderItem.orderInfo.order_placed_date,priorDate, currentDate))
                 inRangeSpent += orderItem.orderInfo.total_price;
             totalSpent += orderItem.orderInfo.total_price;
@@ -1349,17 +1745,40 @@ const OrderList = ({ userOrders, ratingFilters, serviceProvider, from, to }) => 
 
     return(
         <View style={styles.orderList}>
-            {/* <OrderItem orderInfo={testOrder} /> */}
             {filteredOrders.map(function(orderItem, index) {
-                return <OrderItem 
-                    key={index} 
-                    orderInfo={orderItem.orderInfo}
-                    orderData={orderItem.orderData}
-                    lifetimeSpent={lifetimeSpent}
-                    inRangeSpent_days={inRangeSpent_days}
-                    setInRangeSpent_days={setInRangeSpent_days}
-                    inRangeSpent_amount={inRangeSpent_amount} 
-                />
+                if(orderItem.orderInfo.order_type === 'pickup') {
+                    return (<PickupOrder
+                        key={index} 
+                        orderInfo={orderItem.orderInfo}
+                        orderData={orderItem.orderData}
+                        lifetimeSpent={lifetimeSpent}
+                        inRangeSpent_days={inRangeSpent_days}
+                        setInRangeSpent_days={setInRangeSpent_days}
+                        inRangeSpent_amount={inRangeSpent_amount} 
+                    />)
+                }else if(orderItem.orderInfo.order_type === 'delivery') {
+                    // return (<DeliveryOrder
+                    //     key={index} 
+                    //     orderInfo={orderItem.orderInfo}
+                    //     orderData={orderItem.orderData}
+                    //     lifetimeSpent={lifetimeSpent}
+                    //     inRangeSpent_days={inRangeSpent_days}
+                    //     setInRangeSpent_days={setInRangeSpent_days}
+                    //     inRangeSpent_amount={inRangeSpent_amount} 
+                    // />)
+                    return (<Text key={index}>In development</Text>)
+                }else{
+                    // return (<DineInOrder
+                    //     key={index} 
+                    //     orderInfo={orderItem.orderInfo}
+                    //     orderData={orderItem.orderData}
+                    //     lifetimeSpent={lifetimeSpent}
+                    //     inRangeSpent_days={inRangeSpent_days}
+                    //     setInRangeSpent_days={setInRangeSpent_days}
+                    //     inRangeSpent_amount={inRangeSpent_amount} 
+                    // />)
+                    return (<Text key={index}>In development</Text>)
+                }
             })}
         </View>
     );
@@ -1367,7 +1786,7 @@ const OrderList = ({ userOrders, ratingFilters, serviceProvider, from, to }) => 
 
 export function HomeView({ navigation }) {
     
-    const [userOrders, setUserOrders] = useState([]);
+    // const [userOrders, setUserOrders] = useState([]);
     // const [filteredOrders, setFilteredOrders] = useState([]);
     const [ratingFilters, setRatingFilters] = useState([
         {
@@ -1393,34 +1812,16 @@ export function HomeView({ navigation }) {
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
 
-    const { userId, userEmail } = useSelector(state => state.userReducer);
+    const { userId, userEmail, userOrders } = useSelector(state => state.userReducer);
 
-    const getUserOrders = async () => {
-        try {
-            var orderItems = [];
-            const resp = await fetch('https://platerate.com/getUserOrders');
-            const orders = await resp.json();
 
-            for(var i = 0; i < orders.length; i++) {
-                let orderData = await fetch(`https://platerate.com/orders/details/user?orderId=${orders[i].order_id}&res=json`);
-                orderData = await orderData.json();
-                let orderObj = {
-                    orderInfo: orders[i],
-                    orderData: orderData.data,
-                };
-                orderItems.push(orderObj);
-            }
-            setUserOrders(orderItems);
-        } catch (error) {
-            console.error(error);
-            setUserOrders([]);
-        }
-    };
+    // useEffect(() => {
+    //     console.log(userOrders)
+    // },[userOrders]);
 
-    useEffect(() => {
-        console.log('fetch orders called')
-        getUserOrders();
-    }, [userId]);
+    // useEffect(() => {
+    //     console.log(userOrders)
+    // },[userOrders])
 
     return(
         <ScrollView contentContainerStyle={{flexGrow:1, justifyContent: 'space-between'}}>

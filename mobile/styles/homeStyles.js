@@ -201,10 +201,10 @@ export const styles = StyleSheet.create({
         height: 50,
         marginVertical: 16,
         flexDirection: 'row',
+        backgroundColor: 'red'
     },
     orderSelectionBtn: {
-        width: '25%',
-        height: '100%',
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center'
     },

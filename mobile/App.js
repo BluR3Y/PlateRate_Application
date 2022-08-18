@@ -14,9 +14,19 @@ import { DrawerHeader, DrawerContent } from './views/DrawerContent';
 import { HomeView } from './views/homeView';
 import { WebViewScreen } from './views/webView';
 import { TestView } from './views/tester';
+import { WaitStaffView } from './views/waitStaff';
+import { getUserInfo } from './utilities/reduxFunctions';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator()
+
+const navigationListeners = ({ navigation, route }) => {
+  return ({
+    focus: (e) => {
+      getUserInfo();
+    }
+  });
+}
 
 export default function App() {
 
@@ -30,6 +40,7 @@ export default function App() {
                 drawerPosition: 'right', 
                 header: (props) => {return <DrawerHeader {...props} />}
               }}
+              screenListeners={navigationListeners}
               drawerContent={(props) => {
                 return <DrawerContent {...props} />
               }}
@@ -37,6 +48,7 @@ export default function App() {
               <Drawer.Screen name='Home' component={HomeView} />
               <Drawer.Screen name='WebView' component={WebViewScreen} />
               <Drawer.Screen name='Test' component={TestView} />
+              <Drawer.Screen name='WaitStaff' component={WaitStaffView} />
             </Drawer.Navigator>
           </NavigationContainer>
       </PersistGate>

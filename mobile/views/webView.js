@@ -1,12 +1,13 @@
 import React, { useRef } from "react";
 import { View, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { useSelector, useDispatch } from "react-redux";
-import { setUserId, setUserFirstName, setUserLastName, setUserEmail, setUserPhone, setUserImage } from '../redux/actions';
+import { getUserInfo } from '../utilities/reduxFunctions';
+// import { useSelector, useDispatch } from "react-redux";
+// import { setUserId, setUserFirstName, setUserLastName, setUserEmail, setUserPhone, setUserImage } from '../redux/actions';
 
 function LoginWebView({ webView, formType, navigation }) {
 
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
 
     var webViewProps = {
         source: { uri: `https://platerate.com/users/${formType}` },
@@ -28,47 +29,55 @@ function LoginWebView({ webView, formType, navigation }) {
                 fetch('https://platerate.com/users/profile/detail')
                 .then(async res => res.json())
                 .then(localData => {
+
                     if(!localData) { return Promise.reject('user not logged in'); }
 
-                    fetch('https://platerate.com/user/validateEmail', {
-                        method: 'post',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            email: localData.local.email,
-                        })
-                    })
-                    .then(async res => {
-                        if(!res.ok) { return Promise.reject('failed to validate email'); }
-                        return res.json();
-                    })
-                    .then(userData => {
-                        var userProfile = userData.data.profile;
-                        var userContactInfo = userProfile.contactInfo;
-                        var imageUrl = userProfile.imageUrl;
-                        console.log('before marker')
-                        dispatch(setUserId(userData.data._id));
-                        console.log(userData);
-    
-                        dispatch(setUserFirstName(userContactInfo.firstName));
-                        dispatch(setUserLastName(userContactInfo.lastName));
-                        dispatch(setUserImage(imageUrl ? imageUrl : 'https://platerate.com/images/avatar.png'));
-    
-                        if(localData.local.email) {
-                            dispatch(setUserEmail(localData.local.email));
-                        }
-    
-                        if(localData.local.phone) {
-                            dispatch(setUserPhone(localData.local.phone));
-                        }
-    
+                    getUserInfo()
+                    .then(async () => {
                         navigation.navigate('Home');
-                        console.log('another marker')
                         return false;
                     })
-                })
 
+                    // if(!localData) { return Promise.reject('user not logged in'); }
+
+                    // fetch('https://platerate.com/user/validateEmail', {
+                    //     method: 'post',
+                    //     headers: {
+                    //         'Content-Type': 'application/json',
+                    //     },
+                    //     body: JSON.stringify({
+                    //         email: localData.local.email,
+                    //     })
+                    // })
+                    // .then(async res => {
+                    //     if(!res.ok) { return Promise.reject('failed to validate email'); }
+                    //     return res.json();
+                    // })
+                    // .then(userData => {
+                    //     var userProfile = userData.data.profile;
+                    //     var userContactInfo = userProfile.contactInfo;
+                    //     var imageUrl = userProfile.imageUrl;
+                    //     console.log('before marker')
+                    //     dispatch(setUserId(userData.data._id));
+                    //     console.log(userData);
+    
+                    //     dispatch(setUserFirstName(userContactInfo.firstName));
+                    //     dispatch(setUserLastName(userContactInfo.lastName));
+                    //     dispatch(setUserImage(imageUrl ? imageUrl : 'https://platerate.com/images/avatar.png'));
+    
+                    //     if(localData.local.email) {
+                    //         dispatch(setUserEmail(localData.local.email));
+                    //     }
+    
+                    //     if(localData.local.phone) {
+                    //         dispatch(setUserPhone(localData.local.phone));
+                    //     }
+    
+                    //     navigation.navigate('Home');
+                    //     console.log('another marker')
+                    //     return false;
+                    // })
+                })
                 .catch(err => {
                     console.error(err);                    
                     const newURL = 'https://platerate.com/users/login';

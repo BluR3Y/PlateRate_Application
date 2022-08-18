@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import Hamburger from '../content/images/hamburger.svg';
-import { useSelector, useDispatch } from 'react-redux';
-import { setUserId, setUserEmail, setUserFirstName, setUserLastName, setUserImage, setUserPhone } from '../redux/actions';
+import { useSelector } from 'react-redux';
+import { signOutUser } from '../utilities/reduxFunctions';
 
 export function DrawerHeader(props){
 
@@ -26,9 +26,7 @@ export function DrawerHeader(props){
 
 export function DrawerContent(props) {
 
-    const { userId, firstName, lastName, userImage } = useSelector(state => state.userReducer);
-
-    const dispatch = useDispatch();
+    const { userId, firstName, lastName, userImg } = useSelector(state => state.userReducer);
 
     const logoutUser = () => {
 
@@ -41,12 +39,7 @@ export function DrawerContent(props) {
         })
         .then(async res => {
             console.log(res);
-            dispatch(setUserId(null));
-            dispatch(setUserEmail(''));
-            dispatch(setUserFirstName(''));
-            dispatch(setUserLastName(''));
-            dispatch(setUserImage(''));
-            dispatch(setUserPhone(''));
+            signOutUser()
         })
     }
 
@@ -77,7 +70,7 @@ export function DrawerContent(props) {
                     <View style={styles.userInfoCont}>
                         <Image
                             style={styles.userProfileImg}
-                            source={{ uri: userImage }}
+                            source={{ uri: userImg }}
                         />
                         <View style={styles.userNameCont}>
                             <Text numberOfLines={1} style={styles.userNameText}>{`${firstName} ${lastName}`}</Text>
@@ -102,9 +95,9 @@ export function DrawerContent(props) {
                     </View>
                     <View style={styles.ScreenList}>
                     <TouchableOpacity style={styles.screenItem}>
-                        <Text style={{fontSize: 22, color: '#02843D'}}>Current Orders</Text>
+                        <Text style={{fontSize: 22, color: '#02843D'}} onPress={() => { props.navigation.navigate('Home') }}>Current Orders</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.screenItem}>
+                    <TouchableOpacity style={styles.screenItem} onPress={() => { props.navigation.navigate('WaitStaff') }}>
                         <Text style={{fontSize: 22, color: '#4A4A4A'}}>Waitstaff Screen</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.screenItem}>
@@ -120,7 +113,7 @@ export function DrawerContent(props) {
                         <Text style={{fontSize: 22, color: '#4A4A4A'}}>Closed Orders</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.screenItem}>
-                        <Text style={{fontSize: 22, color: '#F64646'}}>Exit</Text>
+                        <Text style={{fontSize: 22, color: '#F64646'}} onPress={() => { props.navigation.navigate('Test') }}>Exit</Text>
                     </TouchableOpacity>
                     </View>
                 </View>

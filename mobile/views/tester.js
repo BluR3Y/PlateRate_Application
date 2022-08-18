@@ -4,6 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { WebView } from 'react-native-webview';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
+import { assignUserInfo } from '../utilities/reduxFunctions';
 
 function TestPickers({navigation}) {
     const [date, setDate] = useState(new Date());
@@ -414,38 +415,84 @@ function TestFetchOrder({ userId, userEmail }) {
     )
 }
 
-function FetchUserData() {
+function TestRedux({ navigation }) {
 
-    const fetchUserData = () => {
-        fetch('http://192.168.1.13:3003/user/validateEmail', {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: 'garrett@platerate.guru'
-            })
-        })
-        .then(async res => {
-            console.log(res)
-            if(!res.ok) { return }
-            return res.json()
-        })
-        .then(data => {
-            console.log(data)
-        })
+    const { userId, userEmail, firstName, lastName, userImg, userPhone } = useSelector(state => state.userReducer);
+
+    const [newUserId, setNewUserId] = useState('');
+    const [newUserEmail, setNewUserEmail] = useState('');
+    const [newUserFirstName, setNewUserFirstName] = useState('');
+    const [newUserLastName, setNewUserLastName] = useState('');
+    const [newUserImg, setNewUserImg] = useState('');
+    const [newUserPhone, setNewUserPhone] = useState('');
+
+    const submitNewInfo = () => {
+        assignUserInfo({
+            userId: newUserId, 
+            email: newUserEmail,
+            firstName: newUserFirstName, 
+            lastName: newUserLastName, 
+            phone: newUserPhone,
+            userImg: newUserImg,
+          });
     }
 
-    // useEffect(() => {
-    //     fetchUserData()
-    // })
-
     return(
-        <View>
-
+        <View style={{flex:1, backgroundColor:'yellow', alignItems:'center', justifyContent:'space-evenly'}}>
+            <View>
+                <Text style={{fontSize:25}}>{userId}</Text>
+                <Text style={{fontSize:25}}>{userEmail}</Text>
+                <Text style={{fontSize:25}}>{firstName}</Text>
+                <Text style={{fontSize:25}}>{lastName}</Text>
+                <Text style={{fontSize:25}}>{userImg}</Text>
+                <Text style={{fontSize:25}}>{userPhone}</Text>
+            </View>
+            <View>
+                <TextInput
+                    style={{width:300, height:45, borderWidth:2, backgroundColor: 'white'}}
+                    value={newUserId}
+                    onChangeText={setNewUserId}
+                    placeholder={'user id'}
+                />
+                <TextInput
+                    style={{width:300, height:45, borderWidth:2, backgroundColor: 'white'}}
+                    value={newUserEmail}
+                    onChangeText={setNewUserEmail}
+                    placeholder={'user email'}
+                />
+                <TextInput
+                    style={{width:300, height:45, borderWidth:2, backgroundColor: 'white'}}
+                    value={newUserFirstName}
+                    onChangeText={setNewUserFirstName}
+                    placeholder={'user first name'}
+                />
+                <TextInput
+                    style={{width:300, height:45, borderWidth:2, backgroundColor: 'white'}}
+                    value={newUserLastName}
+                    onChangeText={setNewUserLastName}
+                    placeholder={'user last name'}
+                />
+                <TextInput
+                    style={{width:300, height:45, borderWidth:2, backgroundColor: 'white'}}
+                    value={newUserImg}
+                    onChangeText={setNewUserImg}
+                    placeholder={'user img url'}
+                />
+                <TextInput
+                    style={{width:300, height:45, borderWidth:2, backgroundColor: 'white'}}
+                    value={newUserPhone}
+                    onChangeText={setNewUserPhone}
+                    placeholder={'user phone #s'}
+                />
+                <Button
+                    title='submit'
+                    onPress={submitNewInfo}
+                />
+            </View>
         </View>
-    )
+    );
 }
+
 
 export function TestView({navigation}) {
 
@@ -457,8 +504,8 @@ export function TestView({navigation}) {
             {/* <TestWebView/> */}
             {/* <TestDataFetch/> */}
             {/* <TestModifyData/> */}
-            <TestFetchOrder userId={userId} userEmail={userEmail} />
-            {/* <FetchUserData/> */}
+            {/* <TestFetchOrder userId={userId} userEmail={userEmail} /> */}
+            <TestRedux/>
         </>
     );
 }

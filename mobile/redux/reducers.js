@@ -5,6 +5,7 @@ import {
     SET_USER_EMAIL,
     SET_USER_PHONE,
     SET_USER_IMAGE,
+    SET_USER_ORDERS,
 } from './actions';
 
 const initialState = {
@@ -13,6 +14,8 @@ const initialState = {
     lastName: '',
     userEmail: '',
     userPhone: '',
+    userImg: '',
+    userOrders: [],
 };
 
 function userReducer(state = initialState, action) {
@@ -28,7 +31,9 @@ function userReducer(state = initialState, action) {
         case SET_USER_PHONE:
             return {...state, userPhone: action.payload};
         case SET_USER_IMAGE:
-            return {...state, userImage: action.payload};
+            return {...state, userImg: action.payload};
+        case SET_USER_ORDERS:
+            return {...state, userOrders: action.payload};
         default:
             return state;
     }
