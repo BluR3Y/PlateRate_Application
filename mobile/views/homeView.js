@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Dimensions, Image } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Dimensions, Image, RefreshControl, Linking } from 'react-native';
 import { styles, pickerSelectStyles } from '../styles/homeStyles';
-import { format12Hours, formatDate, withinRange } from '../utilities/functions';
+import { format12Hours, formatDate, formatPhoneNumber, sortMenuItems, withinRange } from '../utilities/functions';
 import Svg, { G, Rect } from 'react-native-svg';
 import { useSelector, useDispatch } from 'react-redux';
 import { store } from '../redux/store';
@@ -17,6 +17,7 @@ import Utensils from '../content/images/utensils.svg';
 import Dash from '../content/images/dash.svg';
 import Biker from '../content/images/person_biking.svg';
 import Walker from '../content/images/person_walking.svg';
+import { getUserOrders } from '../utilities/reduxFunctions';
 
 // ----------------------- test Values --------------------
 
@@ -129,21 +130,17 @@ const testFoodOrderedItem = [
 
 // ------------------------------------------------------
 
-const OrderNotification = ({ userId }) => {
+const OrderNotification = ({ newOrders }) => {
 
-    const [show, setShow] = useState((!userId && 1)? true : false);
-    
-    const hideNotification = () => {
-        setShow(!show);
-    }
+    const [show, setShow] = useState(newOrders.length !== 0);
 
     return(
         <TouchableOpacity
-            onPress={hideNotification}
+            onPress={() => setShow(!show)}
             style={[styles.orderNotification, {display: (show ? 'flex' : 'none')}]}
         >
             <View style={{borderBottomWidth: 2}}>
-                <Text style={styles.notificationText}>{`${1} New Orders`}</Text>
+                <Text style={styles.notificationText}>{`${newOrders.length} New Orders`}</Text>
             </View>
         </TouchableOpacity>
     );
@@ -310,7 +307,7 @@ const ProviderSelectors = ({ provider, setProvider, from, setFrom, to, setTo }) 
                     style={pickerSelectStyles}
                     textInputProps={{color: 'black'}}
                 />
-                <UpDownCaret caretStyle={{right: 8}} />
+                <UpDownCaret caretStyle={{right: 5}} />
             </View>
             <View style={styles.providerDateCont}>
                 <Calendar style={{marginLeft: 6}} width={18} height={18} fill={'#02843D'} />
@@ -387,12 +384,17 @@ const ReservationDTInputs = ({ date, setDate, save_notify, setSave_Notify, time,
                     <UpDownCaret caretStyle={{right: 6}}/>
 
                 </TouchableOpacity>
-                <View style={styles.reservationCheckBox}>
+                {/* <View style={styles.reservationCheckBox}>
                     <TouchableOpacity style={styles.reservationCheckBoxBtn} onPress={() => setSave_Notify(!save_notify)}>
                         <CheckBox customSize={12} isVisible={save_notify} />
                         <Text style={{marginLeft: 6, fontSize: 17, color: '#4A4A4A'}}>Save and notify customer</Text>
                     </TouchableOpacity>
-                </View>
+                </View> */}
+                <CheckBoxSelector
+                    selectionText={'Save and notify customer'}
+                    isSelected={true}
+                    textStyle={{fontWeight:'500'}}
+                />
             </View>
             <View style={styles.ReservationArrivalSelector}>
                 <Text style={[styles.reservationInputText]}>Customer Arrived</Text>
@@ -711,7 +713,7 @@ const InstructionInput = ({ instructionTitle, instructionPlaceHolder, instructio
     }
 
     return(
-        <View style={[styles.instructionInput, instructionStyle]}>
+        <View style={{...styles.instructionInput, ...instructionStyle}}>
             <Text style={styles.instructionInputText}>{instructionTitle}</Text>
             <TextInput
                 placeholder={instructionPlaceHolder}
@@ -720,6 +722,7 @@ const InstructionInput = ({ instructionTitle, instructionPlaceHolder, instructio
                 value={orderInstructions}
                 editable={isModifiable}
                 selectTextOnFocus={isModifiable}
+                placeholderTextColor={'#A4A4A4'}
             />
         </View>
     );
@@ -752,101 +755,115 @@ const CustomDropDown = ({ dropdownTitle, setVal, selectionList, customStyle, ini
     );
 }
 
-const CheckBox = ({ customSize, isVisible }) => {
+const BulletPointSelector = ({isSelected, setIsSelected, selectionText, textStyle, BulletPointStyle, isDisabled}) => {
+
+    const defaultBullet = {
+        width: 16,
+        height: 16,
+        borderWidth: 1,
+        borderColor: 'green',
+        borderRadius: 100,
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
+
+    const defaultText = {
+        marginLeft: 10,
+        fontSize: 18,
+        color: '#4A4A4A'
+    }
 
     return(
-        <View style={{backgroundColor: (isVisible ? 'green' : '#FFF'), borderWidth: 1, justifyContent: 'center', alignItems: 'center', borderRadius: 4,  width: customSize+3, height: customSize+3}}>
-            <CheckMark width={customSize} height={customSize} fill={'#FFF'} />
-        </View>
+        <TouchableOpacity style={{flexDirection:'row', alignSelf: 'flex-start', alignItems:'center'}} disabled={isDisabled? isDisabled : 0} onPress={() => setIsSelected(!isSelected)}>
+            <View style={{...defaultBullet, ...BulletPointStyle}}>
+                <View style={{backgroundColor:(isSelected?'green':null), borderRadius: 100, width: '82%', height:'85%'}} />
+            </View>
+            <Text style={{...defaultText, ...textStyle}}>{selectionText}</Text>
+        </TouchableOpacity>
     );
 }
 
-const CircledBullet = ({customSize, isVisible}) => {
+const CheckBoxSelector = ({ isSelected, setIsSelected, selectionText, textStyle, checkBoxStyle, isDisabled}) => {
+
+    const defaultText = {
+        fontSize: 18,
+        marginLeft: 8,
+        fontWeight: '600',
+        color: '#4A4A4A',
+    };
+
+    const defaultCheckBox = {
+        borderWidth: 1,
+        borderColor: 'green',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 4, 
+        width: 15, 
+        height: 15,
+    }
 
     return(
-        <View style={{width: customSize, height: customSize, borderWidth: 1, borderColor: 'green', borderRadius: 100, justifyContent: 'center', alignItems: 'center'}}>
-            <View style={{backgroundColor: (isVisible ? 'green' : null), borderRadius: 100, width: '82%', height: '85%'}}></View>
-        </View>
+        <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start'}} disabled={isDisabled? isDisabled : 0} onPress={() => setIsSelected(!isSelected)}>
+            <View style={{...defaultCheckBox, ...checkBoxStyle, backgroundColor: (isSelected?'green':'#FFF')}}>
+                <CheckMark 
+                    width={(checkBoxStyle && checkBoxStyle.width ? checkBoxStyle.width -1 : 14)}
+                    height={(checkBoxStyle && checkBoxStyle.height ? checkBoxStyle.height - 1 : 14)}
+                    fill={'#FFF'}
+                />
+            </View>
+            <Text style={{...defaultText,...textStyle}}>{selectionText}</Text>
+        </TouchableOpacity>
     );
 }
 
-const MenuItem = ({ menuItem, subOptionChange}) => {
+const MenuItem = ({ menuItemData, isModifiable }) => {
 
-    const [isSelected, setIsSelected] = useState(false);
-    const [selectedSub, setSelectedSub] = useState(new Array(menuItem.subOptions.length).fill(false));
-
-    const updateStatus = () => {
-        setIsSelected(!isSelected);
-    }
-
-    const orderPayment = () => {
-        if(menuItem.paymentStatus === 'paid') {
-            return(
-                <View style={[styles.paidCont,{backgroundColor: '#E6F3EC', borderColor: '#02843D'}]}>
-                    <Text style={{color: '#02843D', fontSize: 11}}>Paid</Text>
-                </View>
-            );
-        }else if(menuItem.paymentStatus === 'paying'){
-            return(
-                <View style={[styles.paidCont,{backgroundColor: '#FFF3CE', borderColor: '#FCC41F'}]}>
-                    <Text style={{color: '#000', fontSize: 11}}>Paying</Text>
-                </View>
-            );
-        }else {
-            return(
-                <View style={[styles.paidCont,{backgroundColor: '#fad4d4', borderColor: '#a10202'}]}>
-                    <Text style={{color: '#a10202', fontSize: 11}}>Not Paid</Text>
-                </View>
-            );
-        }
-    }
-
-    const updateSelection = (id) => {
-        let modifiedOptions = [];
-        for(var i = 0; i < selectedSub.length; i++) {
-            modifiedOptions.push(id === i + 1? !selectedSub[i] : selectedSub[i]);
-        }
-        setSelectedSub(modifiedOptions);
-    }
-
+    const [isMenuItemSelected, setIsMenuItemSelected] = useState(true);
+    // console.log(menuItemData)
+    // console.log(menuItemData.addons)
+    // to get payment status, use menuItem.payment_id: if not null, its paid for
+    // special instructions
 
     return(
-        <View style={styles.menuItem}>
-            <TouchableOpacity style={styles.menuItemInfo} onPress={updateStatus}>
-                <CheckBox customSize={12} isVisible={isSelected} />
-                <Text style={{fontSize: 20, marginLeft: 8, fontWeight:'bold'}}>{`${menuItem.numItemSelections}x  ${menuItem.itemName}`}</Text>
-                <Text style={{fontSize: 20, marginHorizontal: 10}}>{`(${menuItem.numItemSelections} order)  $${menuItem.itemPrice}`}</Text>
-                {orderPayment()}
-            </TouchableOpacity>
-            {menuItem.subOptions.map((subOption) => (
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginTop:8 }} key={subOption.optionId} onPress={() => updateSelection(subOption.optionId)}>
-                    <CircledBullet customSize={16} isVisible={selectedSub[subOption.optionId-1]} />
-                    <Text style={{marginLeft: 10, fontSize: 18}}>{`${subOption.optionName} ${subOption.numSelections} x $${subOption.price} = $${(subOption.numSelections * subOption.price).toFixed(2)}`}</Text>
-                </TouchableOpacity>
-            ))}
-            <InstructionInput 
-                instructionTitle={'Menu Item Special Instructions'} 
-                orderInstructions={menuItem.specialInstructions} 
-                instructionStyle={{marginVertical: 25, display: (menuItem.specialInstructions? 'flex' : 'none')}} 
+        <View style={{overflow:'hidden'}}>
+            <View style={{ flexDirection:'row', alignItems:'center', flexWrap:'wrap', marginBottom: 7, marginTop:10}}>
+                <CheckBoxSelector
+                    isSelected={isMenuItemSelected}
+                    setIsSelected={setIsMenuItemSelected}
+                    selectionText={`${menuItemData.quantity}x ${menuItemData.item_name}`}
+                    textStyle={{fontSize: 19, fontWeight: '500'}}
+                    checkBoxStyle={{width: 14, height: 14}}
+                    isDisabled={!isModifiable}
+                />
+                <Text style={{fontSize: 18, marginLeft:5, color: '#4A4A4A'}}>{`(${menuItemData.quantity} order) $${menuItemData.extended_price}`}</Text>
+                <PaymentStatusBanner 
+                    payment_status={(menuItemData.payment_id? 'paid' : 'unpaid')} 
+                    customStyle={{marginLeft:8}}
+                />
+            </View>
+            {menuItemData.addons.map(function(addonItem, index) {
+                return (
+                    <BulletPointSelector
+                        key={index}
+                        isSelected={isMenuItemSelected}
+                        selectionText={`${addonItem.addon_name} ${addonItem.quantity} x $${addonItem.addon_price} = $${addonItem.addon_extended_price}`}
+                        isDisabled={1}
+                    />
+                );
+            })}
+            <InstructionInput
+                instructionTitle={'Menu Item Special Instructions'}
+                orderInstructions={menuItemData.special_instructions}
+                instructionPlaceHolder={'Have any requests?'}
+                setOrderInstructions={menuItemData.special_instructions}
+                isModifiable={isModifiable && isMenuItemSelected}
+                instructionStyle={{marginTop: 15, marginBottom: 20, display:(menuItemData.special_instructions? 'flex' : 'none')}}
             />
         </View>
     );
 }
 
-const FoodOrderItem = ({ orderData, isModifiable }) => {
-
-    console.log(menuItemData)
-
-    return(
-        <View style={styles.foodOrderItem}>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                <View style={styles.foodOrderUserInfo}>
-
-                </View>
-            </View>
-        </View>
-    );
-
+const FoodOrderItem = ({ CartOrderData, isModifiable }) => {
 
     // const [seatNum, setSeatNum] = useState(null);
     // const [assignedTo, setAssignedTo] = useState(null);
@@ -876,7 +893,7 @@ const FoodOrderItem = ({ orderData, isModifiable }) => {
     //         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
     //             <View style={styles.foodOrderUserInfo}>
     //                 {/* <Image source={{ uri: getOrders[orderItemId - 1].clientProfileImg }} style={styles.foodOrderUserImg}/> */}
-    //                 <Text style={{fontSize: 20, marginHorizontal: 7, fontWeight: 'bold'}}>{`${getOrders[orderItemId - 1].clientName.substring(0, getOrders[orderItemId - 1].clientName.indexOf(' ')+2)}'s Order`}</Text>
+                    // <Text style={{fontSize: 20, marginHorizontal: 7, fontWeight: 'bold'}}>{`${getOrders[orderItemId - 1].clientName.substring(0, getOrders[orderItemId - 1].clientName.indexOf(' ')+2)}'s Order`}</Text>
     //             </View>
     //             <CustomDropDown 
     //                 dropdownTitle={'Seat No.'} 
@@ -910,87 +927,204 @@ const FoodOrderItem = ({ orderData, isModifiable }) => {
     // );
 }
 
+
 //------------------------------------------- Order Item Sections
-const OrderSummarySection = ({ displayedSection, isOrderModifiable, orderData }) => {
 
-    const [orderSpecialInstruction, setOrderSpecialInstructions] = useState(orderData.special_instructions === 'None'? '' : orderData.special_instructions);
-    const [foodOrders, setFoodOrders] = useState([]);
+const UserCartOrder = ({ cartOrderData, isModifiable, cartType }) => {
 
-    const getFoodOrders = async () => {
+    const [menuItems, setMenuItems] = useState([]);
+    const [cartOwnerImg, setCartOwnerImg] = useState('https://platerate.com/images/avatar.png');
+    const [orderName, setOrderName] = useState(null);
 
-        if(!orderData.parent_order_id) { return []; }
-    
-        var parentOrder = await fetch(`https://platerate.com/orders/details/user?orderId=${orders[i].order_id}&res=json`);
-        parentOrder = await parentOrder.json();
-        return parentOrder;
+    const setCartInfo = async () => {
+        if(cartType === 'user') {
+            setCartOwnerImg(store.getState().userReducer.userImg);
+            setMenuItems(cartOrderData.userCartItems)
+            setOrderName(cartOrderData.user + '\'s Order');
+        }else if(cartType === 'joined') {
+            var cartOwnerId = cartOrderData[0].user_id;
+
+            setMenuItems(sortMenuItems(cartOrderData));
+
+            let publicImg = await fetch(`https://platerate.com/getpublicprofileimg/${cartOwnerId}`);
+            publicImg = await publicImg.text();
+            if(publicImg) {setCartOwnerImg(publicImg);}
+            setOrderName(cartOrderData[0].order_name);
+            
+        }else if(cartType === 'other'){
+            let cartItems = await fetch(`https://platerate.com/orders/items?orderId=${cartOrderData.orderId}`);
+            cartItems = await cartItems.json();
+            cartItems = cartItems.data;
+
+            setMenuItems(sortMenuItems(cartItems));
+
+            let publicImg = await fetch(`https://platerate.com/getpublicprofileimg/${cartOrderData.userId}`);
+            publicImg = await publicImg.text();
+            
+            if(publicImg) {setCartOwnerImg(publicImg);}
+            setOrderName(cartOrderData.orderName);
+        }
     }
-
-    useEffect(() => {
-        getFoodOrders()
-        .then(orders => {
-            setFoodOrders(orders);
-        })
-    },[])
     
+    useEffect(() => {
+        setCartInfo()
+    },[])
+
     return(
-        <View style={[styles.sectionItem, {display: (displayedSection === 0 ? 'flex' : 'none')}]}>
+        <View style={styles.foodOrderItem}>
+           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                <View style={styles.foodOrderUserInfo}>
+                    <View style={styles.cartOrderImgCont}>
+                        <Image 
+                            source={{ uri: cartOwnerImg }}
+                            style={{width:40,height: 40}}
+                        />
+                    </View>
+                    <Text style={{fontSize: 18, marginHorizontal: 7, fontWeight: 'bold', color:'#4A4A4A'}}>
+                        {orderName}
+                    </Text>
+                </View>
+            </View> 
+            <View>
+                {menuItems.map(function(menuItem, index) {
+                    return(
+                        <MenuItem
+                            menuItemData={menuItem}
+                            key={index}
+                            isModifiable={isModifiable}
+                        />
+                    );
+                })}
+            </View>
+        </View>
+    )
+}
+
+const OrderSummarySection = ({ orderItem, isModifiable, selectedSection }) => {
+    
+    const isChildOrder = (orderItem.orderTotal.parent_order_id !== null);
+    const orderState = orderItem.orderInfo.state;
+
+    const [orderSpecialInstruction, setOrderSpecialInstructions] = useState(orderItem.orderTotal.special_instructions);
+    // orders: otherOrders, joinedCartOrders, userCartOrders
+    // console.log(orderItem.shoppingCart.userCartOrder)
+    // console.log(orderItem.shoppingCart.userCartOrder)
+    const [userOrder, setUserOrder] = useState(null);
+    
+    // const getUserOrder = () => {
+    //     var order_id = orderItem.orderInfo.order_id;
+    //     var cart = orderItem.shoppingCart;
+    //     var userOrder = cart.userCartOrder;
+    //     var userMenuItems = userOrder.userCartItems;
+    //     // console.log(userMenuItems)
+    //     userMenuItems.forEach(menuItem => {
+    //         console.log(menuItem)
+    //         // console.log(menuItem.item_name, menuItem.item_type)
+    //         // console.log(menuItem.order_id)       // all menu items in a given cart have the same order_id
+    //         // console.log(menuItem.suborder_id)   // each menu item has a unique suborder_id, all except approved orders had value of null
+    //         // console.log(menuItem.cart_items_id)    // each menu item has a unique cart_items_id
+    //         // console.log(menuItem.item_id);      // each menu item has a unique item_id
+    //     })
+        
+    //     console.log('----------------------------------------\n\n');
+    // }
+
+    // useEffect(() => {
+    //     getUserOrder();
+    // },[])
+
+    return(
+        <View style={[styles.sectionItem, {display: (selectedSection === 0 ? 'flex' : 'none')}]}>
             <InstructionInput 
                 instructionStyle={{marginTop: 8}} 
                 instructionTitle={'Order Special Instructions'} 
                 instructionPlaceHolder={'Less spicy ...'} 
                 orderInstructions={orderSpecialInstruction}
                 setOrderInstructions={setOrderSpecialInstructions} 
-                isModifiable={isOrderModifiable}
+                isModifiable={isModifiable}
             />
             <Text style={{fontSize: 18, color: 'black', marginTop: 10,marginBottom:5}}>Food Ordered</Text>
             <View>
-                {foodOrders.map(function(foodOrder, index) {
-                    return (<FoodOrderItem
-                        orderData={foodOrder}
-                        isModifiable={isModifiable}
-                        key={index}
-                    />)
+                <UserCartOrder
+                    cartOrderData={orderItem.shoppingCart.userCartOrder}
+                    isModifiable={isModifiable}
+                    cartType={'user'}
+                />
+                {Object.values(orderItem.shoppingCart.joinedCartOrders).map(function(cartOrder, index) {
+                    return(
+                        <UserCartOrder
+                            cartOrderData={cartOrder}
+                            isModifiable={false}
+                            cartType={'joined'}
+                            key={index}
+                        />
+                    );
                 })}
             </View>
+            
+            {/** cancel selected menu items should only appear when user has deselected items from their shopping cart **/}
+            {/* {(orderState === 'in-cart' || orderState === 'created') && isModifiable && (
+                <TouchableOpacity style={{borderWidth: 1, borderColor: '#02843D', paddingVertical: 15, width: 300, alignSelf:'center', borderRadius: 8, marginVertical: 20}}>
+                    <Text style={{textAlign:'center', fontSize: 18, color: '#02843D'}}>Approve Selected Menu Items</Text>
+                </TouchableOpacity>
+            )} */}
+            {(orderState === 'approved') && isModifiable && (
+                <TouchableOpacity style={{borderWidth: 1, borderColor: 'red', paddingVertical: 15, width: 300, alignSelf:'center', borderRadius: 8, marginVertical: 20}}>
+                    <Text style={{textAlign:'center', fontSize: 18, color: 'red'}}>Cancel Selected Menu Items</Text>
+                </TouchableOpacity>
+            )}
         </View>
     );
-
-    // const [orderInstructions, setOrderInstructions] = useState('');
-    // const [foodOrders, setFoodOrders] = useState(testFoodOrderedItem);
-
-    // //fetch from db Food Orders related to Order Summary
-
-    // return(
-    //     <View style={[styles.sectionItem, {display: (displayedSection === 0 ? 'flex' : 'none')}]}>
-    //         <InstructionInput 
-    //             instructionStyle={{marginTop: 8}} 
-    //             instructionTitle={'Order Special Instructions'} 
-    //             instructionPlaceHolder={'Less spicy ...'} 
-    //             orderInstructions={orderInstructions} 
-    //             setOrderInstructions={setOrderInstructions} 
-    //         />
-            // <Text style={{fontSize: 18, color: 'black', marginTop: 10,marginBottom:5}}>Food Ordered</Text>
-    //         <View>
-    //             {foodOrders.map((orderItem) => (
-    //                 <FoodOrderItem orderItemId={orderItem.orderId} getOrders={foodOrders} setOrders={setFoodOrders} key={orderItem.orderId}/>
-    //             ))}
-    //         </View>
-    //         <TouchableOpacity style={{borderWidth: 1, borderColor: 'red', paddingVertical: 15, width: 300, alignSelf:'center', borderRadius: 8, marginVertical: 20}}>
-    //             <Text style={{textAlign:'center', fontSize: 18, color: 'red'}}>Cancel Selected Menu Items</Text>
-    //         </TouchableOpacity>
-    //     </View>
-    // )
+{/*
+                to remove item that is already paid: '/orders/cancelItemsOrderPaid'
+                to remove a whole incart-order: '/orders/delete/incart?orderId='
+                update an incart order: '/orders/update?orderId='
+*/}
 }
 
 const CustomerMgmtSection = ({ displayedSection }) => {
     return (
         <View style={[styles.sectionItem, {display: (displayedSection === 1 ? 'flex' : 'none')}]}>
             <Text>Section 2</Text>
+            <RatingSelector/>
         </View>
     )
 }
 
-const ReservationSection = ({ displayedSection }) => {
+const OpenURLButton = ({ url, text, textStyle }) => {
+    
+    let defaultText = {
+        color: 'black',
+        fontSize: 18,
+        alignSelf: 'flex-start',
+    }
+
+    const openLink = useCallback(async () => {
+        const linkedURL = await Linking.canOpenURL(url);
+
+        if(linkedURL) {
+            await Linking.openURL(url);
+        }
+    },[url]);
+
+    return(
+        <Text onPress={openLink} style={{...defaultText,...textStyle}}>{text}</Text>
+    );
+}
+
+const RatingSelector = ({  }) => {
+
+    return(
+        <TouchableOpacity
+        onPress={() => console.log('hge')}
+            style={{width:'100%',height:100, backgroundColor:'red'}}
+        >
+
+        </TouchableOpacity>
+    );
+}
+
+const ReservationSection = ({ orderItem, isModifiable,displayedSection }) => {
 
     const [reservationDT, setReservationDT] = useState(new Date());
     const [order_save_notify, setOrder_Save_Notify] = useState(false);
@@ -1004,11 +1138,28 @@ const ReservationSection = ({ displayedSection }) => {
     const [reservation_date_requested, setReservation_date_requested] = useState(new Date());
     const [reservation_date_confirmed, setReservation_date_confirmed] = useState(new Date()); 
 
+    const { firstName,lastName, userEmail, userPhone } = useSelector(state => state.userReducer);
+
     return(
         <View style={[styles.sectionItem, {display: (displayedSection === 2 ? 'flex' : 'none')}]}>
             <View style={{marginVertical: 8}}>
-                <Text style={styles.reservationCustomerInfo}>Customer Name: <Text style={{color: '#02843D'}}>John Doe</Text></Text>
-                <Text style={styles.reservationCustomerInfo}>Customer phone number: <Text style={{color: '#02843D'}}>1 (234) 567-8901</Text></Text>
+                <Text style={styles.reservationCustomerInfo}>Customer Name: <Text style={{color: '#02843D'}}>{firstName + ' ' + lastName}</Text></Text>
+                <Text style={styles.reservationCustomerInfo}>
+                    {'Customer phone number: '}
+                    <OpenURLButton
+                        url={`tel:${userPhone}`}
+                        text={formatPhoneNumber(userPhone)}
+                        textStyle={{color:'green'}}
+                    />
+                </Text>
+                <Text style={styles.reservationCustomerInfo}>
+                    {'Customer email: '}
+                    <OpenURLButton
+                        url={`mailto:${userEmail}`}
+                        text={userEmail}
+                        textStyle={{color:'green'}}
+                    />
+                </Text>
             </View>
             <ReservationDTInputs 
                 date={reservationDT} 
@@ -1159,6 +1310,153 @@ const OrderOptions = ({ selectedSection, setReservationAcceptance, setSummaryTab
 }
 
 // ------------------------------------------------------------------
+
+const OrderTypeBanner = ({orderType, customStyle}) => {
+    return(
+        <View style={{...styles.orderBanner,...customStyle}}>
+            {orderType === 'order-ahead' && (
+                <>
+                    <Utensils width={13} height={13} fill={'#02843D'}/>
+                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Order In</Text>
+                </>
+            )}
+            {orderType === 'delivery' && (
+                <>
+                     <Biker width={18} height={18} fill={'#02843D'} />
+                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Delivery</Text>
+                </>
+            )}
+            {orderType === 'pickup' && (
+                <>
+                    <Walker width={18} height={18} fill={'#02843D'} style={{marginRight: -3}} />
+                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Pickup</Text>
+                </>
+            )}
+        </View>
+    )
+} 
+
+const PaymentStatusBanner = ({payment_status, customStyle}) => {
+    if(payment_status === 'paid') {
+        return(
+            <View style={{...styles.paidCont,...{backgroundColor: '#E6F3EC', borderColor: '#02843D'},...customStyle}}>
+                <Text style={{color: '#02843D', fontSize: 11}}>Paid</Text>
+            </View>
+        );
+    }else if(payment_status === 'paying'){
+        return(
+            <View style={{...styles.paidCont,...{backgroundColor: '#FFF3CE', borderColor: '#FCC41F'},...customStyle}}>
+                <Text style={{color: '#000', fontSize: 11}}>Paying</Text>
+            </View>
+        );
+    }else if(payment_status === 'unpaid') {
+        return(
+            <View style={{...styles.paidCont,...{backgroundColor: '#fad4d4', borderColor: '#a10202'},...customStyle}}>
+                <Text style={{color: '#a10202', fontSize: 11}}>Not Paid</Text>
+            </View>
+        );
+    }
+}
+
+const OrderItem = ({ orderItem, lifetimeSpent, inRangeSpent_days, setInRangeSpent_days, inRangeSpent_amount, inRangeTip }) => {
+
+    const order_type = orderItem.orderInfo.order_type;
+    const payment_status = orderItem.orderInfo.payment_status;
+    const isModifiable = (orderItem.orderTotal.status === 'pending-creation' || orderItem.orderTotal.status === 'pending-approval'); 
+
+    const [isCollapsed, setIsCollapsed] = useState(true);
+    const [selectedSection, setSelectedSection] = useState(0);
+
+    const orderName = () => {
+        if(!orderItem.orderTotal.parent_order_id) { return orderItem.orderTotal.order_name; }
+        return orderItem.shoppingCart.userCartOrder.orderName;
+    }
+
+    {/* <OrderOptions 
+        selectedSection={selectedSection} 
+        setReservationAcceptance={setReservationAcceptance} 
+        setSummaryTableSelection={setSummaryTableSelection} 
+        setMgmtTableSelection={setMgmtTableSelection} 
+        setOrderTimingTableSelection={setOrderTimingTableSelection} 
+    /> */}
+
+    return(
+        <View style={styles.orderCont}>
+            <View style={styles.orderHeader}>
+                <TouchableOpacity style={styles.orderExpandBtn} onPress={() => setIsCollapsed(!isCollapsed)}>
+                    <Dash width={20} height={20} fill={'#000'} />
+                </TouchableOpacity>
+                <View style={styles.orderHeaderInfo}>
+                    <Text style={{color: 'black', fontSize: 17, marginRight: 10}}>{orderName()}</Text>
+                    <OrderTypeBanner 
+                        orderType={order_type} 
+                        customStyle={{marginRight:8}}
+                    />
+                    <View style={styles.orderAmountCont}>
+                        <PaymentStatusBanner 
+                            payment_status={payment_status}
+                            customStyle={{marginRight:8}}
+                        />
+                        <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderItem.orderInfo.total_price})</Text>
+                    </View>
+                </View>
+            </View>
+            <Collapsible collapsed={isCollapsed}>
+                <View style={{height:2, backgroundColor:'#DBE0DD'}}></View>
+                <View style={styles.orderBody}>
+                    <View>
+                        <Text style={{fontSize:24, color:'green',fontWeight:'600'}}>{orderItem.orderInfo.venue_name}</Text>
+                        <Text style={[styles.accumInfoText,{fontWeight: 'bold'}]}>Order number #{orderItem.orderInfo.order_id}</Text>
+                        <Text style={[styles.accumInfoText,{display: (lifetimeSpent? 'flex' : 'none')}]}>
+                            Order Lifetime Spend: 
+                            <Text style={{color: '#02843D'}}> ${lifetimeSpent}</Text>    
+                        </Text>
+                        <View style={[styles.spent_n_daysCont,{display: (inRangeSpent_amount? 'flex' : 'none')}]}>
+                            <Text style={styles.accumInfoText}>Last</Text>
+                            <View style={styles.daysCont}>
+                                <TextInput
+                                    onChangeText={(val) => setInRangeSpent_days(val.replace(/\D/g,''))}
+                                    value={inRangeSpent_days}
+                                    keyboardType={'numeric'}
+                                    maxLength={3}
+                                    style={{padding:0, marginHorizontal: 4, fontSize:15, marginLeft: 8, color:'#4A4A4A'}}
+                                />
+                                <UpDownCaret caretStyle={{right: 2}} />
+                            </View>
+                            <Text style={styles.accumInfoText}>days = Spend: <Text style={{color: '#02843D'}}>${inRangeSpent_amount}</Text> Tip: <Text style={{color: '#02843D'}}>{inRangeTip}%</Text></Text>
+                        </View>
+                    </View>
+                    <View style={styles.orderSectionBtns}>
+                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 0? '#02843D' : '#F3F3F3')}]} onPress={() => setSelectedSection(0)}>
+                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 0? '#FFF' : '#7D7D7D')}]}>Order Summary</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 1? '#02843D' : '#F3F3F3')}]}  onPress={() => setSelectedSection(1)}>
+                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 1? '#FFF' : '#7D7D7D')}]}>Customer Mgmt</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 2? '#02843D' : '#F3F3F3')}]}  onPress={() => setSelectedSection(2)}>
+                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 2? '#FFF' : '#7D7D7D')}]}>Reservation</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 3? '#02843D' : '#F3F3F3')}]}  onPress={() => setSelectedSection(3)}>
+                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 3? '#FFF' : '#7D7D7D')}]}>Order Timing</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <OrderSummarySection
+                        orderItem={orderItem}
+                        isModifiable={isModifiable}
+                        selectedSection={selectedSection}
+                    />
+                    <CustomerMgmtSection displayedSection={selectedSection} />
+                    <ReservationSection
+                        orderItem={orderItem}
+                        isModifiable={isModifiable}
+                        displayedSection={selectedSection} 
+                    />
+                    <OrderTimingSection displayedSection={selectedSection} />
+                </View>
+            </Collapsible>
+        </View>
+    );
+}
 
 // const OrderItem = ({ orderInfo, orderData, lifetimeSpent, inRangeSpent_days, setInRangeSpent_days, inRangeSpent_amount }) => {
 
@@ -1336,365 +1634,52 @@ const OrderOptions = ({ selectedSection, setReservationAcceptance, setSummaryTab
 //                         </TouchableOpacity>
 //                     </View>
 //                     <OrderSummarySection displayedSection={selectedSection} />
-//                     <CustomerMgmtSection displayedSection={selectedSection} />
-//                     <ReservationSection displayedSection={selectedSection} />
-//                     <OrderTimingSection displayedSection={selectedSection} />
+                    // <CustomerMgmtSection displayedSection={selectedSection} />
+                    // <ReservationSection displayedSection={selectedSection} />
+                    // <OrderTimingSection displayedSection={selectedSection} />
 //                 </View>
 //             </Collapsible>
 //         </View>
 //     );
 // }
 
-const PickupOrder = ({ orderInfo, orderData, lifetimeSpent, inRangeSpent_days, setInRangeSpent_days, inRangeSpent_amount }) => {
-
-    const [isCollapsed, setIsCollapsed] = useState(true);
-    const [selectedSection, setSelectedSection] = useState(0);
-    const [isOrderModifiable, setIsOrderModifiable] = useState(orderInfo.state !== 'approved');
-
-    const setOrderBanner = () => {
-        if(orderInfo.order_type === 'order-ahead') {
-            return (
-                <>
-                    <Utensils width={13} height={13} fill={'#02843D'}/>
-                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Order In</Text>
-                </>
-            );
-        }else if(orderInfo.order_type === 'delivery') {
-            return (
-                <>
-                    <Biker width={18} height={18} fill={'#02843D'} />
-                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Delivery</Text>
-                </>
-            );
-        }else{
-            return (
-                <>
-                    <Walker width={18} height={18} fill={'#02843D'} style={{marginRight: -3}} />
-                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Pickup</Text>
-                </>
-            );
-        }
-    }
-
-    const setPaymentStatus = () => {
-        if(orderInfo.payment_status === 'paid') {
-            return(
-                <View style={[styles.paidCont,{backgroundColor: '#E6F3EC', borderColor: '#02843D'}]}>
-                    <Text style={{color: '#02843D', fontSize: 11}}>Paid</Text>
-                </View>
-            );
-        }else if(orderInfo.payment_status === 'paying'){
-            return(
-                <View style={[styles.paidCont,{backgroundColor: '#FFF3CE', borderColor: '#FCC41F'}]}>
-                    <Text style={{color: '#000', fontSize: 11}}>Paying</Text>
-                </View>
-            );
-        }else {
-            return(
-                <View style={[styles.paidCont,{backgroundColor: '#fad4d4', borderColor: '#a10202'}]}>
-                    <Text style={{color: '#a10202', fontSize: 11}}>Not Paid</Text>
-                </View>
-            );
-        }
-    }
-
-    // const tester = () => {
-    //     console.log(orderData.special_instructions)
-    // }
-
-    // useEffect(() => {
-    //     tester()
-    // })
+const PromptLogin = ({ navigation }) => {
 
     return(
-        <View style={styles.orderCont}>
-            <View style={styles.orderHeader}>
-                <View style={styles.orderHeaderInfo}>
-                    <TouchableOpacity style={styles.orderExpandBtn} onPress={() => setIsCollapsed(!isCollapsed)}>
-                        <Dash width={20} height={20} fill={'#000'}/>
-                    </TouchableOpacity>
-                    <Text style={{color: 'black', fontSize: 17, marginRight: 10}}>{orderData.order_name}</Text>
-                    <View style={styles.orderBanner}>
-                        {setOrderBanner()}
-                    </View>
-                    <View style={styles.orderAmountCont}>
-                        {setPaymentStatus()}
-                        <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderInfo.total_price})</Text>
-                    </View>
-                </View>
+        <View style={{width:'95%',height:'80%', borderRadius:20,backgroundColor:'#e8f1ff', marginTop:30,overflow:'hidden'}}>
+            <Text style={{color:'#4e4e4e', fontSize:23,textAlign:'center',marginVertical:20}}>Please Login or Register to begin viewing your PlateRate Orders</Text>
+            <Image 
+                source={require('../content/images/dummy_character.png')}
+                style={{height: 200,width: 250,alignSelf:'center'}}
+            />
+            <View style={{flexDirection:'column', width: 250, alignSelf:'center', marginTop:20}}>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('WebView', { viewType: 'accountAccess', formType: 'login' })}
+                    style={{width:'100%',height:40,backgroundColor:'green',marginBottom:10,borderRadius:3,alignItems:'center',justifyContent:'center'}}
+                >
+                    <Text style={{fontSize:20,color:'#FFF'}}>Log In</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('WebView', { viewType: 'accountAccess', formType: 'register' })}
+                    style={{width:'100%',height:40,backgroundColor:'#ffe20b',borderRadius:3,alignItems:'center',justifyContent:'center'}}
+                >
+                    <Text style={{fontSize:20,color:'#000'}}>Register</Text>
+                </TouchableOpacity>
             </View>
-            <Collapsible collapsed={isCollapsed}>
-                <View style={{height:2, backgroundColor:'#DBE0DD'}}></View>
-                <View style={styles.orderBody}>
-                    <View>
-                        <Text style={[styles.accumInfoText,{fontWeight: 'bold'}]}>Order number #{orderInfo.order_id}</Text>
-                        <Text style={styles.accumInfoText}>
-                            Order Lifetime Spend: 
-                            <Text style={{color: '#02843D'}}> ${lifetimeSpent}</Text>    
-                        </Text>
-                        <View style={styles.spent_n_daysCont}>
-                            <Text style={styles.accumInfoText}>Last</Text>
-                            <View style={styles.daysCont}>
-                                <TextInput
-                                    onChangeText={(val) => setInRangeSpent_days(val.replace(/\D/g,''))}
-                                    value={inRangeSpent_days}
-                                    keyboardType={'numeric'}
-                                    maxLength={3}
-                                    style={{padding:0, marginHorizontal: 4, fontSize:15, marginLeft: 8}}
-                                />
-                                <UpDownCaret caretStyle={{right: 2}} />
-                            </View>
-                            <Text style={styles.accumInfoText}>days = Spend: <Text style={{color: '#02843D'}}>${inRangeSpent_amount}</Text> Tip: <Text style={{color: '#02843D'}}>{22}%</Text></Text>
-                        </View>
-                    </View>
-                    <View style={styles.orderSectionBtns}>
-                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 0? '#02843D' : '#F3F3F3')}]} onPress={() => setSelectedSection(0)}>
-                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 0? '#FFF' : '#7D7D7D')}]}>Order Summary</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 1? '#02843D' : '#F3F3F3')}]}  onPress={() => setSelectedSection(1)}>
-                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 1? '#FFF' : '#7D7D7D')}]}>Customer Mgmt</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <OrderSummarySection
-                        displayedSection={selectedSection} 
-                        isOrderModifiable={isOrderModifiable}
-                        orderData={orderData}
-                    />
-                    <CustomerMgmtSection displayedSection={selectedSection} />
-                </View>
-            </Collapsible>
         </View>
-    );
+    )
 }
 
-const DeliveryOrder = ({ orderInfo, orderData, lifetimeSpent, inRangeSpent_days, setInRangeSpent_days, inRangeSpent_amount }) => {
-    
-    const [isCollapsed, setIsCollapsed] = useState(true);
-    const [selectedSection, setSelectedSection] = useState(0);
-
-    const setOrderBanner = () => {
-        if(orderInfo.order_type === 'order-ahead') {
-            return (
-                <>
-                    <Utensils width={13} height={13} fill={'#02843D'}/>
-                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Order In</Text>
-                </>
-            );
-        }else if(orderInfo.order_type === 'delivery') {
-            return (
-                <>
-                    <Biker width={18} height={18} fill={'#02843D'} />
-                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Delivery</Text>
-                </>
-            );
-        }else{
-            return (
-                <>
-                    <Walker width={18} height={18} fill={'#02843D'} style={{marginRight: -3}} />
-                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Pickup</Text>
-                </>
-            );
-        }
-    }
-
-    const setPaymentStatus = () => {
-        if(orderInfo.payment_status === 'paid') {
-            return(
-                <View style={[styles.paidCont,{backgroundColor: '#E6F3EC', borderColor: '#02843D'}]}>
-                    <Text style={{color: '#02843D', fontSize: 11}}>Paid</Text>
-                </View>
-            );
-        }else if(orderInfo.payment_status === 'paying'){
-            return(
-                <View style={[styles.paidCont,{backgroundColor: '#FFF3CE', borderColor: '#FCC41F'}]}>
-                    <Text style={{color: '#000', fontSize: 11}}>Paying</Text>
-                </View>
-            );
-        }else {
-            return(
-                <View style={[styles.paidCont,{backgroundColor: '#fad4d4', borderColor: '#a10202'}]}>
-                    <Text style={{color: '#a10202', fontSize: 11}}>Not Paid</Text>
-                </View>
-            );
-        }
-    }
-
-    return(
-        <View style={styles.orderCont}>
-            <View style={styles.orderHeader}>
-                <View style={styles.orderHeaderInfo}>
-                    <TouchableOpacity style={styles.orderExpandBtn} onPress={() => setIsCollapsed(!isCollapsed)}>
-                        <Dash width={20} height={20} fill={'#000'}/>
-                    </TouchableOpacity>
-                    <Text style={{color: 'black', fontSize: 17, marginRight: 10}}>{orderData.order_name}</Text>
-                    <View style={styles.orderBanner}>
-                        {setOrderBanner()}
-                    </View>
-                    <View style={styles.orderAmountCont}>
-                        {setPaymentStatus()}
-                        <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderInfo.total_price})</Text>
-                    </View>
-                </View>
-            </View>
-            <Collapsible collapsed={isCollapsed}>
-                <View style={{height:2, backgroundColor:'#DBE0DD'}}></View>
-                <View style={styles.orderBody}>
-                    <View>
-                        <Text style={[styles.accumInfoText,{fontWeight: 'bold'}]}>Order number #{orderInfo.order_id}</Text>
-                        <Text style={styles.accumInfoText}>
-                            Order Lifetime Spend: 
-                            <Text style={{color: '#02843D'}}> ${lifetimeSpent}</Text>    
-                        </Text>
-                        <View style={styles.spent_n_daysCont}>
-                            <Text style={styles.accumInfoText}>Last</Text>
-                            <View style={styles.daysCont}>
-                                <TextInput
-                                    onChangeText={(val) => setInRangeSpent_days(val.replace(/\D/g,''))}
-                                    value={inRangeSpent_days}
-                                    keyboardType={'numeric'}
-                                    maxLength={3}
-                                    style={{padding:0, marginHorizontal: 4, fontSize:15, marginLeft: 8}}
-                                />
-                                <UpDownCaret caretStyle={{right: 2}} />
-                            </View>
-                            <Text style={styles.accumInfoText}>days = Spend: <Text style={{color: '#02843D'}}>${inRangeSpent_amount}</Text> Tip: <Text style={{color: '#02843D'}}>{22}%</Text></Text>
-                        </View>
-                    </View>
-                    <View style={styles.orderSectionBtns}>
-                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 0? '#02843D' : '#F3F3F3')}]} onPress={() => setSelectedSection(0)}>
-                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 0? '#FFF' : '#7D7D7D')}]}>Order Summary</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 1? '#02843D' : '#F3F3F3')}]}  onPress={() => setSelectedSection(1)}>
-                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 1? '#FFF' : '#7D7D7D')}]}>Customer Mgmt</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <OrderSummarySection displayedSection={selectedSection} />
-                    <CustomerMgmtSection displayedSection={selectedSection} />
-                    <ReservationSection displayedSection={selectedSection} />
-                    <OrderTimingSection displayedSection={selectedSection} />
-                </View>
-            </Collapsible>
-        </View>
-    );
-}
-
-const DineInOrder = ({ orderInfo, orderData, lifetimeSpent, inRangeSpent_days, setInRangeSpent_days, inRangeSpent_amount }) => {
-
-    const [isCollapsed, setIsCollapsed] = useState(true);
-    const [selectedSection, setSelectedSection] = useState(0);
-
-    const setOrderBanner = () => {
-        if(orderInfo.order_type === 'order-ahead') {
-            return (
-                <>
-                    <Utensils width={13} height={13} fill={'#02843D'}/>
-                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Order In</Text>
-                </>
-            );
-        }else if(orderInfo.order_type === 'delivery') {
-            return (
-                <>
-                    <Biker width={18} height={18} fill={'#02843D'} />
-                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Delivery</Text>
-                </>
-            );
-        }else{
-            return (
-                <>
-                    <Walker width={18} height={18} fill={'#02843D'} style={{marginRight: -3}} />
-                    <Text style={{fontSize:18, marginLeft:5, color: '#02843D'}}>Pickup</Text>
-                </>
-            );
-        }
-    }
-
-    const setPaymentStatus = () => {
-        if(orderInfo.payment_status === 'paid') {
-            return(
-                <View style={[styles.paidCont,{backgroundColor: '#E6F3EC', borderColor: '#02843D'}]}>
-                    <Text style={{color: '#02843D', fontSize: 11}}>Paid</Text>
-                </View>
-            );
-        }else if(orderInfo.payment_status === 'paying'){
-            return(
-                <View style={[styles.paidCont,{backgroundColor: '#FFF3CE', borderColor: '#FCC41F'}]}>
-                    <Text style={{color: '#000', fontSize: 11}}>Paying</Text>
-                </View>
-            );
-        }else {
-            return(
-                <View style={[styles.paidCont,{backgroundColor: '#fad4d4', borderColor: '#a10202'}]}>
-                    <Text style={{color: '#a10202', fontSize: 11}}>Not Paid</Text>
-                </View>
-            );
-        }
-    }
-
-    return(
-        <View style={styles.orderCont}>
-            <View style={styles.orderHeader}>
-                <View style={styles.orderHeaderInfo}>
-                    <TouchableOpacity style={styles.orderExpandBtn} onPress={() => setIsCollapsed(!isCollapsed)}>
-                        <Dash width={20} height={20} fill={'#000'}/>
-                    </TouchableOpacity>
-                    <Text style={{color: 'black', fontSize: 17, marginRight: 10}}>{orderData.order_name}</Text>
-                    <View style={styles.orderBanner}>
-                        {setOrderBanner()}
-                    </View>
-                    <View style={styles.orderAmountCont}>
-                        {setPaymentStatus()}
-                        <Text style={{fontSize:17, fontWeight:'bold', color: '#02843D'}}>(${orderInfo.total_price})</Text>
-                    </View>
-                </View>
-            </View>
-            <Collapsible collapsed={isCollapsed}>
-                <View style={{height:2, backgroundColor:'#DBE0DD'}}></View>
-                <View style={styles.orderBody}>
-                    <View>
-                        <Text style={[styles.accumInfoText,{fontWeight: 'bold'}]}>Order number #{orderInfo.order_id}</Text>
-                        <Text style={styles.accumInfoText}>
-                            Order Lifetime Spend: 
-                            <Text style={{color: '#02843D'}}> ${lifetimeSpent}</Text>    
-                        </Text>
-                        <View style={styles.spent_n_daysCont}>
-                            <Text style={styles.accumInfoText}>Last</Text>
-                            <View style={styles.daysCont}>
-                                <TextInput
-                                    onChangeText={(val) => setInRangeSpent_days(val.replace(/\D/g,''))}
-                                    value={inRangeSpent_days}
-                                    keyboardType={'numeric'}
-                                    maxLength={3}
-                                    style={{padding:0, marginHorizontal: 4, fontSize:15, marginLeft: 8}}
-                                />
-                                <UpDownCaret caretStyle={{right: 2}} />
-                            </View>
-                            <Text style={styles.accumInfoText}>days = Spend: <Text style={{color: '#02843D'}}>${inRangeSpent_amount}</Text> Tip: <Text style={{color: '#02843D'}}>{22}%</Text></Text>
-                        </View>
-                    </View>
-                    <View style={styles.orderSectionBtns}>
-                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 0? '#02843D' : '#F3F3F3')}]} onPress={() => setSelectedSection(0)}>
-                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 0? '#FFF' : '#7D7D7D')}]}>Order Summary</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.orderSelectionBtn, { backgroundColor: (selectedSection === 1? '#02843D' : '#F3F3F3')}]}  onPress={() => setSelectedSection(1)}>
-                            <Text style={[styles.orderSelectionText, {color: (selectedSection === 1? '#FFF' : '#7D7D7D')}]}>Customer Mgmt</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <OrderSummarySection displayedSection={selectedSection} />
-                    <CustomerMgmtSection displayedSection={selectedSection} />
-                    <ReservationSection displayedSection={selectedSection} />
-                    <OrderTimingSection displayedSection={selectedSection} />
-                </View>
-            </Collapsible>
-        </View>
-    );
-}
-
-const OrderList = ({ userOrders, ratingFilters, serviceProvider, from, to }) => {
+const OrderList = ({ userOrders, ratingFilters, serviceProvider, from, to, navigation }) => {
 
     const [filteredOrders, setFilteredOrders] = useState([]);
     const [lifetimeSpent, setLifeTimeSpent] = useState(null);
-    const [inRangeSpent_days, setInRangeSpent_days] = useState('100');
+    const [inRangeSpent_days, setInRangeSpent_days] = useState('90');
     const [inRangeSpent_amount, setInRangeSpent_amount] = useState(null);
+    const [inRangeTip_amount, setInRangeTip_amount] = useState(null);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const {userId} = useSelector(state => state.userReducer);
 
     const filterOrders = async () => {
         if(!userOrders.length) { return []; }
@@ -1718,18 +1703,30 @@ const OrderList = ({ userOrders, ratingFilters, serviceProvider, from, to }) => 
         if(!userOrders.length) { return; }
         var totalSpent = 0;
         var inRangeSpent = 0;
+        var inRangeTip = 0;
         var currentDate = new Date();
         var priorDate = new Date(new Date().setDate(currentDate.getDate() - inRangeSpent_days));
 
         userOrders.forEach((orderItem) => {
             if(orderItem.orderInfo.state !== 'approved') { return; }
-            if(withinRange(orderItem.orderInfo.order_placed_date,priorDate, currentDate))
+            if(withinRange(orderItem.orderInfo.order_placed_date,priorDate, currentDate)){
                 inRangeSpent += orderItem.orderInfo.total_price;
+                inRangeTip += orderItem.orderTotal.tip;
+            }
             totalSpent += orderItem.orderInfo.total_price;
         })
+        setInRangeTip_amount(inRangeTip*100);
         setLifeTimeSpent(totalSpent);
         setInRangeSpent_amount(inRangeSpent);
     }
+
+    const refreshOrders = React.useCallback(() => {
+        if(!userId) {return;}
+        console.log('makrer')
+        setRefreshing(true);
+        getUserOrders()
+        .then(() => setRefreshing(false));
+    },[]);
 
     useEffect(() => {
         filterOrders()
@@ -1744,50 +1741,42 @@ const OrderList = ({ userOrders, ratingFilters, serviceProvider, from, to }) => 
     }, [inRangeSpent_days]);
 
     return(
-        <View style={styles.orderList}>
-            {filteredOrders.map(function(orderItem, index) {
-                if(orderItem.orderInfo.order_type === 'pickup') {
-                    return (<PickupOrder
-                        key={index} 
-                        orderInfo={orderItem.orderInfo}
-                        orderData={orderItem.orderData}
-                        lifetimeSpent={lifetimeSpent}
-                        inRangeSpent_days={inRangeSpent_days}
-                        setInRangeSpent_days={setInRangeSpent_days}
-                        inRangeSpent_amount={inRangeSpent_amount} 
-                    />)
-                }else if(orderItem.orderInfo.order_type === 'delivery') {
-                    // return (<DeliveryOrder
-                    //     key={index} 
-                    //     orderInfo={orderItem.orderInfo}
-                    //     orderData={orderItem.orderData}
-                    //     lifetimeSpent={lifetimeSpent}
-                    //     inRangeSpent_days={inRangeSpent_days}
-                    //     setInRangeSpent_days={setInRangeSpent_days}
-                    //     inRangeSpent_amount={inRangeSpent_amount} 
-                    // />)
-                    return (<Text key={index}>In development</Text>)
-                }else{
-                    // return (<DineInOrder
-                    //     key={index} 
-                    //     orderInfo={orderItem.orderInfo}
-                    //     orderData={orderItem.orderData}
-                    //     lifetimeSpent={lifetimeSpent}
-                    //     inRangeSpent_days={inRangeSpent_days}
-                    //     setInRangeSpent_days={setInRangeSpent_days}
-                    //     inRangeSpent_amount={inRangeSpent_amount} 
-                    // />)
-                    return (<Text key={index}>In development</Text>)
-                }
-            })}
-        </View>
+        <ScrollView
+            style={styles.orderList}
+            contentContainerStyle={{alignItems:'center',flex:1}}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={refreshOrders}
+                />
+            }
+        >
+            {userId && (
+                filteredOrders.map(function(orderItem, index) {
+                    return(
+                        <OrderItem
+                            orderItem={orderItem}
+                            lifetimeSpent={lifetimeSpent}
+                            inRangeSpent_days={inRangeSpent_days}
+                            setInRangeSpent_days={setInRangeSpent_days}
+                            inRangeSpent_amount={inRangeSpent_amount}
+                            inRangeTip={inRangeTip_amount}
+                            key={index}
+                        />
+                    );
+                })
+            )}
+            {!userId && (
+                <PromptLogin
+                    navigation={navigation}
+                />
+            )}
+        </ScrollView>
     );
 }
 
 export function HomeView({ navigation }) {
     
-    // const [userOrders, setUserOrders] = useState([]);
-    // const [filteredOrders, setFilteredOrders] = useState([]);
     const [ratingFilters, setRatingFilters] = useState([
         {
             id: 1,
@@ -1811,21 +1800,33 @@ export function HomeView({ navigation }) {
     const [provider, setProvider] = useState([]);
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
+    const [newOrders, setNewOrders] = useState([]);
 
-    const { userId, userEmail, userOrders } = useSelector(state => state.userReducer);
+    const { userOrders, userRestaurants } = useSelector(state => state.userReducer);
 
+    const getNewOrders = async () => {
+        if(!userRestaurants.length) { return; }
 
-    // useEffect(() => {
-    //     console.log(userOrders)
-    // },[userOrders]);
+        let allNewOrders = [];
 
-    // useEffect(() => {
-    //     console.log(userOrders)
-    // },[userOrders])
+        for(var i = 0; i < userRestaurants.length; i++) {
+            let newOrders = await fetch(`https://platerate.com/restaurantadmin/getPersonReceiveNotificationNewOrder/${userRestaurants[i].venueId}`);
+            newOrders = await newOrders.json();
+            allNewOrders = allNewOrders.concat(newOrders.data);
+        }
+
+        setNewOrders(allNewOrders);
+    }
+    console.log(userRestaurants)
+    useEffect(() => {
+        getNewOrders();
+    },[])
 
     return(
         <ScrollView contentContainerStyle={{flexGrow:1, justifyContent: 'space-between'}}>
-            <OrderNotification  />
+            <OrderNotification 
+                newOrders={newOrders}
+            />
             <RatingFilters 
                 selectedFilters={ratingFilters} 
                 modifyRatingFilters={setRatingFilters} 
@@ -1841,6 +1842,7 @@ export function HomeView({ navigation }) {
                 serviceProvider={provider} 
                 from={fromDate} to={toDate}
                 userOrders={userOrders}
+                navigation={navigation}
             />
         </ScrollView>
     )

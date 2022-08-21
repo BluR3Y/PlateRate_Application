@@ -46,12 +46,13 @@ export const styles = StyleSheet.create({
     },
     providerFilters: {
         width: '100%',
-        height:55,
         flexDirection: 'row',
         backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'space-evenly',
         marginTop: 2,
+        flexWrap: 'wrap',
+        paddingHorizontal: 5,
     },
     caretCont: {
         width: 10,
@@ -65,22 +66,30 @@ export const styles = StyleSheet.create({
         transform: [{translateY: -7}]
     },
     providerCont: {
-        width: '50%',
+        minWidth: 200,
+        flex: 1,
         height: 40,
         borderWidth: 1,
         borderColor: '#BDC6C1',
         borderRadius: 4,
         overflow: 'hidden',
-        position: 'relative'
+        position: 'relative',
+        marginVertical: 6,
+        marginRight: 5,
+        marginLeft: 6
     },
     providerDateCont: {
-        width: '40%',
+        minWidth: 165,
+        width: '30%',
         height: 40,
         borderWidth: 1,
         borderColor: '#BDC6C1',
         borderRadius: 4,
         position: 'relative',
         justifyContent: 'center',
+        marginVertical: 6,
+        marginRight: 6,
+        marginLeft: 5
     },
     DateInputCont: {
         width: '85%',
@@ -104,38 +113,43 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-evenly',
     },
     orderList: {
-        flex: 1,
-        alignItems:'center',
-        paddingBottom: 20,
+        // flex: 1,
+        // alignItems:'center',
+        // paddingBottom: 20,
+        flex:1,
     },
     orderCont: {
         width: '95%',
         marginTop:20,
         borderRadius: 10,
-        overflow:'hidden',
+        // overflow:'hidden',
         backgroundColor: '#FFFFFF',
         borderWidth: 2.5,
         borderColor: '#E4E6E5',
     },
     orderHeader: {
         backgroundColor: '#F9F9F9',
+        flexDirection: 'row',
     },
     orderHeaderInfo: {
-        height:40,
-        flexDirection: 'row',
+        flex:1,
+        flexDirection:'row',
+        flexWrap: 'wrap',
         alignItems:'center',
+        alignSelf:'center',
+        paddingBottom: 3,
     },
     orderExpandBtn: {
         width:40,
         height:40,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 3
+        alignSelf: 'flex-start'
     },
     orderBanner: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginRight: 8,
+        // marginRight: 8,
     },
     orderAmountCont: {
         alignItems: 'center',
@@ -147,7 +161,7 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
         paddingHorizontal: 8,
         paddingVertical: 0.5,
-        marginRight: 8,
+        // marginRight: 8,
     },
     orderOptionsCont: {
         flexDirection: 'row',
@@ -196,12 +210,13 @@ export const styles = StyleSheet.create({
     spent_n_daysCont: {
         flexDirection: 'row',
         alignItems: 'center',
+        overflow:'hidden'
     },
     orderSectionBtns: {
         height: 50,
         marginVertical: 16,
         flexDirection: 'row',
-        backgroundColor: 'red'
+        backgroundColor: 'yellow'
     },
     orderSelectionBtn: {
         flex: 1,
@@ -334,6 +349,7 @@ export const styles = StyleSheet.create({
     InstructionInputBox: {
         paddingHorizontal: 15,
         fontSize: 18,
+        color:'#4A4A4A'
     },
     CustomDropDown: {
         borderWidth: 1,
@@ -366,11 +382,15 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         height: 40,
         alignItems: 'center',
+        marginBottom: 5,
     },
-    foodOrderUserImg: {
+    cartOrderImgCont: {
         height: 40,
         width: 40,
-        borderRadius: 30,
+        borderRadius: 150/2,
+        overflow: 'hidden',
+        alignItems:'center',
+        justifyContent:'center'
     },
     menuItemInfo: {
         flexDirection: 'row',

@@ -5,6 +5,7 @@ export const SET_USER_EMAIL = 'SET_USER_EMAIL';
 export const SET_USER_PHONE = 'SET_USER_PHONE';
 export const SET_USER_IMAGE = 'SET_USER_IMAGE';
 export const SET_USER_ORDERS = 'SET_USER_ORDERS';
+export const SET_USER_RESTAURANTS = 'SET_USER_RESTAURANTS';
 
 // export const setUserId = userId => dispatch => {
 //     dispatch({
@@ -55,7 +56,16 @@ export const setUserOrders = userOrders => dispatch => {
     });
 };
 
+// export const setUserRestaurants = userRestaurants => dispatch => {
+//     dispatch({
+//         type: SET_USER_RESTAURANTS,
+//         payload: userRestaurants,
+//     });
+// };
+
 export const setUserInfo = userInfo => dispatch => {
+    if(!userInfo.userImg) { userInfo.userImg = 'https://platerate.com/images/avatar.png'; }
+    
     dispatch({
         type: SET_USER_ID,
         payload: userInfo.userId,
@@ -79,5 +89,9 @@ export const setUserInfo = userInfo => dispatch => {
     dispatch({
         type: SET_USER_IMAGE,
         payload: userInfo.userImg,
+    });
+    dispatch({
+        type: SET_USER_RESTAURANTS,
+        payload: userInfo.userRestaurants,
     });
 };

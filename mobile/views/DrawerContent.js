@@ -68,10 +68,12 @@ export function DrawerContent(props) {
             {userId && (
                 <View style={styles.userContainer}>
                     <View style={styles.userInfoCont}>
-                        <Image
-                            style={styles.userProfileImg}
-                            source={{ uri: userImg }}
-                        />
+                        <View style={styles.profileImgCont}>
+                            <Image
+                                source={{ uri: userImg }}
+                                style={{width:80,height:80, alignSelf:'center'}}
+                            />
+                        </View>
                         <View style={styles.userNameCont}>
                             <Text numberOfLines={1} style={styles.userNameText}>{`${firstName} ${lastName}`}</Text>
                             <View style={styles.userOptionsCont}>
@@ -88,7 +90,7 @@ export function DrawerContent(props) {
                                     style={{flex: 1}}
                                     onPress={logoutUser}
                                 >
-                                    <Text style={[styles.userOptionText, {marginLeft: 20}]}>Logout</Text>
+                                    <Text style={[styles.userOptionText, {marginLeft: 10}]}>Logout</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -169,17 +171,17 @@ const styles =  StyleSheet.create({
         flexDirection: 'column',
     },
     userInfoCont: {
-        // borderBottomWidth: 1,
         paddingVertical: 20,
         flexDirection: 'row',
     },
-    userProfileImg: {
+    profileImgCont: {
         width: 80,
         height: 80,
-        borderRadius: 150 /2 ,
         borderWidth: 2,
+        borderRadius:150/2,
         borderColor: '#E6E6E6',
-        marginLeft: 15,
+        marginLeft:15,
+        overflow:'hidden'
     },
     userNameCont: {
         flex: 1,
@@ -188,14 +190,15 @@ const styles =  StyleSheet.create({
     userNameText: {
         fontSize: 20,
         fontWeight: '500',
+        color: '#4A4A4A'
     },
     userOptionsCont: {
-        height: 26,
+        height: 29,
         width: 170,
         marginTop: 15,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     userOptionText: {
         fontSize: 20,

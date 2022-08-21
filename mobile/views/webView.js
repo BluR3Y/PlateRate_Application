@@ -37,46 +37,6 @@ function LoginWebView({ webView, formType, navigation }) {
                         navigation.navigate('Home');
                         return false;
                     })
-
-                    // if(!localData) { return Promise.reject('user not logged in'); }
-
-                    // fetch('https://platerate.com/user/validateEmail', {
-                    //     method: 'post',
-                    //     headers: {
-                    //         'Content-Type': 'application/json',
-                    //     },
-                    //     body: JSON.stringify({
-                    //         email: localData.local.email,
-                    //     })
-                    // })
-                    // .then(async res => {
-                    //     if(!res.ok) { return Promise.reject('failed to validate email'); }
-                    //     return res.json();
-                    // })
-                    // .then(userData => {
-                    //     var userProfile = userData.data.profile;
-                    //     var userContactInfo = userProfile.contactInfo;
-                    //     var imageUrl = userProfile.imageUrl;
-                    //     console.log('before marker')
-                    //     dispatch(setUserId(userData.data._id));
-                    //     console.log(userData);
-    
-                    //     dispatch(setUserFirstName(userContactInfo.firstName));
-                    //     dispatch(setUserLastName(userContactInfo.lastName));
-                    //     dispatch(setUserImage(imageUrl ? imageUrl : 'https://platerate.com/images/avatar.png'));
-    
-                    //     if(localData.local.email) {
-                    //         dispatch(setUserEmail(localData.local.email));
-                    //     }
-    
-                    //     if(localData.local.phone) {
-                    //         dispatch(setUserPhone(localData.local.phone));
-                    //     }
-    
-                    //     navigation.navigate('Home');
-                    //     console.log('another marker')
-                    //     return false;
-                    // })
                 })
                 .catch(err => {
                     console.error(err);                    

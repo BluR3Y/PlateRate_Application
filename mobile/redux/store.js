@@ -47,7 +47,6 @@ const appReducer = combineReducers({
 // Ex: const appReducer = combineReducers({ firstReducers, secondReducer, thirdReducer })
 
 const rootReducer = (state, action) => {
-    console.log(action.type);
     if(action.type === 'SIGNOUT_REQUEST') {
         //for all keys define in persistConfig(s)
         persistConfig.storage.removeItem('persist:root');
