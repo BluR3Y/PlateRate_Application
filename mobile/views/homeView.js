@@ -1,10 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Dimensions, Image, RefreshControl, Linking } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Dimensions, Image, RefreshControl, Linking, Button } from 'react-native';
 import { styles, pickerSelectStyles } from '../styles/homeStyles';
 import { format12Hours, formatDate, formatPhoneNumber, sortMenuItems, withinRange } from '../utilities/functions';
 import Svg, { G, Rect } from 'react-native-svg';
 import { useSelector, useDispatch } from 'react-redux';
 import { store } from '../redux/store';
+import Animated, { useAnimatedRef, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import LinearGradient from 'react-native-linear-gradient';
+import { getUserOrders } from '../utilities/reduxFunctions';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import MaskedView from '@react-native-masked-view/masked-view';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect, { defaultStyles } from 'react-native-picker-select';
@@ -17,7 +22,9 @@ import Utensils from '../content/images/utensils.svg';
 import Dash from '../content/images/dash.svg';
 import Biker from '../content/images/person_biking.svg';
 import Walker from '../content/images/person_walking.svg';
-import { getUserOrders } from '../utilities/reduxFunctions';
+import Heart from '../content/images/heart.svg';
+import Phone from '../content/images/phone.svg';
+import Envelope from '../content/images/envelope.svg';
 
 // ----------------------- test Values --------------------
 
@@ -863,7 +870,7 @@ const MenuItem = ({ menuItemData, isModifiable }) => {
     );
 }
 
-const FoodOrderItem = ({ CartOrderData, isModifiable }) => {
+// const FoodOrderItem = ({ CartOrderData, isModifiable }) => {
 
     // const [seatNum, setSeatNum] = useState(null);
     // const [assignedTo, setAssignedTo] = useState(null);
@@ -925,7 +932,7 @@ const FoodOrderItem = ({ CartOrderData, isModifiable }) => {
     //         </View>
     //     </View>
     // );
-}
+// }
 
 
 //------------------------------------------- Order Item Sections
@@ -998,6 +1005,104 @@ const UserCartOrder = ({ cartOrderData, isModifiable, cartType }) => {
             </View>
         </View>
     )
+}
+
+const ManagementCartOrder = ({cartOrderData, isModifiable, cartType}) => {
+
+    const [orderName, setOrderName] = useState('');
+    const [customerPhone, setCustomerPhone] = useState('');
+    const [customerEmail, setCustomerEmail] = useState('');
+    const [customerImg, setCustomerImg] = useState('https://platerate.com/images/avatar.png');
+
+    const setCartInfo = async () => {
+        if(cartType === 'user') {
+            const {userImg, userPhone, userEmail} = store.getState().userReducer;
+            setCustomerPhone(userPhone);
+            setCustomerEmail(userEmail);
+            setCustomerImg(userImg);
+            setOrderName(cartOrderData.user + '\'s Order');
+        }else if(cartType === 'joined') {
+            var cartOwnerId = cartOrderData[0].user_id;
+
+            let publicImg = await fetch(`https://platerate.com/getpublicprofileimg/${cartOwnerId}`);
+            publicImg = await publicImg.text();
+            if(publicImg) {setCustomerImg(publicImg);}
+            setOrderName(cartOrderData[0].order_name);
+            
+        }else if(cartType === 'other'){
+            let cartItems = await fetch(`https://platerate.com/orders/items?orderId=${cartOrderData.orderId}`);
+            cartItems = await cartItems.json();
+            cartItems = cartItems.data;
+
+            let publicImg = await fetch(`https://platerate.com/getpublicprofileimg/${cartOrderData.userId}`);
+            publicImg = await publicImg.text();
+            
+            if(publicImg) {setCustomerImg(publicImg);}
+            setOrderName(cartOrderData.orderName);
+        }
+    }
+    
+    useEffect(() => {
+        setCartInfo()
+    },[])
+
+    return(
+        <View style={styles.foodOrderItem}>
+           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                <View style={styles.foodOrderUserInfo}>
+                    <View style={styles.cartOrderImgCont}>
+                        <Image 
+                            source={{ uri: customerImg }}
+                            style={{width:40,height: 40}}
+                        />
+                    </View>
+                    <Text style={{fontSize: 18, marginHorizontal: 7, fontWeight: 'bold', color:'#4A4A4A'}}>
+                        {orderName}
+                    </Text>
+                </View>
+            </View> 
+            <View>
+                {customerPhone.length !== 0 && (
+                    <View style={{flexDirection:'row', alignSelf:'flex-start',alignItems:'center', justifyContent:'center',flexWrap:'wrap',marginTop:5}}>
+                        <Phone
+                            width={20}
+                            height={20}
+                            fill={'green'}
+                        />
+                        <Text style={{color:'#4a4a4a',fontSize:20,marginLeft:5}}>Customer Phone Number: </Text>
+                        <OpenURLButton
+                            text={formatPhoneNumber(customerPhone)}
+                            url={`tel:${customerPhone}`}
+                            textStyle={{fontSize:20,fontWeight:'600',color:'green'}}
+                        />
+                    </View>
+                )}
+                {customerEmail.length !== 0 && (
+                    <View style={{flexDirection:'row', alignSelf:'flex-start',alignItems:'center', justifyContent:'center',flexWrap:'wrap',marginTop:5}}>
+                        <Envelope
+                            width={22}
+                            height={22}
+                            fill={'green'}
+                        />
+                        <Text style={{color:'#4a4a4a',fontSize:20,marginLeft:5}}>Email: </Text>
+                        <OpenURLButton
+                            text={customerEmail}
+                            url={`mailto:${customerEmail}`}
+                            textStyle={{fontSize:20,fontWeight:'600',color:'green'}}
+                        />
+                    </View>
+                )}
+            </View>
+            <View style={{ flexDirection:'row', flexWrap:'wrap', justifyContent:'center', marginTop:10}}>
+                <RatingSelector
+                    selectorText={'Customer Rating: Overall'}
+                />
+                <RatingSelector
+                    selectorText={'My rating of this user'}
+                />
+            </View>
+        </View>
+    );
 }
 
 const OrderSummarySection = ({ orderItem, isModifiable, selectedSection }) => {
@@ -1082,11 +1187,15 @@ const OrderSummarySection = ({ orderItem, isModifiable, selectedSection }) => {
 */}
 }
 
-const CustomerMgmtSection = ({ displayedSection }) => {
+const CustomerMgmtSection = ({ selectedSection, isModifiable, orderItem }) => {
+
     return (
-        <View style={[styles.sectionItem, {display: (displayedSection === 1 ? 'flex' : 'none')}]}>
-            <Text>Section 2</Text>
-            <RatingSelector/>
+        <View style={[styles.sectionItem, {display: (selectedSection === 1 ? 'flex' : 'none')}]}>
+            <ManagementCartOrder
+                cartOrderData={orderItem.shoppingCart.userCartOrder}
+                isModifiable={isModifiable}
+                cartType={'user'}
+            />
         </View>
     )
 }
@@ -1112,19 +1221,138 @@ const OpenURLButton = ({ url, text, textStyle }) => {
     );
 }
 
-const RatingSelector = ({  }) => {
+const RatingSelector = ({ selectorText }) => {
+    const RatingArea = useAnimatedRef();
+    const areaCoordinates = useSharedValue({ offsetLeft: 0, offsetRight:0, offsetTop:0, offsetBottom: 0 });
+    const [deviceOrientation, setDeviceOrientation] = useState();
+    const selectedRating = useSharedValue(0.5);
+    const animatedStyles = useAnimatedStyle(() => {
+        var newWidth = (selectedRating.value * 100).toFixed(2);
+        return{
+            width: `${newWidth}%`
+        }
+    })
+
+    Dimensions.addEventListener('change',() => {
+        const dim = Dimensions.get('screen');
+        setDeviceOrientation(dim.height >= dim.width ? 'portrait' : 'landscape');
+        console.log('oreientation')
+    })
+
+    const getMeasurements = () => {
+        return new Promise((resolve,reject) => {
+            if(RatingArea && RatingArea.current) {
+                RatingArea.current.measure((x,y,width,height,pageX, pageY) => {
+                    resolve({x,y,width,height,pageX,pageY});
+                });
+            }else{
+                reject(new Error('measure: animated ref not ready'));
+            }
+        })
+    }
+
+    useEffect(()=> {
+        getMeasurements()
+        .then(async measurements => {
+            areaCoordinates.value = {
+                offsetLeft: measurements.pageX,
+                offsetRight: measurements.pageX + measurements.width,
+                offsetTop: measurements.pageY,
+                offsetBottom: measurements.pageY + measurements.height,
+            };
+        })
+    },[RatingArea, deviceOrientation]);
+
+    const HeartElement = () => {
+        return(
+            <View style={{borderWidth:2, borderRadius:150/2,padding:5}}>
+                <Heart width={30} height={30} fill={'#FFF'}/>
+            </View>
+        );
+    }
+
+    const gesture = Gesture.Pan()
+    .onUpdate((e) => {
+        if(e.x > areaCoordinates.value.offsetRight || e.x < areaCoordinates.value.offsetLeft || e.absoluteY < areaCoordinates.value.offsetTop || e.absoluteY > areaCoordinates.value.offsetBottom) return;
+        selectedRating.value = (e.x - areaCoordinates.value.offsetLeft) / (areaCoordinates.value.offsetRight - areaCoordinates.value.offsetLeft);
+    })
 
     return(
-        <TouchableOpacity
-        onPress={() => console.log('hge')}
-            style={{width:'100%',height:100, backgroundColor:'red'}}
-        >
-
-        </TouchableOpacity>
+        <View style={{flexDirection:'column',alignItems:'center',width:'50%',minWidth:250,height:100}}>
+            <Text style={{color:'#4a4a4a',fontSize:20, marginBottom:5}}>{selectorText}</Text>
+            <GestureDetector gesture={gesture}>
+                <MaskedView
+                    pointerEvents={'box-none'}
+                    style={{width:'100%',height:60,zIndex:-1}}
+                    maskElement={
+                        <Animated.View
+                            style={{flex:1}}
+                            ref={RatingArea}
+                        >
+                            <View style={{flex:1, flexDirection:'row',alignItems:'center', justifyContent:'space-evenly',backgroundColor:'transparent'}}>
+                                <HeartElement/>
+                                <HeartElement/>
+                                <HeartElement/>
+                                <HeartElement/>
+                                <HeartElement/>
+                            </View>
+                        </Animated.View>
+                    }
+                >
+                    <Animated.View
+                        style={[{position:'absolute',left:0,top:0,backgroundColor:'green',height:'100%',zIndex:2},animatedStyles]}
+                    />
+                    <View style={{flex:1,backgroundColor:'#979797'}}/>
+                </MaskedView>
+            </GestureDetector>
+        </View>
     );
 }
 
-const ReservationSection = ({ orderItem, isModifiable,displayedSection }) => {
+const BallGestureDetector = () => {
+    const isPressed = useSharedValue(false);
+    const offset = useSharedValue({ x: 0, y: 0 });
+    const animatedStyles = useAnimatedStyle(() => {
+      return {
+        transform: [
+          { translateX: offset.value.x },   // moves the ball to new X
+          { translateY: offset.value.y },   // moves the ball to new Y
+          { scale: withSpring(isPressed.value ? 1.2 : 1) },     // when pressed, the ball gets bigger
+        ],
+        backgroundColor: isPressed.value ? 'yellow' : 'blue',
+      };
+    });
+
+    const start = useSharedValue({ x: 0, y: 0 });
+    const gesture = Gesture.Pan()
+      .onBegin(() => {
+        isPressed.value = true;
+      })
+      .onUpdate((e) => {
+        console.log(e)
+        offset.value = {
+          x: e.translationX + start.value.x,
+          y: e.translationY + start.value.y,
+        };
+      })
+      .onEnd(() => {
+        start.value = {
+          x: offset.value.x,
+          y: offset.value.y,
+        };
+      })
+      .onFinalize(() => {
+        isPressed.value = false;
+      });
+
+    return (
+        <GestureDetector gesture={gesture}>
+            <Animated.View style={[{width:100, height:100, borderRadius: 100, backgroundColor:'blue', alignSelf:'center'},animatedStyles]} />
+        </GestureDetector>
+    )
+}
+
+const ReservationSection = ({ orderItem, isModifiable, selectedSection }) => {
 
     const [reservationDT, setReservationDT] = useState(new Date());
     const [order_save_notify, setOrder_Save_Notify] = useState(false);
@@ -1141,7 +1369,7 @@ const ReservationSection = ({ orderItem, isModifiable,displayedSection }) => {
     const { firstName,lastName, userEmail, userPhone } = useSelector(state => state.userReducer);
 
     return(
-        <View style={[styles.sectionItem, {display: (displayedSection === 2 ? 'flex' : 'none')}]}>
+        <View style={[styles.sectionItem, {display: (selectedSection === 2 ? 'flex' : 'none')}]}>
             <View style={{marginVertical: 8}}>
                 <Text style={styles.reservationCustomerInfo}>Customer Name: <Text style={{color: '#02843D'}}>{firstName + ' ' + lastName}</Text></Text>
                 <Text style={styles.reservationCustomerInfo}>
@@ -1195,9 +1423,9 @@ const ReservationSection = ({ orderItem, isModifiable,displayedSection }) => {
     )
 }
 
-const OrderTimingSection = ({ displayedSection }) => {
+const OrderTimingSection = ({ selectedSection }) => {
     return(
-        <View style={[styles.sectionItem, {display: (displayedSection === 3 ? 'flex' : 'none')}]}>
+        <View style={[styles.sectionItem, {display: (selectedSection === 3 ? 'flex' : 'none')}]}>
             <Text>Section 4</Text>
         </View>
     )
@@ -1445,13 +1673,21 @@ const OrderItem = ({ orderItem, lifetimeSpent, inRangeSpent_days, setInRangeSpen
                         isModifiable={isModifiable}
                         selectedSection={selectedSection}
                     />
-                    <CustomerMgmtSection displayedSection={selectedSection} />
+                    <CustomerMgmtSection 
+                        orderItem={orderItem}
+                        isModifiable={isModifiable}
+                        selectedSection={selectedSection} 
+                    />
                     <ReservationSection
                         orderItem={orderItem}
                         isModifiable={isModifiable}
-                        displayedSection={selectedSection} 
+                        selectedSection={selectedSection} 
                     />
-                    <OrderTimingSection displayedSection={selectedSection} />
+                    <OrderTimingSection
+                        orderItem={orderItem}
+                        isModifiable={isModifiable}
+                        selectedSection={selectedSection} 
+                    />
                 </View>
             </Collapsible>
         </View>
@@ -1633,10 +1869,10 @@ const OrderItem = ({ orderItem, lifetimeSpent, inRangeSpent_days, setInRangeSpen
 //                             <Text style={[styles.orderSelectionText, {color: (selectedSection === 3? '#FFF' : '#7D7D7D')}]}>Order Timing</Text>
 //                         </TouchableOpacity>
 //                     </View>
-//                     <OrderSummarySection displayedSection={selectedSection} />
-                    // <CustomerMgmtSection displayedSection={selectedSection} />
-                    // <ReservationSection displayedSection={selectedSection} />
-                    // <OrderTimingSection displayedSection={selectedSection} />
+//                     <OrderSummarySection selectedSection={selectedSection} />
+                    // <CustomerMgmtSection selectedSection={selectedSection} />
+                    // <ReservationSection selectedSection={selectedSection} />
+                    // <OrderTimingSection selectedSection={selectedSection} />
 //                 </View>
 //             </Collapsible>
 //         </View>
