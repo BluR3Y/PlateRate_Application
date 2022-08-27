@@ -5,7 +5,7 @@ import {
     SET_USER_EMAIL,
     SET_USER_PHONE,
     SET_USER_IMAGE,
-    SET_USER_ORDERS,
+    // SET_USER_ORDERS,
     SET_USER_RESTAURANTS,
 } from './actions';
 
@@ -16,7 +16,7 @@ const initialState = {
     userEmail: '',
     userPhone: '',
     userImg: 'https://platerate.com/images/avatar.png',
-    userOrders: [],
+    // userOrders: [],
     userRestaurants: [],
 };
 
@@ -34,8 +34,8 @@ function userReducer(state = initialState, action) {
             return {...state, userPhone: action.payload};
         case SET_USER_IMAGE:
             return {...state, userImg: action.payload};
-        case SET_USER_ORDERS:
-            return {...state, userOrders: action.payload};
+        // case SET_USER_ORDERS:
+        //     return {...state, userOrders: action.payload};
         case SET_USER_RESTAURANTS:
             return {...state, userRestaurants: action.payload};
         default:

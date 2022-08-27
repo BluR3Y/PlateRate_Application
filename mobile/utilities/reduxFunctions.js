@@ -18,7 +18,7 @@ export async function testUpdateOrder() {
     });
     update = await update.json();
 
-    console.log(update)
+    // console.log(update)
 }
 
 export async function testGetCheckOut() {
@@ -27,7 +27,7 @@ export async function testGetCheckOut() {
     const venueId = '61bfb5c55da83c7bd48dc467';
     var checkOut = await fetch(`https://platerate.com/orders/checkouts?userId=${userId}&venueId=${'1234'}`);
     checkOut = await checkOut.json();
-    console.log(checkOut);
+    // console.log(checkOut);
 }
 
 // for edit incart item: /orders/editItemsOrder
@@ -79,42 +79,42 @@ export async function testNotification() {
         console.log(notifications)
     })
 
-    console.log(notifications.data);
+    // console.log(notifications.data);
 }
 
 
 // -------------------------------- End Testing -----------------------------------------
 
-export async function getUserOrders() {
-    const userId = store.getState().userReducer.userId;
+// export async function getUserOrders() {
+//     const userId = store.getState().userReducer.userId;
 
-    if(userId) {
-        var orderItems = [];
+//     if(userId) {
+//         var orderItems = [];
 
-        var orders = await fetch('https://platerate.com/getUserOrders');
-        orders = await orders.json();
+//         var orders = await fetch('https://platerate.com/getUserOrders');
+//         orders = await orders.json();
 
-        for(var i = 0; i < orders.length; i++) {
-            let shoppingCart = await fetch(`https://platerate.com/orders/shoppingcart/get?userId=${userId}&venueId=${orders[i].venue_id}&orderId=${orders[i].order_id}`);
-            shoppingCart = await shoppingCart.json();
+//         for(var i = 0; i < orders.length; i++) {
+//             let shoppingCart = await fetch(`https://platerate.com/orders/shoppingcart/get?userId=${userId}&venueId=${orders[i].venue_id}&orderId=${orders[i].order_id}`);
+//             shoppingCart = await shoppingCart.json();
             
-            let orderTotal = await fetch(`https://platerate.com/orders/gettotal?orderId=${orders[i].order_id}`);
-            orderTotal = await orderTotal.json();
+//             let orderTotal = await fetch(`https://platerate.com/orders/gettotal?orderId=${orders[i].order_id}`);
+//             orderTotal = await orderTotal.json();
 
-            let orderObj = {
-                orderInfo: orders[i],
-                shoppingCart: shoppingCart.data,
-                orderTotal: orderTotal.data[0],
-            };
-            orderItems.push(orderObj);
-        }
+//             let orderObj = {
+//                 orderInfo: orders[i],
+//                 shoppingCart: shoppingCart.data,
+//                 orderTotal: orderTotal.data[0],
+//             };
+//             orderItems.push(orderObj);
+//         }
 
-        store.dispatch(setUserOrders(orderItems));
-    }else{
-        store.dispatch(setUserOrders([]));
-    }
-    return;
-}
+//         store.dispatch(setUserOrders(orderItems));
+//     }else{
+//         store.dispatch(setUserOrders([]));
+//     }
+//     return;
+// }
 
 export async function assignUserInfo(userInfo) {
 
@@ -165,9 +165,9 @@ export async function getUserInfo() {
             userImg: imageUrl,
             userRestaurants: userRestaurants,
         })
-        .then(() => {
-            getUserOrders();
-        })
+        // .then(() => {
+        //     getUserOrders();
+        // })
     }
     // updating by adding another condition: userId && localData
 }

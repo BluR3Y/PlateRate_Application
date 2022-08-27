@@ -41,6 +41,10 @@ export function DrawerContent(props) {
             console.log(res);
             signOutUser()
         })
+        .catch(err => {
+            console.error(err);
+            signOutUser()
+        })
     }
 
     return(

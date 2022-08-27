@@ -21,11 +21,12 @@ const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator()
 
 const navigationListeners = ({ navigation, route }) => {
-  return ({
-    focus: (e) => {
-      getUserInfo();
-    }
-  });
+  // return ({
+  //   focus: (e) => {
+  //     getUserInfo();
+  //   }
+  // });
+  return;
 }
 
 export default function App() {

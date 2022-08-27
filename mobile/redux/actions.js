@@ -4,7 +4,7 @@ export const SET_USER_LAST_NAME = 'SET_USER_LAST_NAME';
 export const SET_USER_EMAIL = 'SET_USER_EMAIL';
 export const SET_USER_PHONE = 'SET_USER_PHONE';
 export const SET_USER_IMAGE = 'SET_USER_IMAGE';
-export const SET_USER_ORDERS = 'SET_USER_ORDERS';
+// export const SET_USER_ORDERS = 'SET_USER_ORDERS';
 export const SET_USER_RESTAURANTS = 'SET_USER_RESTAURANTS';
 
 // export const setUserId = userId => dispatch => {

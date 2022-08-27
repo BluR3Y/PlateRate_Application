@@ -7,9 +7,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { store } from '../redux/store';
 import Animated, { useAnimatedRef, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
-import { getUserOrders } from '../utilities/reduxFunctions';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import MaskedView from '@react-native-masked-view/masked-view';
+import { getNewOrders, getRestaurantOrders, getUserFilteredOrders, getUserOrders } from '../utilities/fetchingFunctions';
+import NetInfo from '@react-native-community/netinfo';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect, { defaultStyles } from 'react-native-picker-select';
@@ -25,6 +26,7 @@ import Walker from '../content/images/person_walking.svg';
 import Heart from '../content/images/heart.svg';
 import Phone from '../content/images/phone.svg';
 import Envelope from '../content/images/envelope.svg';
+import Wifi from '../content/images/wifi.svg';
 
 // ----------------------- test Values --------------------
 
@@ -218,7 +220,7 @@ const DashedLine = () => {
 }
 
 const DateSelectorItem = ({ title ,date, setDate }) => {
-    const [text, setText] = useState(title);
+    const [text, setText] = useState(date? date : title);
     const [show, setShow] = useState(false);
 
     const onChange = (event, selectedDate) => {
@@ -1585,8 +1587,27 @@ const PaymentStatusBanner = ({payment_status, customStyle}) => {
         );
     }
 }
+    // const calculateSpending = () => {
+    //     if(!userOrders.length) { return; }
+    //     var totalSpent = 0;
+    //     var inRangeSpent = 0;
+    //     var inRangeTip = 0;
+    //     var currentDate = new Date();
+    //     var priorDate = new Date(new Date().setDate(currentDate.getDate() - inRangeSpent_days));
 
-const OrderItem = ({ orderItem, lifetimeSpent, inRangeSpent_days, setInRangeSpent_days, inRangeSpent_amount, inRangeTip }) => {
+    //     userOrders.forEach((orderItem) => {
+    //         if(orderItem.orderInfo.state !== 'approved') { return; }
+    //         if(withinRange(orderItem.orderInfo.order_placed_date,priorDate, currentDate)){
+    //             inRangeSpent += orderItem.orderInfo.total_price;
+    //             inRangeTip += orderItem.orderTotal.tip;
+    //         }
+    //         totalSpent += orderItem.orderInfo.total_price;
+    //     })
+    //     setInRangeTip_amount(inRangeTip*100);
+    //     setLifeTimeSpent(totalSpent);
+    //     setInRangeSpent_amount(inRangeSpent);
+    // }
+const OrderItem = ({ orderItem }) => {
 
     const order_type = orderItem.orderInfo.order_type;
     const payment_status = orderItem.orderInfo.payment_status;
@@ -1594,11 +1615,55 @@ const OrderItem = ({ orderItem, lifetimeSpent, inRangeSpent_days, setInRangeSpen
 
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [selectedSection, setSelectedSection] = useState(0);
+    
+    const [lifetimeSpent, setLifeTimeSpent] = useState(null);
+    const [inRangeSpent_days, setInRangeSpent_days] = useState('90');
+    const [inRangeSpent_amount, setInRangeSpent_amount] = useState(null);
+    const [inRangeTip_amount, setInRangeTip_amount] = useState(null);
 
     const orderName = () => {
         if(!orderItem.orderTotal.parent_order_id) { return orderItem.orderTotal.order_name; }
         return orderItem.shoppingCart.userCartOrder.orderName;
     }
+    
+    const calculateSpending = async () => {
+        const { userId } = store.getState().userReducer;
+        
+        if(orderItem.orderTotal.user_id === userId) {
+
+            var orders = await fetch('https://platerate.com/getUserOrders');
+            orders = await orders.json();
+
+            if(!orders.length) return;
+
+            var totalSpent = 0;
+            var inRangeSpent = 0;
+            var inRangeTip = 0;
+            var targetVenue = orderItem.orderInfo.venue_id;
+            var currentDate = new Date();
+            var priorDate = new Date(new Date().setDate(currentDate.getDate() - inRangeSpent_days));
+            for(var order of orders) {
+                if(order.venue_id !== targetVenue || order.state !== 'approved') continue;
+                if(withinRange(order.order_placed_date, priorDate, currentDate)) {
+                    inRangeSpent += order.total_price;
+                    var orderTotal = await fetch(`https://platerate.com/orders/gettotal?orderId=${order.order_id}`);
+                    orderTotal = await orderTotal.json().then((data) => data.data[0])
+                    inRangeTip += orderTotal.tip;
+                }
+                totalSpent += order.total_price;
+            }
+
+            setInRangeTip_amount(inRangeTip * 100);
+            setLifeTimeSpent(totalSpent);
+            setInRangeSpent_amount(inRangeSpent);
+        }else{
+            
+        }
+    }
+
+    useEffect(() => {
+        calculateSpending()
+    },[inRangeSpent_days]);
 
     {/* <OrderOptions 
         selectedSection={selectedSection} 
@@ -1635,11 +1700,11 @@ const OrderItem = ({ orderItem, lifetimeSpent, inRangeSpent_days, setInRangeSpen
                     <View>
                         <Text style={{fontSize:24, color:'green',fontWeight:'600'}}>{orderItem.orderInfo.venue_name}</Text>
                         <Text style={[styles.accumInfoText,{fontWeight: 'bold'}]}>Order number #{orderItem.orderInfo.order_id}</Text>
-                        <Text style={[styles.accumInfoText,{display: (lifetimeSpent? 'flex' : 'none')}]}>
+                        <Text style={[styles.accumInfoText]}>
                             Order Lifetime Spend: 
                             <Text style={{color: '#02843D'}}> ${lifetimeSpent}</Text>    
                         </Text>
-                        <View style={[styles.spent_n_daysCont,{display: (inRangeSpent_amount? 'flex' : 'none')}]}>
+                        <View style={[styles.spent_n_daysCont]}>
                             <Text style={styles.accumInfoText}>Last</Text>
                             <View style={styles.daysCont}>
                                 <TextInput
@@ -1651,7 +1716,7 @@ const OrderItem = ({ orderItem, lifetimeSpent, inRangeSpent_days, setInRangeSpen
                                 />
                                 <UpDownCaret caretStyle={{right: 2}} />
                             </View>
-                            <Text style={styles.accumInfoText}>days = Spend: <Text style={{color: '#02843D'}}>${inRangeSpent_amount}</Text> Tip: <Text style={{color: '#02843D'}}>{inRangeTip}%</Text></Text>
+                            <Text style={styles.accumInfoText}>days = Spend: <Text style={{color: '#02843D'}}>${inRangeSpent_amount}</Text> Tip: <Text style={{color: '#02843D'}}>{inRangeTip_amount}%</Text></Text>
                         </View>
                     </View>
                     <View style={styles.orderSectionBtns}>
@@ -1879,102 +1944,145 @@ const OrderItem = ({ orderItem, lifetimeSpent, inRangeSpent_days, setInRangeSpen
 //     );
 // }
 
-const PromptLogin = ({ navigation }) => {
+const OrderList = ({ ratingFilters, serviceProvider, from, to, navigation }) => {
 
-    return(
-        <View style={{width:'95%',height:'80%', borderRadius:20,backgroundColor:'#e8f1ff', marginTop:30,overflow:'hidden'}}>
-            <Text style={{color:'#4e4e4e', fontSize:23,textAlign:'center',marginVertical:20}}>Please Login or Register to begin viewing your PlateRate Orders</Text>
-            <Image 
-                source={require('../content/images/dummy_character.png')}
-                style={{height: 200,width: 250,alignSelf:'center'}}
-            />
-            <View style={{flexDirection:'column', width: 250, alignSelf:'center', marginTop:20}}>
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('WebView', { viewType: 'accountAccess', formType: 'login' })}
-                    style={{width:'100%',height:40,backgroundColor:'green',marginBottom:10,borderRadius:3,alignItems:'center',justifyContent:'center'}}
-                >
-                    <Text style={{fontSize:20,color:'#FFF'}}>Log In</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('WebView', { viewType: 'accountAccess', formType: 'register' })}
-                    style={{width:'100%',height:40,backgroundColor:'#ffe20b',borderRadius:3,alignItems:'center',justifyContent:'center'}}
-                >
-                    <Text style={{fontSize:20,color:'#000'}}>Register</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-    )
-}
-
-const OrderList = ({ userOrders, ratingFilters, serviceProvider, from, to, navigation }) => {
-
-    const [filteredOrders, setFilteredOrders] = useState([]);
-    const [lifetimeSpent, setLifeTimeSpent] = useState(null);
-    const [inRangeSpent_days, setInRangeSpent_days] = useState('90');
-    const [inRangeSpent_amount, setInRangeSpent_amount] = useState(null);
-    const [inRangeTip_amount, setInRangeTip_amount] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
+    const [userOrders, setUserOrders] = useState([]);
+    const [restaurantOrders, setRestaurantOrders] = useState([]);
+    const [isConnected, setIsConnected] = useState(null)
+    
+    const deviceConnection = NetInfo.useNetInfo();
 
-    const {userId} = useSelector(state => state.userReducer);
+    const {userId, userRestaurants} = useSelector(state => state.userReducer);
 
-    const filterOrders = async () => {
-        if(!userOrders.length) { return []; }
-        var selectedRatingFilters = [];
-        var filteredOrders = [];
-
-        ratingFilters.forEach((filterItem) => {
-            if(filterItem.selected)
-                selectedRatingFilters.push(filterItem.orderType);
-        })
-
-        userOrders.forEach((orderItem) => {
-            if(selectedRatingFilters.includes(orderItem.orderInfo.order_type) && withinRange(orderItem.orderInfo.order_placed_date, from, to))
-                filteredOrders.push(orderItem);
-        });
-
-        return filteredOrders;
+    const fetchOrders = async () => {
+        setUserOrders(await getUserFilteredOrders(userId, from, to, ratingFilters));
+        setRestaurantOrders(await getRestaurantOrders(userId, userRestaurants, from, to, ratingFilters));
     }
 
-    const calculateSpending = () => {
-        if(!userOrders.length) { return; }
-        var totalSpent = 0;
-        var inRangeSpent = 0;
-        var inRangeTip = 0;
-        var currentDate = new Date();
-        var priorDate = new Date(new Date().setDate(currentDate.getDate() - inRangeSpent_days));
+    const PromptLogin = () => {
 
-        userOrders.forEach((orderItem) => {
-            if(orderItem.orderInfo.state !== 'approved') { return; }
-            if(withinRange(orderItem.orderInfo.order_placed_date,priorDate, currentDate)){
-                inRangeSpent += orderItem.orderInfo.total_price;
-                inRangeTip += orderItem.orderTotal.tip;
-            }
-            totalSpent += orderItem.orderInfo.total_price;
-        })
-        setInRangeTip_amount(inRangeTip*100);
-        setLifeTimeSpent(totalSpent);
-        setInRangeSpent_amount(inRangeSpent);
+        return(
+            <View style={{width:'95%',height:'80%', borderRadius:20,backgroundColor:'#e8f1ff', marginTop:30,overflow:'hidden'}}>
+                <Text style={{color:'#4e4e4e', fontSize:23,textAlign:'center',marginVertical:20}}>Please Login or Register to begin viewing your PlateRate Orders</Text>
+                <Image 
+                    source={require('../content/images/dummy_character.png')}
+                    style={{height: 200,width: 250,alignSelf:'center'}}
+                />
+                <View style={{flexDirection:'column', width: 250, alignSelf:'center', marginTop:20}}>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('WebView', { viewType: 'accountAccess', formType: 'login' })}
+                        style={{width:'100%',height:40,backgroundColor:'green',marginBottom:10,borderRadius:3,alignItems:'center',justifyContent:'center'}}
+                    >
+                        <Text style={{fontSize:20,color:'#FFF'}}>Log In</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('WebView', { viewType: 'accountAccess', formType: 'register' })}
+                        style={{width:'100%',height:40,backgroundColor:'#ffe20b',borderRadius:3,alignItems:'center',justifyContent:'center'}}
+                    >
+                        <Text style={{fontSize:20,color:'#000'}}>Register</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        )
     }
+    
+    const PromptNoOrders = () => {
+        return(
+            <View style={{width:'95%',height:'80%', borderRadius:20,backgroundColor:'#e8f1ff', marginTop:30,overflow:'hidden'}}>
+                <Text style={{color:'#4e4e4e', fontSize:25,textAlign:'center',marginVertical:20,paddingHorizontal:30}}>You Don't Have Any Orders in Your PlateRate Account.</Text>
+                <OpenURLButton
+                    text={'Go make an order'}
+                    textStyle={{alignSelf:'center', fontSize:30, color:'#ffe20b',backgroundColor:'#02843d',borderRadius:4, paddingVertical:10,paddingHorizontal:5,marginTop:20}}
+                    url={'https://platerate.com'}
+                />
+            </View>
+        );
+    }
+    
+    const PromptNoConnection = () => {
+        return(
+            <View style={{width:'95%',height:'80%', borderRadius:20,backgroundColor:'#e8f1ff', marginTop:30,overflow:'hidden'}}>
+                <Wifi width={220} height={220} fill={'green'} style={{alignSelf:'center'}} />
+                <Text style={{fontSize:29,color:'#4b4b4b',textAlign:'center'}}>Failed to detect a network connection</Text>
+            </View>
+        );
+    }
+
+    useEffect(() => {
+        setRefreshing(true);
+        fetchOrders()
+        .then(() => setRefreshing(false));
+    },[ratingFilters,serviceProvider,from,to,userId]);
+
+    useEffect(() => {
+        setIsConnected(deviceConnection.isConnected);
+    },[deviceConnection]);
 
     const refreshOrders = React.useCallback(() => {
-        if(!userId) {return;}
-        console.log('makrer')
         setRefreshing(true);
-        getUserOrders()
+        fetchOrders()
         .then(() => setRefreshing(false));
     },[]);
 
-    useEffect(() => {
-        filterOrders()
-        .then(async filtered => {
-            setFilteredOrders(filtered);
-            calculateSpending();
-        })
-    }, [userOrders, ratingFilters, serviceProvider, from, to]);
+    // const filterOrders = async () => {
+    //     if(!userOrders.length) { return []; }
+    //     var selectedRatingFilters = [];
+    //     var filteredOrders = [];
 
-    useEffect(() => {
-        calculateSpending();
-    }, [inRangeSpent_days]);
+    //     ratingFilters.forEach((filterItem) => {
+    //         if(filterItem.selected)
+    //             selectedRatingFilters.push(filterItem.orderType);
+    //     })
+
+    //     userOrders.forEach((orderItem) => {
+    //         if(selectedRatingFilters.includes(orderItem.orderInfo.order_type) && withinRange(orderItem.orderInfo.order_placed_date, from, to))
+    //             filteredOrders.push(orderItem);
+    //     });
+
+    //     return filteredOrders;
+    // }
+
+    // const calculateSpending = () => {
+    //     if(!userOrders.length) { return; }
+    //     var totalSpent = 0;
+    //     var inRangeSpent = 0;
+    //     var inRangeTip = 0;
+    //     var currentDate = new Date();
+    //     var priorDate = new Date(new Date().setDate(currentDate.getDate() - inRangeSpent_days));
+
+    //     userOrders.forEach((orderItem) => {
+    //         if(orderItem.orderInfo.state !== 'approved') { return; }
+    //         if(withinRange(orderItem.orderInfo.order_placed_date,priorDate, currentDate)){
+    //             inRangeSpent += orderItem.orderInfo.total_price;
+    //             inRangeTip += orderItem.orderTotal.tip;
+    //         }
+    //         totalSpent += orderItem.orderInfo.total_price;
+    //     })
+    //     setInRangeTip_amount(inRangeTip*100);
+    //     setLifeTimeSpent(totalSpent);
+    //     setInRangeSpent_amount(inRangeSpent);
+    // }
+
+    // const refreshOrders = React.useCallback(() => {
+    //     if(!userId) {return;}
+    //     console.log('makrer')
+    //     setRefreshing(true);
+    //     getUserOrders()
+    //     .then(() => setRefreshing(false));
+    // },[]);
+
+    // useEffect(() => {
+    //     filterOrders()
+    //     .then(async filtered => {
+    //         setFilteredOrders(filtered);
+    //         calculateSpending();
+    //     })
+    // }, [userOrders, ratingFilters, serviceProvider, from, to]);
+
+    // useEffect(() => {
+    //     calculateSpending();
+    // }, [inRangeSpent_days]);
 
     return(
         <ScrollView
@@ -1987,25 +2095,32 @@ const OrderList = ({ userOrders, ratingFilters, serviceProvider, from, to, navig
                 />
             }
         >
-            {userId && (
-                filteredOrders.map(function(orderItem, index) {
-                    return(
-                        <OrderItem
-                            orderItem={orderItem}
-                            lifetimeSpent={lifetimeSpent}
-                            inRangeSpent_days={inRangeSpent_days}
-                            setInRangeSpent_days={setInRangeSpent_days}
-                            inRangeSpent_amount={inRangeSpent_amount}
-                            inRangeTip={inRangeTip_amount}
-                            key={index}
-                        />
-                    );
-                })
-            )}
-            {!userId && (
+            {userOrders.map(function(orderItem,index) {
+                return(
+                    <OrderItem
+                        orderItem={orderItem}
+                        key={index}
+                    />
+                );
+            })}
+            {restaurantOrders.map(function(orderItem, index) {
+                return(
+                    <OrderItem
+                        orderItem={orderItem}
+                        key={index}
+                    />
+                )
+            })}
+            {!userId && isConnected && (
                 <PromptLogin
                     navigation={navigation}
                 />
+            )}
+            {userId && isConnected && userOrders.length === 0 && (
+                <PromptNoOrders/>
+            )}
+            {!isConnected && (
+                <PromptNoConnection/>
             )}
         </ScrollView>
     );
@@ -2034,29 +2149,18 @@ export function HomeView({ navigation }) {
         }
     ]);
     const [provider, setProvider] = useState([]);
-    const [fromDate, setFromDate] = useState(null);
-    const [toDate, setToDate] = useState(null);
+    const [fromDate, setFromDate] = useState(new Date(new Date().setDate(new Date().getDate() - 30)));
+    const [toDate, setToDate] = useState(new Date());
     const [newOrders, setNewOrders] = useState([]);
 
-    const { userOrders, userRestaurants } = useSelector(state => state.userReducer);
+    const { userRestaurants } = useSelector(state => state.userReducer);
 
-    const getNewOrders = async () => {
-        if(!userRestaurants.length) { return; }
-
-        let allNewOrders = [];
-
-        for(var i = 0; i < userRestaurants.length; i++) {
-            let newOrders = await fetch(`https://platerate.com/restaurantadmin/getPersonReceiveNotificationNewOrder/${userRestaurants[i].venueId}`);
-            newOrders = await newOrders.json();
-            allNewOrders = allNewOrders.concat(newOrders.data);
-        }
-
-        setNewOrders(allNewOrders);
-    }
-    console.log(userRestaurants)
     useEffect(() => {
-        getNewOrders();
-    },[])
+        getNewOrders(userRestaurants)
+        .then(async (newOrders) => {
+            setNewOrders(newOrders);
+        })
+    },[userRestaurants]);
 
     return(
         <ScrollView contentContainerStyle={{flexGrow:1, justifyContent: 'space-between'}}>
@@ -2077,7 +2181,6 @@ export function HomeView({ navigation }) {
                 ratingFilters={ratingFilters}
                 serviceProvider={provider} 
                 from={fromDate} to={toDate}
-                userOrders={userOrders}
                 navigation={navigation}
             />
         </ScrollView>
