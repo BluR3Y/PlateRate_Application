@@ -7,7 +7,7 @@
 
 <!-- About the Project -->
 ## Introduction
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+PlateRate is a food rating and delivery service application that aims at helping restaurants become as profitable as possible, focuses on assisting PlateRate team members to acquire valuable skillsets in various desired career paths, and strives to provide the ultimate dining experience.
 
 **Available for both iOS and Android.**
 <p>
@@ -17,13 +17,18 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 <!-- Application Features -->
 ## Features
 
-A few of the things you can do with PlateRate:
+Features tailored to restaurants:
+* Customize restaurant landing page with countless customization options
+* Ability for fine-grained structuring of menus and dining options
+* Ability to track and delegate different tasks in the food preparation method
 
-* Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-* Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-* Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-* Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-* Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+Features tailored to customers:
+* Choose to order/dine from a large selection of restaurants near you
+* Get instant updates on your orders:
+  * status
+  * delivery person
+  * transactions
+* Make reservations to restaurants with fine-grained customization options
 
 <!-- Build Instructions -->
 ## Build Process
