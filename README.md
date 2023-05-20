@@ -29,6 +29,3 @@ Features tailored to customers:
   * delivery person
   * transactions
 * Make reservations to restaurants with fine-grained customization options
-
-<!-- Build Instructions -->
-## Build Process
