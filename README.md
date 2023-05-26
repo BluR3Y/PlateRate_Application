@@ -7,7 +7,7 @@
 
 <!-- About the Project -->
 ## Introduction
-PlateRate is a food rating and delivery service application that aims at helping restaurants become as profitable as possible, focuses on assisting PlateRate team members to acquire valuable skillsets in various desired career paths, and strives to provide the ultimate dining experience.
+The PlateRate mobile application endeavors to offer restaurant proprietors and patrons a sophisticated platform for accessing comprehensive order details and streamlined delivery services. Leveraging cutting-edge APIs that power the web version, the PlateRate mobile application empowers users with a diverse array of tailor-made features catering to the specific needs of both restaurant owners and customers.
 
 **Available for both iOS and Android.**
 <p>
