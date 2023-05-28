@@ -11,7 +11,7 @@ The PlateRate mobile application endeavors to offer restaurant proprietors and p
 
 **Available for both iOS and Android.**
 <p>
-  <img alt="Screenshot" title="Screenshot" src="https://reyhector.com/Images/Projects/Project5.png">  
+  <img alt="Screenshot" title="Screenshot" src="https://reyhector.com/Images/Projects/Project6.png">  
 </p>
 
 <!-- Application Features -->
